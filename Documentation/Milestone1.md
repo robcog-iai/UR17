@@ -11,8 +11,8 @@
 * I will explain what each class does
 * I will link images (or videos/gifs) to showcase the work
   * the images can be upladed here `Documentation/Img`
-  * and can be linked like this as jpg ![](Documentation/Img/Octocat.jpg "Img example")
-  * and like this as png ![](Documentation/Img/Octocat.png "Img example")
+  * and can be linked like this as jpg ![](Img/Octocat.jpg "Img example")
+  * and like this as png ![](Img/Octocat.png "Img example")
 * I will explain the main functionalities
 * link to external useful tutorials/forums from where I learned
   
