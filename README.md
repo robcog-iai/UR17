@@ -10,3 +10,36 @@ Unreal Robots master project repository
 * the pull request (if containing source code) should be contained in a plugin, e.g. `\Plugins\MyPlugin`
 * the pull request (if containing new uassets, e.g. meshes, etc.) can be done on the project directly, it should however include the 3D mesh files as well in `.fbx` and `.dae` format in the folder `\Documentation\Meshes`
 
+----
+
+# Every project will maintain its `README.md` as follows:
+
+----
+
+# UR17 - PX
+
+### Members
+
+* Bender Rodriguez
+* Turanga Leela
+
+### Project description
+
+* 2-3 lines describing the project
+
+### Milestones
+
+* [Milestone1](Documentation/Milestone1.md)
+* [Milestone2](Documentation/Milestone1.md)
+
+### Documentation
+
+* Documentation of the project of when it is **finalized**, written in the `Documentation/Documentation.md` file
+* This should basically be a combination of all the milestone descriptions
+* The above bulletpoints should obviously removed in the pull request, and replaced with something like: The documentation of the project can be found [here](Documentation/Documentation.md).
+
+### Tutorial
+
+* Documentation of the project of when it is **finalized**, written in the `Documentation/Tutorial.md` file
+* Again combination of all the milestone tutorials
+* The above bulletpoints should obviously removed in the pull request, and replaced with something like: Tutorials for testing the project can be found [here](Documentation/Tutorial.md).
