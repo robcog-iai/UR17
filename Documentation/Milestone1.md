@@ -1,9 +1,8 @@
 # Milestone 1 - deadline 31.12.17
 
+* describe in bullet points the todos for the milestones
 * create this and that
 * this as well
-* don't forget that
-* 3 times this
 
 # Documentation
 
