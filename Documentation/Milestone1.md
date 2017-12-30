@@ -36,3 +36,9 @@ Full arm tracking using only VR devices (Oculus or HTC Vive).
 ![](./Img/AnimClass.png)
 
 - Place the blueprint in the world and hit play.
+
+# Additional Blueprints:
+
+- The IKPawn blueprint was our first blueprint and was made following the instructions of a turotial
+- http://www.informit.com/articles/article.aspx?p=2767093
+- The blueprint was included since it's a good example of accurate tracking and is a decent comparison when adjusting constrains for the new mesh
