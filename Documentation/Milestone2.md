@@ -58,4 +58,5 @@
   ```
 # Tutorial
 
-* The functionality can easily be tested by picking up an object in the game and pressing the tab button. Afterwards it is possible to rotated the object with horizontal and vertical movments of the mouse. ![](Img/RotatedObjects.PNG "Objects rotated randomly.")
+* The functionality can easily be tested by picking up an object in the game and pressing the tab button. Afterwards it is possible to rotated the object with horizontal and vertical movments of the mouse. At the moment the left or right mouse button have to be pressed before the rotation stiwches to the hold object. So if the left hand holds an object it is needed to press te left mouse button and afterwards the tab button to rotate the object. This will be fixed in the next iteration.
+![](Img/RotatedObjects.PNG "Objects rotated randomly.")
