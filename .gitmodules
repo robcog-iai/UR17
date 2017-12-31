@@ -1,0 +1,6 @@
+[submodule "USemLog"]
+	path = USemLog
+	url = https://github.com/robcog-iai/USemLog.git
+[submodule "UTags"]
+	path = UTags
+	url = https://github.com/robcog-iai/UTags
