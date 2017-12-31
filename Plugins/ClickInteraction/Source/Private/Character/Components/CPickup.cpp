@@ -140,12 +140,6 @@ void UCPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 			OnInteractionKeyHold(false);
 		}
 	}
-	if (RotationValue == 1) {
-
-	}
-	else if (RotationValue == 2) {
-
-	}
 }
 
 void UCPickup::StartPickup()
