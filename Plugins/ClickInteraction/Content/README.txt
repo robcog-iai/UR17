@@ -1,0 +1,1 @@
+Copy the folder ClickInteractions to your content folder
