@@ -8,9 +8,7 @@ class FSlicingEditorActionCallbacks
 {
 public:
 	/** Static mesh editor */
-	static void CreateBlade();
-	static void CreateCuttingExitpoint();
-	static void ShowSlicingElements();
+	static void ShowInstructions();
 
 	/** Level editor debug options */
 	static void OnEnableDebugConsoleOutput(bool* bButtonValue);
@@ -19,6 +17,10 @@ public:
 	static bool OnIsEnableDebugShowPlaneEnabled(bool* bButtonValue);
 	static void OnEnableDebugShowTrajectory(bool* bButtonValue);
 	static bool OnIsEnableDebugShowTrajectoryEnabled(bool* bButtonValue);
-	static void ReplaceSocketsWithUseableComponents();
-};
 
+	/** Level editor helper functions */
+	//* Replaces the marked sockets of a selected StaticMeshComponent to Components that can be used for slicing
+	static void ReplaceSocketsWithComponents();
+	//* Replaces the marked sockets of ALL StaticMeshComponents to Components that can be used for slicing
+	static void ReplaceSocketsOfAllStaticMeshComponents();
+};

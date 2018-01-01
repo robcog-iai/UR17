@@ -12,17 +12,7 @@
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
 
-void FSlicingEditorActionCallbacks::CreateBlade()
-{
-	UE_LOG(LogTemp, Warning, TEXT("CREATED BLADE"));
-}
-
-void FSlicingEditorActionCallbacks::CreateCuttingExitpoint()
-{
-	UE_LOG(LogTemp, Warning, TEXT("CREATED CUTTING EXITPOINT"));
-}
-
-void FSlicingEditorActionCallbacks::ShowSlicingElements()
+void FSlicingEditorActionCallbacks::ShowInstructions()
 {
 	UE_LOG(LogTemp, Warning, TEXT("TOGGLED SLICING ELEMENTS SHOWN"));
 }
@@ -57,7 +47,7 @@ bool FSlicingEditorActionCallbacks::OnIsEnableDebugShowTrajectoryEnabled(bool* b
 	return *bButtonValue;
 }
 
-void FSlicingEditorActionCallbacks::ReplaceSocketsWithUseableComponents()
+void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 {
 	USelection* Selection = GEditor->GetSelectedComponents();
 	UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Selection->GetSelectedObject(0));
@@ -87,6 +77,11 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithUseableComponents()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Null Error in Box Creation"));
 	}
+}
+
+void FSlicingEditorActionCallbacks::ReplaceSocketsOfAllStaticMeshComponents()
+{
+	// To be implemented in the future
 }
 
 #undef LOCTEXT_NAMESPACE
