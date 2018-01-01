@@ -6,9 +6,9 @@
 #include "StaticMeshEditorActions.h"
 #include "StaticMeshEditorModule.h"
 #include "Editor.h"
-#include "Object.h"
 #include "Components/BoxComponent.h"
 #include "Engine/Selection.h"
+#include "SlicingEditorLogicBox.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
 
@@ -66,17 +66,24 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithUseableComponents()
 		if (Mesh->ComponentHasTag(FName("Knife")))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Has Sockets = Success"));
-			UBoxComponent* HandleBox = NewObject<UBoxComponent>(Mesh,FName("Handle"));
+
+			SlicingEditorLogicBox* HandleBox = NewObject<SlicingEditorLogicBox>(Mesh,FName("Handle"));
 			HandleBox->RegisterComponent();
 			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Handle"));
 			HandleBox->SetWorldLocation(Mesh->GetSocketLocation("Handle"));
 			HandleBox->SetBoxExtent(Mesh->GetSocketTransform(FName("Handle")).GetScale3D());
 
-			/*UBoxComponent* BladeBox = NewObject<UBoxComponent>();
-			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Blade"));
+			SlicingEditorLogicBox* BladeBox = NewObject<SlicingEditorLogicBox>(Mesh, FName("BladeBox"));
+			BladeBox->RegisterComponent();
+			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("BladeBox"));
+			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
+			BladeBox->SetBoxExtent(Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D());
 
-			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>();
-			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpoint"));*/
+			SlicingEditorLogicBox* CuttingExitpointBox = NewObject<SlicingEditorLogicBox>();
+			CuttingExitpointBox->RegisterComponent();
+			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpointBox"));
+			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation("CuttingExitpointBox"));
+			CuttingExitpointBox->SetBoxExtent(Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D());
 		} 
 		else
 		{
