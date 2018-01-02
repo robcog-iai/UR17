@@ -57,7 +57,7 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Has Sockets = Success"));
 
-			SlicingEditorLogicBox* HandleBox = NewObject<SlicingEditorLogicBox>(Mesh,FName("Handle"));
+			UBoxComponent* HandleBox = NewObject<UBoxComponent>(Mesh,FName("Handle"));
 			HandleBox->RegisterComponent();
 			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Handle"));
 			HandleBox->SetWorldLocation(Mesh->GetSocketLocation("Handle"));
@@ -69,7 +69,7 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
 			BladeBox->SetBoxExtent(Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D());
 
-			SlicingEditorLogicBox* CuttingExitpointBox = NewObject<SlicingEditorLogicBox>();
+			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>();
 			CuttingExitpointBox->RegisterComponent();
 			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation("CuttingExitpointBox"));

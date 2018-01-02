@@ -29,8 +29,9 @@ public class SlicingEditor: ModuleRules
 			{
 				"Core",
                 "StaticMeshEditor",
-                "SlicingLogic"
-			}
+                "SlicingLogic",
+                "ProceduralMeshComponent"
+            }
 		);
 
         // Private dependencies that are statically linked

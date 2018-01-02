@@ -7,7 +7,6 @@
 class FSlicingEditorActionCallbacks
 {
 public:
-	bool* bPlaneDebug = false;
 
 	/** Static mesh editor */
 	static void ShowInstructions();
