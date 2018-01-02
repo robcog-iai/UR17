@@ -9,12 +9,20 @@
 #include "Components/BoxComponent.h"
 #include "Engine/Selection.h"
 #include "SlicingEditorLogicBox.h"
+#include "Core.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
 
 void FSlicingEditorActionCallbacks::ShowInstructions()
 {
-	UE_LOG(LogTemp, Warning, TEXT("TOGGLED SLICING ELEMENTS SHOWN"));
+	FMessageDialog* Instructions = new FMessageDialog();
+	const FText InstructionsTitle =
+		LOCTEXT("SlicingInstructions_Title", "Instructions to edit an object to be able to slice");
+
+	Instructions->Debugf(
+		LOCTEXT("SlicingInstructions", "To alter an object to be able to slice other objects, the user needs to create multiple Sockets on the position - and with the size of - certain areas needed for cutting objects. These sockets need specific names to specify the area they are used for.\n\nCutting Blade: ...\nCutting Handle: ...\nCutting Exitpoint: ..."),
+		&InstructionsTitle
+	);
 }
 
 void FSlicingEditorActionCallbacks::OnEnableDebugConsoleOutput(bool* bButtonValue)
