@@ -299,7 +299,38 @@ struct FTagStatics
 
 
 	///////////////////////////////////////////////////////////////////////////
-	
+	// Get all objects (actor and actor components) to tag key value pairs from world
+	static TMap<UObject*, TMap<FString, FString>> GetObjectsToKeyValuePairs(UWorld* World, const FString& TagType)
+	{
+		// Map of actors to their tag properties
+		TMap<UObject*, TMap<FString, FString>> ObjectToTagProperties;
+		// Iterate all actors
+		for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+		{
+			const TMap<FString, FString> ActorTagProperties =
+				FTagStatics::GetKeyValuePairs(ActorItr->Tags, TagType);
+			// If actor has tag type and at least one property
+			if (ActorTagProperties.Num() > 0)
+			{
+				ObjectToTagProperties.Emplace(*ActorItr, ActorTagProperties);
+			}
+
+			// Iterate components of the actor
+			for (const auto& CompItr : ActorItr->GetComponents())
+			{
+				const TMap<FString, FString> CompTagProperties =
+					FTagStatics::GetKeyValuePairs(CompItr->ComponentTags, TagType);
+				// If tag type has at least one property
+				if (CompTagProperties.Num() > 0)
+				{
+					ObjectToTagProperties.Emplace(CompItr, CompTagProperties);
+				}
+			}
+		}
+		return ObjectToTagProperties;
+	}
+
+
 	// Get all actors to tag key value pairs from world
 	static TMap<AActor*, TMap<FString, FString>> GetActorsToKeyValuePairs(UWorld* World, const FString& TagType)
 	{
