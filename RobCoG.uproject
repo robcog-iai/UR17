@@ -7,7 +7,21 @@
 		{
 			"Name": "RobCoG",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ClickInteraction",
+			"Enabled": true
+		},
+		{
+			"Name": "USemLog",
+			"Enabled": true,
+			"MarketplaceURL": "http://robcog.org/"
 		}
 	]
 }
