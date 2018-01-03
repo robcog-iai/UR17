@@ -144,7 +144,7 @@ void ACharacterController::Tick(float DeltaTime)
 			angleY = 360 - angleX;
 		}
 
-		FRotator rot(angleY, -angleX, 0);
+		FRotator rot(angleY, angleX, 0);
 		if (PickupComponent->RotationValue == 1) {
 			PickupComponent->ItemInLeftHand->SetActorRotation(rot);
 		}
