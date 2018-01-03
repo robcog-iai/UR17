@@ -69,19 +69,22 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 			HandleBox->RegisterComponent();
 			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Handle"));
 			HandleBox->SetWorldLocation(Mesh->GetSocketLocation("Handle"));
-			HandleBox->SetBoxExtent(Mesh->GetSocketTransform(FName("Handle")).GetScale3D());
+			HandleBox->SetBoxExtent(FVector(5, 5, 5));
+			HandleBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("Handle")).GetScale3D());
 
 			SlicingEditorLogicBox* BladeBox = NewObject<SlicingEditorLogicBox>(Mesh, FName("BladeBox"));
 			BladeBox->RegisterComponent();
 			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("BladeBox"));
 			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
-			BladeBox->SetBoxExtent(Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D());
+			BladeBox->SetBoxExtent(FVector(5, 5, 5));
+			BladeBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D());
 
-			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>();
+			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>(Mesh, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->RegisterComponent();
 			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation("CuttingExitpointBox"));
-			CuttingExitpointBox->SetBoxExtent(Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D());
+			CuttingExitpointBox->SetBoxExtent(FVector(5, 5, 5));
+			CuttingExitpointBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D());
 		} 
 		else
 		{

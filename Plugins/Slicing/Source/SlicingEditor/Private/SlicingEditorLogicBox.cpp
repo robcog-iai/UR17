@@ -18,7 +18,11 @@
 SlicingEditorLogicBox::SlicingEditorLogicBox()
 {
 	this->GetAttachmentRoot()->PrimaryComponentTick.bCanEverTick = true;
+	this->GetAttachmentRoot()->PrimaryComponentTick.bStartWithTickEnabled = true;
+	this->GetAttachmentRoot()->SetComponentTickEnabled(true);
 	this->PrimaryComponentTick.bCanEverTick = true;
+	this->PrimaryComponentTick.bStartWithTickEnabled = true;
+	this->SetComponentTickEnabled(true);
 	this->OnComponentBeginOverlap.AddDynamic(this, &SlicingEditorLogicBox::OnBladeBeginOverlap);
 	this->OnComponentEndOverlap.AddDynamic(this, &SlicingEditorLogicBox::OnBladeEndOverlap);
 }
@@ -30,6 +34,7 @@ void SlicingEditorLogicBox::TickComponent(float DeltaTime, ELevelTick TickType, 
 	FSlicingLogicModule& SlicingLogicModule =
 		FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
 
+	UE_LOG(LogTemp, Warning, TEXT("Ticking?"));
 	if (SlicingLogicModule.bEnableDebugShowPlane)
 	{
 		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), FColor::Green);
