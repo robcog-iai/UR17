@@ -10,4 +10,4 @@ In this example we use the **SM_Knife_Table**. Double click on it in the
 
 In the top bottom should be a tab called **Socket Manager**. Press the button
 and add three sockets named **BladeBox**, **Handle** and **CuttingExitpointBox**.
-It should look like this: [TutorialPic1](TutorialPictures/1.PNG)
+It should look like this: ![TutorialPic1](TutorialPictures/1.PNG)
