@@ -1,8 +1,8 @@
 # Milestone1
 
 * Optimize object from the YCB Benchmark list in Blender
-* Scan 1/2 Objects
 * Add Objects to Unreal
+* Scan 1/2 Objects
 * Improve lightning a bit
 * Optimize some furniture so it has a one-to-one mapping with real furniture
 
@@ -13,4 +13,12 @@
   * Fixed holes
   * Smooth objects
   * Repair some texture issues
+  ![](Img/Banane.png "Finished object")
   * Add hitboxes
+  ![](Img/Banane_hitbox.png "Object with hitbox")
+  
+* Imported the fbx files in Unreal Engine 4
+ * Activated and tested hitboxes in Unreal
+ * tested visuals and lightning of the objects
+ * create mesh, texture and material
+ ![](Img/banana_unreal.png "Object in Unreal")
