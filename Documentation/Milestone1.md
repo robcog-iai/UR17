@@ -13,6 +13,7 @@
   * Fixed holes
   * Smooth objects
   * Repair some texture issues
+  * centered and rotate objects to standarts
   ![](Img/Banane.png "Finished object")
   * Add hitboxes
   ![](Img/Banane_hitbox.png "Object with hitbox")
@@ -27,3 +28,13 @@
  * Old object has too high quality to reduce to our standarts, caused from merging too many different scans
  * Some parts of the new object are not be detected from the scanner so they had to be fixed by hand
  ![](Img/merge_finish.JPG "Merge the meshes")
+ 
+* One-to-one mapping of some furniture
+  * measured the handles in the kitchen
+  * modeled handles in Blender for every needed length
+  ![](Img/handle.png "handle in blender")
+  
+* Not reached goals and subgoals
+ * Some objects in the list had too many issues to work with them
+ * Spent too much time trying to repair defect objects so there was not enough time to optimize lightning
+ ![](Img/windex_bottle.png "Defect object")
