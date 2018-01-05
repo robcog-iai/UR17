@@ -35,9 +35,9 @@ These are all currently implemented Features you're able to use in projects.
 
 * In the Unreal Editor there are now two new toolbar buttons that appear if the Slicing plugin is loaded in the project.
   * One is seen in the Static Mesh Editor that gets opened if one selects any already existing static mesh and edits it. This button is only used as a tutorial for the user, so that he knows what he should be doing for the cutting to be working. The user would need to create new sockets in this editor, which would then be converted in the next toolbar button.
-    * ![Static Mesh Editor](Documentation/StaticMeshEditorButton.png)
+    * ![Static Mesh Editor](DocumentationPictures/StaticMeshEditorButton.png)
   * The other toolbar button is seen in the Level Editor that one sees when the Unreal Editor starts up. It has a drop-down menu in which it's possible to change the debug-options to be enabled/disabled. Another important button in the drop-down menu is the conversion of the sockets that were previously created. This is needed to actually change object in the world, compared to just the templates (aka the static meshes).
-    * ![Level Editor](Documentation/LevelEditorButton.png)
+    * ![Level Editor](DocumentationPictures/LevelEditorButton.png)
   * A good start to find out how to extend the Unreal Editor is found here: https://www.youtube.com/watch?v=zg_VstBxDi8
 * There are 4 classes that were created:
   * FSlicingEditorModule
@@ -144,11 +144,9 @@ StaticMeshComponent click on ***Generate Overlap Event***.
 
 ### UI elements:
 
-* ...
-
-### Editing of an existing static mesh:
-
-* ...
+* In the final version, there are only two toolbar-buttons that are added by our plugin. One Button in the StaticMeshEditor and one in the LevelEditor.
+  * To test the button in the StaticMeshEditor toolbar, the user has to select a StaticMesh in the "Content Browser", right-click it and select "Edit" in the context-menu. After this, the user will see the StaticMeshEditor and will see a new Button with the title "Show Slicing Instructions" in the toolbar. Clicking on it will open up the Pop-up window with the instructions.
+  * Because the user would always start in the LevelEditor if he opens the Unreal Editor, the user only has to press the toolbar button "Slicing Options" to see the button in the LevelEditor toolbar. If one clicks on any of the debug-options, the boxes next to the options get selected/deselected. The socket conversion button was already tested/used in the previous tutorial.
 
 ### Testing the debug options:
 
