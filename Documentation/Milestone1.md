@@ -157,15 +157,25 @@ StaticMeshComponent click on ***Generate Overlap Event***.
 
 ***Now that object is Cuttable.***
 
+## Activating Debug
+
+### Step 1: Click on Slicing Options
+
+Just as in ***Step 3: Spawn the boxes in the Editor*** in the ***Creating a new Knife***,
+we open up the Slicing-Options Button by pressing on it. There should be now several checkboxes.
+
+### Step 2: Check the Check Box
+
+Now click on one of these check boxes. This will enable the debug functions in the LogicComponents
+of the Knife which causes, varrying results on the choosen box, to either draw a plane, showing
+the plane of the cut, and box, showing the LogicComponent, hava a plane trail follow behind to see
+where you've been before in the last few seconds or simply ommiting Debug Messages the whole time.
+
 ### UI elements:
 
 * In the final version, there are only two toolbar-buttons that are added by our plugin. One Button in the StaticMeshEditor and one in the LevelEditor.
   * To test the button in the StaticMeshEditor toolbar, the user has to select a StaticMesh in the "Content Browser", right-click it and select "Edit" in the context-menu. After this, the user will see the StaticMeshEditor and will see a new Button with the title "Show Slicing Instructions" in the toolbar. Clicking on it will open up the Pop-up window with the instructions.
   * Because the user would always start in the LevelEditor if he opens the Unreal Editor, the user only has to press the toolbar button "Slicing Options" to see the button in the LevelEditor toolbar. If one clicks on any of the debug-options, the boxes next to the options get selected/deselected. The socket conversion button was already tested/used in the previous tutorial.
-
-### Testing the debug options:
-
-* ...
 
 	
 # Todos

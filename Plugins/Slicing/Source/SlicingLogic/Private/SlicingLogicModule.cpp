@@ -20,7 +20,7 @@ void FSlicingLogicModule::ShutdownModule()
 {
 	// Empty as of right now
 }
-
+/*
 void FSlicingLogicModule::SetMaterialForSection(UMaterialInterface* InputMaterial)
 {
 	if (InputMaterial == NULL) return;
@@ -57,16 +57,6 @@ void FSlicingLogicModule::CutGivenComponent(UPrimitiveComponent* InputComponent,
 {
 	UProceduralMeshComponent* OutputProceduralMesh;
 
-	/*
-	Input SliceProcedural Mesh
-	1. The Component which will be cut
-	2. Planeposition - Start Position des schneidenen Planes
-	3. PlaneNormal - Richtung in welcher die Flache Fläche zeigt
-	4. CreateOtherHalf - Erstellt eine neue Hälfte nach dem Schnitt falls true
-	5. ProceduralMeshCompoenent Reference auf welchen die zweite Hälfte drauf gepackt wird.
-	6. EProcmeshSliceCapOption Optionen für die neuen Flächen
-	7. Texturen der neuen Flächen falls richtige Option in 6
-	*/
 	UKismetProceduralMeshLibrary::SliceProceduralMesh(
 		(UProceduralMeshComponent*)InputComponent,
 		PlanePosition,
@@ -77,6 +67,7 @@ void FSlicingLogicModule::CutGivenComponent(UPrimitiveComponent* InputComponent,
 		MaterialReferenceNewSection
 	);
 }
+*/
 
 #undef LOCTEXT_NAMESPACE
 

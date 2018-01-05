@@ -26,7 +26,7 @@ public:
 	bool bDebugPrintText = false;
 	bool bDebugShowPlane = false;
 	bool bDebugShowWay = false;
-
+	/*
 	void SetMaterialForSection(UMaterialInterface* InputTexture);
 
 private:
@@ -34,4 +34,5 @@ private:
 
 	void ConvertToProceduralMeshComponent(UPrimitiveComponent* ReferencedComponent);
 	void CutGivenComponent(UPrimitiveComponent* ReferencedComponent, FVector PlanePosition, FVector PlaneNormal);
+	*/
 };
