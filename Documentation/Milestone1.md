@@ -26,4 +26,4 @@
 * Scanned a new object and a defect old one
  * Old object has too high quality to reduce to our standarts, caused from merging too many different scans
  * Some parts of the new object are not be detected from the scanner so they had to be fixed by hand
- ![](Img/banana_unreal.png "Object in Unreal")
+ ![](Img/merge_finish.JPG "Merge the meshes")
