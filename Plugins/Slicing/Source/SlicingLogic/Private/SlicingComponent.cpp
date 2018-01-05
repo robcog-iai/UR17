@@ -41,13 +41,12 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	FSlicingLogicModule& SlicingLogicModule =
 		FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
 
-	UE_LOG(LogTemp, Warning, TEXT("Ticking?"));
 	if (SlicingLogicModule.bEnableDebugShowPlane)
 	{
 		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), FColor::Green);
 
-		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetUpVector()),
-			this->GetAttachmentRoot()->GetComponentLocation(), FVector2D(3, 3), FColor::Red, false, 0.1f);
+		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
+			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.1f);
 	}
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
@@ -57,7 +56,8 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if (SlicingLogicModule.bEnableDebugShowTrajectory)
 	{
-
+		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
+			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Blue, false, 2.0f);
 	}
 }
 
