@@ -1,37 +1,42 @@
-#include "SlicingEditorLogicBox.h"
+// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
 
-#include "Tickable.h"
-
-#include "SlicingEditorActionCallbacks.h"
+#include "SlicingComponent.h"
 #include "SlicingLogicModule.h"
+
+#include "DrawDebugHelpers.h"
 
 #include "Engine/StaticMesh.h"
 #include "Components/BoxComponent.h"
-#include "Components/StaticMeshComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
-#include "DrawDebugHelpers.h"
 
-
-
-
-SlicingEditorLogicBox::SlicingEditorLogicBox()
+USlicingComponent::USlicingComponent()
 {
-	UE_LOG(LogTemp, Warning, TEXT("CONSTRUCTOR!?"));
-	
-	this->GetAttachmentRoot()->PrimaryComponentTick.bCanEverTick = true;
-	this->GetAttachmentRoot()->PrimaryComponentTick.bStartWithTickEnabled = true;
-	this->GetAttachmentRoot()->SetComponentTickEnabled(true);
-	this->PrimaryComponentTick.bCanEverTick = true;
-	this->PrimaryComponentTick.bStartWithTickEnabled = true;
-	this->SetComponentTickEnabled(true);
-	this->OnComponentBeginOverlap.AddDynamic(this, &SlicingEditorLogicBox::OnBladeBeginOverlap);
-	this->OnComponentEndOverlap.AddDynamic(this, &SlicingEditorLogicBox::OnBladeEndOverlap);
+	// Needed if one wants to use the TickComponent function
+	PrimaryComponentTick.bCanEverTick = true;
+	// Needed if one wants to use the InitializeComponent function
+	bWantsInitializeComponent = true;
+
+	// Register the logic functions
+	OnComponentBeginOverlap.AddDynamic(this, &USlicingComponent::OnBladeBeginOverlap);
+	OnComponentEndOverlap.AddDynamic(this, &USlicingComponent::OnBladeEndOverlap);
 }
 
-void SlicingEditorLogicBox::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
+void USlicingComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+}
+
+void USlicingComponent::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
 	//* Needed for the debug option booleans
 	FSlicingLogicModule& SlicingLogicModule =
 		FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
@@ -42,7 +47,7 @@ void SlicingEditorLogicBox::TickComponent(float DeltaTime, ELevelTick TickType, 
 		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), FColor::Green);
 
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetUpVector()),
-			this->GetAttachmentRoot()->GetComponentLocation(),FVector2D(3,3),FColor::Red,false,0.1f);
+			this->GetAttachmentRoot()->GetComponentLocation(), FVector2D(3, 3), FColor::Red, false, 0.1f);
 	}
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
@@ -56,23 +61,18 @@ void SlicingEditorLogicBox::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 }
 
-void SlicingEditorLogicBox::OnBladeBeginOverlap(
-	UPrimitiveComponent* OverlappedComp,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult
-)
+void USlicingComponent::OnBladeBeginOverlap(
+	UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	/*
-		Converting the given Component to Procedural Mesh Component
+	Converting the given Component to Procedural Mesh Component
 	*/
 	UPrimitiveComponent* ReferencedComponent = OtherComp;
 	if (ReferencedComponent != nullptr  && ReferencedComponent != NULL)
 	{
 		// In case the Component is a StaticMeshComponent, uses following to make a ProceduralMeshComponent
-		if (ReferencedComponent->GetClass() == UStaticMeshComponent::StaticClass()  
+		if (ReferencedComponent->GetClass() == UStaticMeshComponent::StaticClass()
 			&& ((UStaticMeshComponent*)ReferencedComponent)->GetStaticMesh())
 		{
 			((UStaticMeshComponent*)ReferencedComponent)->GetStaticMesh()->bAllowCPUAccess = true;
@@ -95,15 +95,13 @@ void SlicingEditorLogicBox::OnBladeBeginOverlap(
 		UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 		Parent->SetSimulatePhysics(false);
 		Parent->SetCollisionProfileName(FName("OverlapAll"));
-
 	}
 }
 
-void SlicingEditorLogicBox::OnBladeEndOverlap(
+void USlicingComponent::OnBladeEndOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
 	UProceduralMeshComponent* OutputProceduralMesh;
 
 	UKismetProceduralMeshLibrary::SliceProceduralMesh(

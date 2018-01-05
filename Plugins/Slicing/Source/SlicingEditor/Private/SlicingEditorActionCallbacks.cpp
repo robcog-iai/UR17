@@ -9,6 +9,7 @@
 #include "Components/BoxComponent.h"
 #include "Engine/Selection.h"
 #include "SlicingEditorLogicBox.h"
+#include "SlicingComponent.h"
 #include "Core.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
@@ -72,7 +73,7 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 			HandleBox->SetBoxExtent(FVector(5, 5, 5));
 			HandleBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("Handle")).GetScale3D());
 
-			SlicingEditorLogicBox* BladeBox = NewObject<SlicingEditorLogicBox>(Mesh, FName("BladeBox"));
+			USlicingComponent* BladeBox = NewObject<USlicingComponent>(Mesh, FName("BladeBox"));
 			BladeBox->RegisterComponent();
 			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("BladeBox"));
 			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
