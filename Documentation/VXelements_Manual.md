@@ -6,8 +6,7 @@ This guide is intended to facilitate the software and scans of objects. These in
 
  * Since a finished scan always contains perturbation objects that appear in the form of the background surface or other unwanted spatial objects, attention must be paid to the positioning of the object. If the object to be scanned lies directly on the background surface, it must be painstakingly removed in the subsequent reworking. In order to facilitate the rework, the object should only have direct contact with transparent surface, since transparent surface (such as glasses) are not perceived by the scanner and thus allow the object to float. ![](VXelements_pics/Glas.jpg "glastrick")
 
- * In addition, the objects should also be marked with Maker. Again, it must be reiterated that no patterns occur multiple times. Otherwise it is important to work
-with the objects and the objects should not have any fixpoints. 
+ * In addition, the objects should also be marked with Maker. Again, care must be taken to ensure that no patterns occur multiple times. Especially important is the loading of markers for large objects and objects that have no special fixed points.
 
 After the preparations have been done scanning can be started. To do this, the scanner is connected to a PC and the software Vxelements is started. After starting the program, you can press the Start button directly without making any further settings (see picture).
 To ensure the scanner is properly calibrated, it should be calibrated before scanning. To do this, press the Scanner calibration button (see picture). After pressing the button, a new window is created in which several dimension displays for calibration are displayed (see picture). Calibration is performed with the calibration board attached to the scanner (see picture). To calibrate, all displays must be kept in their respective green areas.
