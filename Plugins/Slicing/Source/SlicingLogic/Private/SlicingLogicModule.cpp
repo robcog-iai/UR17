@@ -13,47 +13,12 @@
 
 void FSlicingLogicModule::StartupModule()
 {
-	FSlicingLogicModule::TestingThisShit();
+	// Empty as of right now
 }
 
 void FSlicingLogicModule::ShutdownModule()
 {
 	// Empty as of right now
-}
-
-void FSlicingLogicModule::TestingThisShit()
-{
-	if (bEnableDebugConsoleOutput)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("BOOLEAN WAS READ [TRUE]"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("BOOLEAN WAS READ [FALSE]"));
-	}
-}
-
-// InputComponent being the blade to debug.
-void FSlicingLogicModule::Debug(UPrimitiveComponent* InputBladeComponent)
-{
-	if (bEnableDebugConsoleOutput)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Debug: == Pending =="));
-	}
-
-	if (false) //FSlicingEditorModule::bEnableDebugShowPlane
-	{
-		DrawDebugSolidPlane(InputBladeComponent->GetWorld(), FPlane(2,2,2,0),
-			FVector(InputBladeComponent->GetComponentLocation()),
-			1.0f,
-			FColor::Red);
-	}
-
-	// TODO
-	if (false) //FSlicingEditorModule::bEnableDebugShowTrajectory
-	{
-
-	}
 }
 
 void FSlicingLogicModule::SetMaterialForSection(UMaterialInterface* InputMaterial)

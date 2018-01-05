@@ -1,6 +1,7 @@
 // Copyright 2017, Institute for Artificial Intelligence
 
 #include "SlicingEditorStyle.h"
+
 #include "Styling/SlateStyleRegistry.h"
 #include "Framework/Application/SlateApplication.h"
 #include "SlateGameResources.h"

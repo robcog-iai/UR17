@@ -7,14 +7,9 @@
 #include "SlicingLogicModule.h"
 
 #include "LevelEditor.h"
-#include "Editor.h"
-#include "IStaticMeshEditor.h"
-#include "StaticMeshEditorActions.h"
 #include "StaticMeshEditorModule.h"
 
 #include "Engine.h"
-
-#include "Framework/MultiBox/MultiBoxBuilder.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
 
