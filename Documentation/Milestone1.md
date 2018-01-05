@@ -22,3 +22,8 @@
  * tested visuals and lightning of the objects
  * create mesh, texture and material
  ![](Img/banana_unreal.png "Object in Unreal")
+
+* Scanned a new object and a defect old one
+ * Old object has too high quality to reduce to our standarts, caused from merging too many different scans
+ * Some parts of the new object are not be detected from the scanner so they had to be fixed by hand
+ ![](Img/banana_unreal.png "Object in Unreal")
