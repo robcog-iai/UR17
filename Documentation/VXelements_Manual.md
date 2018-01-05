@@ -1,12 +1,12 @@
-#Instructions for scanning objects with Vxelements 
+# Instructions for scanning objects with Vxelements 
 
 This guide is intended to facilitate the software and scans of objects. These instructions are based solely on my experience and that an optimal solution is displayed. Before you can start scanning, you must do the following: 
 
- *The scanner / vxelements knows that the device contains a scanner that is at least once on the screen (large) (see picture). It is recommended that the surface has a very dark color or is black, and provides a very good contrast to the marker. This is so important when placing the markers that they are so big that they do not get too big. Whenever the scanner / vxelements lose their orientation. Another advantage is provided by a rotating background. This is the scan of this scanned scanner for a scanner.
+ * The scanner / vxelements knows that the device contains a scanner that is at least once on the screen (large) (see picture). It is recommended that the surface has a very dark color or is black, and provides a very good contrast to the marker. This is so important when placing the markers that they are so big that they do not get too big. Whenever the scanner / vxelements lose their orientation. Another advantage is provided by a rotating background. This is the scan of this scanned scanner for a scanner.
 
- *Since there are perturbing effects in each finished scan object that are applied in the form of the background surface or other unwanted surface objects, the object positioning of the object must be adjusted. Lets the object to be scanned directly on the background surface, so that the post-processing is possible. To facilitate the rework, you must exclude the object to work with the surface if you have a transparent surface (such as) that you can not see. 
+ * Since there are perturbing effects in each finished scan object that are applied in the form of the background surface or other unwanted surface objects, the object positioning of the object must be adjusted. Lets the object to be scanned directly on the background surface, so that the post-processing is possible. To facilitate the rework, you must exclude the object to work with the surface if you have a transparent surface (such as) that you can not see. 
 
- *In addition, the objects should also be marked with Maker. Again, it must be reiterated that no patterns occur multiple times. Otherwise it is important to work
+ * In addition, the objects should also be marked with Maker. Again, it must be reiterated that no patterns occur multiple times. Otherwise it is important to work
 with the objects and the objects should not have any fixpoints. 
 
 After the preparations have been done scanning can be started. To do this, the scanner is connected to a PC and the software Vxelements is started. After starting the program, you can press the Start button directly without making any further settings (see picture).
