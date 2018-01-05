@@ -30,11 +30,8 @@ public:
 	void SetMaterialForSection(UMaterialInterface* InputTexture);
 
 private:
-	void TestingThisShit();
-
 	UMaterialInterface* MaterialReferenceNewSection = NULL;
 
-	void Debug(UPrimitiveComponent* InputBladeComponent);
 	void ConvertToProceduralMeshComponent(UPrimitiveComponent* ReferencedComponent);
 	void CutGivenComponent(UPrimitiveComponent* ReferencedComponent, FVector PlanePosition, FVector PlaneNormal);
 };

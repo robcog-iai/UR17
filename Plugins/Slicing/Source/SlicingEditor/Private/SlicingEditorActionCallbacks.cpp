@@ -1,16 +1,13 @@
 // Copyright 2017, Institute for Artificial Intelligence
 
 #include "SlicingEditorActionCallbacks.h"
-
-#include "IStaticMeshEditor.h"
-#include "StaticMeshEditorActions.h"
-#include "StaticMeshEditorModule.h"
-#include "Editor.h"
-#include "Components/BoxComponent.h"
-#include "Engine/Selection.h"
-#include "SlicingEditorLogicBox.h"
 #include "SlicingComponent.h"
+
 #include "Core.h"
+#include "Editor.h"
+#include "Engine/Selection.h"
+
+#include "Components/BoxComponent.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
 
