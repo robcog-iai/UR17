@@ -27,3 +27,4 @@ These are all currently implemented Features you're able to use in projects.
 ## Issues
 
 - The Boxes spawned are not saved on the .umap
+- Sockets are not the same size as BoxComponents, causing some placement issues for now. (Limiting scale of the socket from 0 to 1)
