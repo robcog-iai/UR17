@@ -34,9 +34,9 @@ These are all currently implemented Features you're able to use in projects.
 ### SlicingEditorModule:
 
 * In the Unreal Editor there are now two new toolbar buttons that appear if the Slicing plugin is loaded in the project.
-  * One is seen in the Static Mesh Editor that gets opened if one selects any already existing static mesh and edits it. This button is only used as a tutorial for the user, so that he knows what he should be doing for the cutting to be working. The user would need to create new sockets in this editor, which would then be converted in the next toolbar button.
+  * One is seen in the Static Mesh Editor that gets opened if one selects any already existing static mesh and edits it (with the title "Show Slicing Instructions"). This button is only used as a tutorial for the user, so that he knows what he should be doing for the cutting to be working. The user would need to create new sockets in this editor, which would then be converted in the next toolbar button.
     * ![Static Mesh Editor](DocumentationPictures/StaticMeshEditorButton.png)
-  * The other toolbar button is seen in the Level Editor that one sees when the Unreal Editor starts up. It has a drop-down menu in which it's possible to change the debug-options to be enabled/disabled. Another important button in the drop-down menu is the conversion of the sockets that were previously created. This is needed to actually change object in the world, compared to just the templates (aka the static meshes).
+  * The other toolbar button is seen in the Level Editor that one sees when the Unreal Editor starts up (with the title "Slicing Options"). It has a drop-down menu in which it's possible to change the debug-options to be enabled/disabled. Another important button in the drop-down menu is the conversion of the sockets that were previously created. This is needed to actually change object in the world, compared to just the templates (aka the static meshes).
     * ![Level Editor](DocumentationPictures/LevelEditorButton.png)
   * A good start to find out how to extend the Unreal Editor is found here: https://www.youtube.com/watch?v=zg_VstBxDi8
 * There are 4 classes that were created:
