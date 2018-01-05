@@ -54,9 +54,24 @@ These are all currently implemented Features you're able to use in projects.
 
 ### SlicingLogicModule:
 
-* 
+* The new buttons loaded, coming from from the Slicing Plugin, are now having a logic and functionality adding:
+	* The functionality and logic to work with the booleans from the EditorModule, like toggleable Debug Draws  
+		* ![DokuPic2](DokuPic/2.PNG)  
+	* Another is the functionality to cut objects with the spawned Component.  
+		* ![DokuPic1](DokuPic/1.PNG)
+* There are 2 classes that were created:
+	* USlicingComponent
+		* This is the component which can be spawned and inherits from the UBoxComponent class.
+		* It holds the logic to ...
+			* convert StaticMeshComponent to ProceduralMeshComponent.
+			* cut a ProceduralMeshComponent in two pieces along a given plane.
+			* tick and draw different Debug functions like a Box depending on the situation.
+		* It uses the Booleans of the Checkboxes in the Editor for Debugging.
+	* FSlicingLogicModule 
+		* This class is a small one holding the changable variables.
+		* It's only use currently is to use these variables by including it.
 
-### 
+### SlicingComponent:
   
 # Tutorial
 
