@@ -45,7 +45,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if (SlicingLogicModule.bEnableDebugShowPlane)
 	{
-		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), FColor::Green);
+		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), this->GetComponentRotation().Quaternion(), FColor::Green);
 
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
 			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.01f);
