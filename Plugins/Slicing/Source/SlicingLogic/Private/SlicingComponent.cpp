@@ -18,6 +18,8 @@ USlicingComponent::USlicingComponent()
 	// Needed if one wants to use the InitializeComponent function
 	bWantsInitializeComponent = true;
 
+	bGenerateOverlapEvents = true;
+
 	// Register the logic functions
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingComponent::OnBladeBeginOverlap);
 	OnComponentEndOverlap.AddDynamic(this, &USlicingComponent::OnBladeEndOverlap);
@@ -46,7 +48,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), FColor::Green);
 
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.1f);
+			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.01f);
 	}
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
@@ -57,7 +59,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	if (SlicingLogicModule.bEnableDebugShowTrajectory)
 	{
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Blue, false, 2.0f);
+			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Blue, false, 1.0f);
 	}
 }
 
@@ -65,10 +67,16 @@ void USlicingComponent::OnBladeBeginOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!OtherComp->ComponentHasTag(FName("Cuttable")))
+	{
+		return;
+	}
 	/*
 	Converting the given Component to Procedural Mesh Component
 	*/
 	UPrimitiveComponent* ReferencedComponent = OtherComp;
+	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
+	Parent->SetCollisionProfileName(FName("OverlapAll"));
 	if (ReferencedComponent != nullptr  && ReferencedComponent != NULL)
 	{
 		// In case the Component is a StaticMeshComponent, uses following to make a ProceduralMeshComponent
@@ -85,16 +93,13 @@ void USlicingComponent::OnBladeBeginOverlap(
 			NewComponent->SetEnableGravity(true);
 			NewComponent->SetSimulatePhysics(true);
 			NewComponent->bGenerateOverlapEvents = true;
+			NewComponent->ComponentTags = ReferencedComponent->ComponentTags;
 
 			UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
 				((UStaticMeshComponent*)ReferencedComponent), 0, NewComponent, true);
 
 			ReferencedComponent->DestroyComponent();
-			ReferencedComponent = NewComponent;
 		}
-		UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
-		Parent->SetSimulatePhysics(false);
-		Parent->SetCollisionProfileName(FName("OverlapAll"));
 	}
 }
 
@@ -102,11 +107,15 @@ void USlicingComponent::OnBladeEndOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
+	{
+		return;
+	}
 	UProceduralMeshComponent* OutputProceduralMesh;
 
 	UKismetProceduralMeshLibrary::SliceProceduralMesh(
 		(UProceduralMeshComponent*)OtherComp,
-		this->GetAttachmentRoot()->GetComponentLocation(),
+		this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")),
 		this->GetAttachmentRoot()->GetUpVector(),
 		true,
 		OutputProceduralMesh,
@@ -114,7 +123,9 @@ void USlicingComponent::OnBladeEndOverlap(
 		OtherComp->GetMaterial(0)
 	);
 
+	OutputProceduralMesh->bGenerateOverlapEvents = true;
+	OutputProceduralMesh->ComponentTags = OtherComp->ComponentTags;
+
 	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
-	Parent->SetSimulatePhysics(true);
 	Parent->SetCollisionProfileName(FName("PhysicsActor"));
 }

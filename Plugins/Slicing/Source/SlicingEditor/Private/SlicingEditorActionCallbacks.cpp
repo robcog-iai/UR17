@@ -70,22 +70,28 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 			HandleBox->RegisterComponent();
 			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Handle"));
 			HandleBox->SetWorldLocation(Mesh->GetSocketLocation("Handle"));
-			HandleBox->SetBoxExtent(FVector(5, 5, 5));
+			HandleBox->SetBoxExtent(FVector(6, 6, 6));
 			HandleBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("Handle")).GetScale3D());
+			HandleBox->SetCollisionProfileName(FName("BlockAll"));
+			HandleBox->bGenerateOverlapEvents = false;
 
 			USlicingComponent* BladeBox = NewObject<USlicingComponent>(Mesh, FName("BladeBox"));
 			BladeBox->RegisterComponent();
 			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("BladeBox"));
 			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
-			BladeBox->SetBoxExtent(FVector(5, 5, 5));
+			BladeBox->SetBoxExtent(FVector(6, 6, 6));
 			BladeBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D());
+			BladeBox->bGenerateOverlapEvents = true;
+			BladeBox->SetCollisionProfileName(FName("OverlapAll"));
 
 			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>(Mesh, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->RegisterComponent();
 			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation("CuttingExitpointBox"));
-			CuttingExitpointBox->SetBoxExtent(FVector(5, 5, 5));
+			CuttingExitpointBox->SetBoxExtent(FVector(6, 6, 6));
 			CuttingExitpointBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D());
+			CuttingExitpointBox->SetCollisionProfileName(FName("OverlapAll"));
+			CuttingExitpointBox->bGenerateOverlapEvents = false;
 		} 
 		else
 		{
