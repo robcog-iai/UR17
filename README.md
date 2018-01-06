@@ -14,6 +14,6 @@
 
 ## Documentation
 
-* [Milestone1](Documentation/VXelements_Manual.md)
+* [VXelements_Manual](Documentation/VXelements_Manual.md)
 
 ## Tutorial
