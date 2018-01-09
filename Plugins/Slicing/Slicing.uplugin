@@ -1,0 +1,32 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "Slicing",
+	"Description": "Allows to make objects slicable and modify objects to be able to slice those slicable objects",
+	"Category": "Other",
+	"CreatedBy": "University Bremen",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "SlicingEditor",
+			"Type" : "Editor"
+		},
+		{
+			"Name": "SlicingLogic",
+			"Type" : "Runtime"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ProceduralMeshComponent",
+			"Enabled": true
+		}
+	]
+}
