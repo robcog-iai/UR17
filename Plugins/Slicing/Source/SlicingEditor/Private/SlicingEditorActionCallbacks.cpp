@@ -63,12 +63,15 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Has Sockets = Success"));
 
+			float BoxScale = 3.5;
+
 			UBoxComponent* HandleBox = NewObject<UBoxComponent>(Mesh,FName("Handle"));
 			HandleBox->RegisterComponent();
 			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Handle"));
 			HandleBox->SetWorldLocation(Mesh->GetSocketLocation("Handle"));
-			HandleBox->SetBoxExtent(FVector(6, 6, 6));
-			HandleBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("Handle")).GetScale3D());
+			FVector TempScale = Mesh->GetSocketTransform(FName("Handle")).GetScale3D();
+			HandleBox->SetBoxExtent(TempScale * 3.5);
+			HandleBox->SetWorldScale3D(FVector(1, 1, 1));
 			HandleBox->SetCollisionProfileName(FName("BlockAll"));
 			HandleBox->bGenerateOverlapEvents = false;
 
@@ -76,8 +79,9 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 			BladeBox->RegisterComponent();
 			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("BladeBox"));
 			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
-			BladeBox->SetBoxExtent(FVector(6, 6, 6));
-			BladeBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D());
+			TempScale = Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D();
+			BladeBox->SetBoxExtent(TempScale * 3.5);
+			BladeBox->SetWorldScale3D(FVector(1, 1, 1));
 			BladeBox->bGenerateOverlapEvents = true;
 			BladeBox->SetCollisionProfileName(FName("OverlapAll"));
 
@@ -85,8 +89,9 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 			CuttingExitpointBox->RegisterComponent();
 			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation("CuttingExitpointBox"));
-			CuttingExitpointBox->SetBoxExtent(FVector(6, 6, 6));
-			CuttingExitpointBox->SetRelativeScale3D(Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D());
+			TempScale = Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D();
+			CuttingExitpointBox->SetBoxExtent(TempScale * 3.5);
+			CuttingExitpointBox->SetWorldScale3D(FVector(1, 1, 1));
 			CuttingExitpointBox->SetCollisionProfileName(FName("OverlapAll"));
 			CuttingExitpointBox->bGenerateOverlapEvents = false;
 		} 
