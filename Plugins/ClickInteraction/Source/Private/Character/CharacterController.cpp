@@ -57,16 +57,11 @@ void ACharacterController::BeginPlay()
 
 				UPrimitiveComponent* CastComponent = Cast<UPrimitiveComponent>(ActorComponent);
 
-				if (CastComponent != nullptr) {
-					USemLogContactManagers.Add(CastComponent);
-				}
-				else {
+				if (CastComponent == nullptr) {
 					UE_LOG(LogTemp, Warning, TEXT("ACharacterController::BeginPlay: Cast failed %s"), *ActorComponent->GetName());
 				}
 			}
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("ACharacterController::BeginPlay: Added %i SLContactManagers to be ignored"), USemLogContactManagers.Num());
 	}
 
 	// Get Levelinfo
@@ -215,7 +210,6 @@ void ACharacterController::StartRaytrace()
 	FCollisionQueryParams TraceParams;
 
 	TraceParams.AddIgnoredActor(this); // We don't want to hit ourself
-	TraceParams.AddIgnoredComponents(USemLogContactManagers);
 
 	TArray<AActor*> IgnoredActors;
 	if (PickupComponent != nullptr) {

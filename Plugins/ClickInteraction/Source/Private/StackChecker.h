@@ -10,7 +10,6 @@
 #include "Curves/CurveFloat.h"
 #include "Curves/CurveVector.h"
 #include "Components/TimelineComponent.h"
-#include "SLRuntimeManager.h"
 #include "StackChecker.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStackCheckDone, bool, wasSuccessful);
@@ -74,8 +73,6 @@ private:
 	float SumOfTimelineSeconds;
 	float SecondsLeft;
 
-	TSharedPtr<FOwlNode> StackCheckLogEvent;
-
 	ACIHUD* ClickInteractionHUD;
 
 	UFUNCTION()
@@ -98,8 +95,6 @@ private:
 	AStaticMeshActor* CopyActor(AActor* ActorToCopy);
 	void SetScreenCaptureEnabled(bool bEnabled);
 
-	void GenerateLogEvent(AActor * BaseItemToCheck);
-	void FinishLogEvent(bool bStackCheckSuccessful);
 	void EvaluateStabilityCheck();
 
 	FTimerHandle TimerHandlePauseBeforeCheck;

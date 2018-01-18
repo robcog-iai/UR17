@@ -367,7 +367,6 @@ TArray<AStaticMeshActor*> UCPickup::FindAllStackableItems(AStaticMeshActor* Acto
 		FComponentQueryParams Params;
 		Params.AddIgnoredComponent_LikelyDuplicatedRoot(ActorToPickup->GetStaticMeshComponent());
 		Params.AddIgnoredActors(IgnoredActors);
-		Params.AddIgnoredComponents(PlayerCharacter->USemLogContactManagers); // Ignore contact managers
 		Params.bTraceComplex = true;
 		Params.bFindInitialOverlaps = true;
 
@@ -478,7 +477,6 @@ FHitResult UCPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActo
 
 	Params.AddIgnoredActors(IgnoredActors);
 	Params.AddIgnoredActor(GetOwner()); // Always ignore player
-	Params.AddIgnoredComponents(PlayerCharacter->USemLogContactManagers); // Ignore SLContactManager hit box
 
 	GetWorld()->ComponentSweepMulti(Hits, ItemToSweep->GetStaticMeshComponent(), From, To, ItemToSweep->GetActorRotation(), Params);
 
@@ -539,7 +537,6 @@ FHitResult UCPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FV
 
 	if (ShadowBaseItem != nullptr) TraceParams.AddIgnoredActor(ShadowBaseItem); // Always ignore shadow item
 	TraceParams.AddIgnoredActor(GetOwner()); // Always ignore player
-	TraceParams.AddIgnoredComponents(PlayerCharacter->USemLogContactManagers);
 
 	GetWorld()->LineTraceSingleByChannel(RaycastResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
 

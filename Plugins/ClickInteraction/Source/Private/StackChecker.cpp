@@ -95,7 +95,6 @@ void AStackChecker::Tick(float DeltaTime)
 void AStackChecker::StartCheck(AActor * BaseItemToCheck)
 {
 	bStackCheckIsRunning = true;
-	GenerateLogEvent(BaseItemToCheck);
 
 	SetScreenCaptureEnabled(true);
 	SecondsLeft = SumOfTimelineSeconds + DelayBeforeStabilityCheck;
@@ -193,7 +192,6 @@ void AStackChecker::CheckStackRelativePositions()
 	SetScreenCaptureEnabled(false);
 
 	bStackCheckIsRunning = false;
-	FinishLogEvent(bIsSuccess);
 
 }
 
@@ -264,52 +262,4 @@ void AStackChecker::SetScreenCaptureEnabled(bool bEnabled)
 	}
 }
 
-void AStackChecker::GenerateLogEvent(AActor * BaseItemToCheck)
-{
-	// Log Pickup event
-	const FString ItemClass = FTagStatics::GetKeyValue(BaseItemToCheck, SEMLOG_TAG, "Class");
-	const FString ItemID = FTagStatics::GetKeyValue(BaseItemToCheck, SEMLOG_TAG, "Id");
-
-	// Create contact event and other actor individual
-	const FOwlIndividualName OtherIndividual("log", ItemClass, ItemID);
-	const FOwlIndividualName ContactIndividual("log", "StackChecking", FSLUtils::GenerateRandomFString(4));
-
-	// Owl prefixed names
-	const FOwlPrefixName RdfType("rdf", "type");
-	const FOwlPrefixName RdfAbout("rdf", "about");
-	const FOwlPrefixName RdfResource("rdf", "resource");
-	const FOwlPrefixName RdfDatatype("rdf", "datatype");
-	const FOwlPrefixName TaskContext("knowrob", "taskContext");
-	const FOwlPrefixName InContact("knowrob_u", "objectActedOn");
-	const FOwlPrefixName OwlNamedIndividual("owl", "NamedIndividual");
-
-	// Owl classes
-	const FOwlClass XsdString("xsd", "string");
-	const FOwlClass TouchingSituation("knowrob_u", "StackChecking");
-
-	TArray <FOwlTriple> Properties;
-	Properties.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-	Properties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "-- Stack Checking -- "));
-	Properties.Add(FOwlTriple(InContact, RdfResource, OtherIndividual));
-
-	StackCheckLogEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, Properties));
-	
-	if (PlayerCharacter != nullptr && PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->StartEvent(StackCheckLogEvent);
-
-}
-
-void AStackChecker::FinishLogEvent(bool bStackCheckSuccessful)
-{
-	if (StackCheckLogEvent.IsValid()) {
-		const FOwlPrefixName RdfDatatype("rdf", "datatype");
-		const FOwlPrefixName TaskContext("knowrob", "taskContext");
-		const FOwlClass XsdString("xsd", "string");
-
-		FString SucessText = bStackCheckSuccessful ? "Success" : "Failed";
-		StackCheckLogEvent.Get()->Properties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, " -- Stack Checking -- " + SucessText));
-
-		if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->FinishEvent(StackCheckLogEvent);
-		StackCheckLogEvent = nullptr;
-	}
-}
 
