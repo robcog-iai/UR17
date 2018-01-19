@@ -6,6 +6,16 @@
 * Maybe start with the restrictions (constraints) of the arm movement
 * Using the generic male body (rigging it)
 
+# Using this version of our project:
+
+The current version of our project has two characters in it's world, that the player can posses. 
+The default one is the one we created using the generic male body and c++ code. It can collide with itself and other objects, but still has big problems with constraints.
+The movement of the elbow is very limited and neither deleting all constraints, nor changing the collision helped. 
+For this reason we included the first blueprint we made. It uses the full Unreal Mannequin mesh, fulfills the first three points of our milestone and shows how our c++ version should move later on. 
+To use it you go into the settings of each of the blueprints, disable "Auto Posses Player" for the geneeric male body one and set it to "Player 0" for the mannequin one. 
+The blueprint with the mannequin is meant to be used with the HTC Vive. The generic male body one works Vive and Rift.
+
+
 # Documentation
 * New Plugin: VRArmsTracking
 * New classes: ArmAnimInstance, ArmAnimPawn, CReadWriteComponent
