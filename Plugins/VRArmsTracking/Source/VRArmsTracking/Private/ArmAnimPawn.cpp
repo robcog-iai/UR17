@@ -96,7 +96,9 @@ void AArmAnimPawn::BeginPlay()
 		SetActorLocation(GetActorLocation() + FVector(0.0f, 0.0f, UserHeight));
 	}
 	else if (HMDName == "SteamVR") {
-		//should be default values
+		Camera->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
+		Mesh->SetRelativeLocation(FVector(0.0f, 0.0f, -UserHeight));
+		SetActorLocation(GetActorLocation() + FVector(0.0f, 0.0f, UserHeight));
 	}
 }
 

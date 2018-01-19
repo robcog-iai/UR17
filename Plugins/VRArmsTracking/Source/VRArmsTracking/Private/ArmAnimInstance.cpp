@@ -17,6 +17,7 @@ void UArmAnimInstance::NativeInitializeAnimation()
 	HeadWorldTransform = FTransform(FRotator(0.0f,0.0f,90.0f),FVector(0.0f,0.0f,160.0f), FVector(1.0f,1.0f,1.0f));
 	LeftHandWorldLocation = FVector(40.0f,20.0f,100.0f);
 	RightHandWorldLocation = FVector(-40.0f, 20.0f, 100.0f);
+    //moves the player to the cameras world position
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition(0, EOrientPositionSelector::OrientationAndPosition);
 }
 
