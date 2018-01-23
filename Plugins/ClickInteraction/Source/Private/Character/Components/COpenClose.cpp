@@ -2,7 +2,6 @@
 // Author: David Brinkmann
 
 #define TAG_KEY_OPENCLOSABLE "OpenCloseable"
-#define SEMLOG_TAG "SemLog"
 
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "COpenClose.h"
@@ -11,7 +10,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "TagStatics.h"
-#include "SLUtils.h"
 #include "DrawDebugHelpers.h"
 
 
@@ -23,7 +21,6 @@ UCOpenClose::UCOpenClose()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-
 	ForceToApply = 400000.0f;
 }
 
@@ -34,13 +31,6 @@ void UCOpenClose::BeginPlay()
 	Super::BeginPlay();
 
 	SetOfOpenCloasableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "ClickInteraction", TAG_KEY_OPENCLOSABLE, "True");
-
-	// Get the semantic log runtime manager from the world
-	for (TActorIterator<ASLRuntimeManager>RMItr(GetWorld()); RMItr; ++RMItr)
-	{
-		SemLogRuntimeManager = *RMItr;
-		break;
-	}
 
 	if (PlayerCharacter == nullptr) UE_LOG(LogTemp, Fatal, TEXT("UCOpenClose::BeginPlay: The PlayerCharacter was not assigned. Restarting the editor might fix this."));
 }
@@ -92,61 +82,6 @@ void UCOpenClose::AddForceToObject(float DeltaTime)
 	float ForceToAdd = -MouseY * DeltaTime * ForceToApply;
 	UStaticMeshComponent* Mesh = Actor->GetStaticMeshComponent();
 	Mesh->AddForce(Actor->GetActorForwardVector() * ForceToAdd, NAME_None, true);
-}
-
-void UCOpenClose::StartLogEvent(AActor * ActorToHandle)
-{
-	FOwlIndividualName HandIndividual = bRightMouseHold ? PlayerCharacter->RightHandIndividual : PlayerCharacter->LeftHandIndividual;
-	FString HandUsed = bRightMouseHold ? HandIndividual.Class : HandIndividual.Class;
-
-	// Log Pickup event
-	const FString ItemClass = FTagStatics::GetKeyValue(ActorToHandle, SEMLOG_TAG, "Class");
-	const FString ItemID = FTagStatics::GetKeyValue(ActorToHandle, SEMLOG_TAG, "Id");
-
-	// Create contact event and other actor individual
-	const FOwlIndividualName OtherIndividual("log", ItemClass, ItemID);
-	const FOwlIndividualName GraspingIndividual("log", "HandManipulation", FSLUtils::GenerateRandomFString(4));
-
-	// Owl prefixed names
-	const FOwlPrefixName RdfType("rdf", "type");
-	const FOwlPrefixName RdfAbout("rdf", "about");
-	const FOwlPrefixName RdfResource("rdf", "resource");
-	const FOwlPrefixName RdfDatatype("rdf", "datatype");
-	const FOwlPrefixName TaskContext("knowrob", "taskContext");
-	const FOwlPrefixName PerformedBy("knowrob", "performedBy");
-	const FOwlPrefixName ActedOn("knowrob", "objectActedOn");
-	const FOwlPrefixName OwlNamedIndividual("owl", "NamedIndividual");
-
-	// Owl classes
-	const FOwlClass XsdString("xsd", "string");
-	const FOwlClass TouchingSituation("knowrob_u", "HandManipulation");
-
-	TArray <FOwlTriple> CSVProperties;
-	CSVProperties.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-	CSVProperties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Opening or Closing-" + HandUsed));
-	CSVProperties.Add(FOwlTriple(PerformedBy, RdfResource, HandIndividual));
-	CSVProperties.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-	CurrentLogEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, GraspingIndividual, CSVProperties));
-
-	TArray <FOwlTriple> Properties;
-	Properties.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-	Properties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "HandManipulation-" + HandIndividual.GetName() + "-" + OtherIndividual.GetName()));
-	Properties.Add(FOwlTriple(PerformedBy, RdfResource, HandIndividual));
-	Properties.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-	CurrentSemLogEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, GraspingIndividual, Properties));
-
-	// Start the event with the given properties
-	if (SemLogRuntimeManager != nullptr) SemLogRuntimeManager->StartEvent(CurrentSemLogEvent);
-	if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->StartEvent(CurrentLogEvent);
-}
-
-void UCOpenClose::FinishLogEvent(AActor * ActorToHandle)
-{
-	if (CurrentLogEvent.IsValid()) {
-		if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->FinishEvent(CurrentLogEvent);
-		if (SemLogRuntimeManager != nullptr) SemLogRuntimeManager->FinishEvent(CurrentLogEvent);
-		CurrentLogEvent = nullptr;
-	}
 }
 
 void UCOpenClose::InputLeftHandPressed()
@@ -211,8 +146,6 @@ void UCOpenClose::OnInteractionKeyPressed(bool bIsRightKey)
 
 			PlayerCharacter->MovementComponent->SetMovable(false);
 			SetLockedByComponent(true);
-
-			StartLogEvent(ClickedActor);
 		}
 		else {
 			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Red, "Hand(s) not empty. Can't interact", false);
@@ -239,7 +172,6 @@ void UCOpenClose::OnInteractionKeyReleased(bool bIsRightKey)
 		PlayerCharacter->MovementComponent->SetMovable(true);
 
 		SetLockedByComponent(false);
-		FinishLogEvent(ClickedActor);
 
 		ClickedActor = nullptr;
 	}

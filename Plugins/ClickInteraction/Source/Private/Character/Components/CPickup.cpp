@@ -3,7 +3,6 @@
 
 #define PLUGIN_TAG "ClickInteraction"
 #define TAG_KEY_PICKUP "Pickup"
-#define SEMLOG_TAG "SemLog"
 #define STACKCHECK_RANGE 500.0f
 #define PICKUP_SHADOW_SCALE_FACTOR 0.4f // The scale factor when testing collisions on pickup
 
@@ -13,8 +12,6 @@
 #include "GameFramework/PlayerController.h"
 #include "../Private/Character/CharacterController.h"
 #include "TagStatics.h"
-#include "SLContactManager.h"
-#include "SLUtils.h"
 #include "Engine.h"
 
 // Sets default values for this component's properties
@@ -51,7 +48,6 @@ UCPickup::UCPickup()
 void UCPickup::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 	SetOfPickupItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), PLUGIN_TAG, TAG_KEY_PICKUP, "True");
 
@@ -105,14 +101,6 @@ void UCPickup::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Stack checker assigned"));
 	}
-
-	// Get the semantic log runtime manager from the world
-	for (TActorIterator<ASLRuntimeManager>RMItr(GetWorld()); RMItr; ++RMItr)
-	{
-		SemLogRuntimeManager = *RMItr;
-		break;
-	}
-
 
 	MaxMovementSpeed = PlayerCharacter->MovementComponent->MaxMovementSpeed;
 }
@@ -193,8 +181,6 @@ void UCPickup::StartPickup()
 		}
 	}
 	// *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-
-	GeneratePickupEvent(BaseItemToPick, UsedHand);
 }
 
 void UCPickup::PickupItem()
@@ -225,9 +211,6 @@ void UCPickup::PickupItem()
 
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
 	BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
-
-	FinishPickupEvent(BaseItemToPick);
-	StartSemLogGraspEvent(BaseItemToPick, UsedHand);
 
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
@@ -708,465 +691,6 @@ void UCPickup::ResetComponentState()
 	CancelDetachItems();
 }
 
-
-void UCPickup::GeneratePickupEvent(AActor * ItemToPickup, EHand HandPosition)
-{
-	if (SemLogRuntimeManager == nullptr) return;
-
-	if (ItemToPickup != nullptr) {
-		bool bUsedBothHands = false;
-		FOwlIndividualName HandIndividual;
-
-		switch (HandPosition)
-		{
-		case EHand::Left:
-			HandIndividual = PlayerCharacter->LeftHandIndividual;
-			break;
-		case EHand::Right:
-			HandIndividual = PlayerCharacter->RightHandIndividual;
-			break;
-		case EHand::Both:
-			bUsedBothHands = true;
-			break;
-		}
-
-		FString HandUsed;
-		if (bUsedBothHands) {
-			HandUsed = FString("BothHands");
-		}
-		else {
-			HandUsed = HandIndividual.Class;
-		}
-
-		// Log Pickup event
-		const FString ItemClass = FTagStatics::GetKeyValue(ItemToPickup, SEMLOG_TAG, "Class");
-		const FString ItemID = FTagStatics::GetKeyValue(ItemToPickup, SEMLOG_TAG, "Id");
-
-		// Create contact event and other actor individual
-		const FOwlIndividualName OtherIndividual("log", ItemClass, ItemID);
-		const FOwlIndividualName ContactIndividual("log", "GraspingSomething", FSLUtils::GenerateRandomFString(4));
-
-		// Owl prefixed names
-		const FOwlPrefixName RdfType("rdf", "type");
-		const FOwlPrefixName RdfAbout("rdf", "about");
-		const FOwlPrefixName RdfResource("rdf", "resource");
-		const FOwlPrefixName RdfDatatype("rdf", "datatype");
-		const FOwlPrefixName TaskContext("knowrob", "taskContext");
-		const FOwlPrefixName PerformedBy("knowrob", "performedBy");
-		const FOwlPrefixName ActedOn("knowrob", "objectActedOn");
-		const FOwlPrefixName OwlNamedIndividual("owl", "NamedIndividual");
-
-		// Owl classes
-		const FOwlClass XsdString("xsd", "string");
-		const FOwlClass TouchingSituation("knowrob_u", "GraspingSituation");
-
-
-		if (bUsedBothHands == false) {
-			// Generate event for CSV logger
-			TArray <FOwlTriple> Properties;
-			Properties.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-			Properties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Pickup-" + HandUsed));
-			Properties.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-			Properties.Add(FOwlTriple(PerformedBy, RdfResource, HandIndividual));
-			TSharedPtr<FOwlNode> GraspEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, Properties));
-
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->StartEvent(GraspEvent);
-			// *** *** *** *** *** *** *** ***
-
-			if (HandPosition == EHand::Right) {
-				RightHandLogEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToPickup, GraspEvent);
-			}
-			else {
-				LeftHandLogEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToPickup, GraspEvent);
-			}
-		}
-		else {
-			// Generate event for CSV logger
-			TArray <FOwlTriple> PropertiesCSV;
-			PropertiesCSV.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-			PropertiesCSV.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Pickup-" + HandUsed));
-			PropertiesCSV.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-			TSharedPtr<FOwlNode> CSVEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, PropertiesCSV));
-
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->StartEvent(CSVEvent);
-			BothHandLogEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToPickup, CSVEvent);
-			// *** *** *** *** *** *** *** ***
-		}
-	}
-}
-
-void UCPickup::FinishPickupEvent(AActor * ItemToPickup)
-{
-	if (SemLogRuntimeManager == nullptr || ItemToPickup == nullptr) return;
-
-	if (RightHandLogEvent.Key != LeftHandLogEvent.Key) {
-		// It's a single handed event
-		TSharedPtr<FOwlNode> Event;
-
-		if (RightHandLogEvent.Key == ItemToPickup) {
-			Event = RightHandLogEvent.Value;
-			RightHandLogEvent.Key = nullptr;
-		}
-		else if (LeftHandLogEvent.Key == ItemToPickup) {
-			Event = LeftHandLogEvent.Value;
-			LeftHandLogEvent.Key = nullptr;
-		}
-
-		if (Event.IsValid()) {
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->FinishEvent(Event);
-			SemLogRuntimeManager->FinishEvent(Event);
-		}
-	}
-	else {
-		// It's a two handed event
-
-		if (BothHandLogEvent.Key == ItemToPickup) {
-			// Finish CSV logger event
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->FinishEvent(BothHandLogEvent.Value);
-			BothHandLogEvent.Key = nullptr;
-		}
-
-		if (RightHandLogEvent.Key == ItemToPickup) {
-			// Finish right hand event
-			SemLogRuntimeManager->FinishEvent(RightHandLogEvent.Value);
-			RightHandLogEvent.Key = nullptr;
-		}
-
-		if (LeftHandLogEvent.Key == ItemToPickup) {
-			// Finish left hand event
-			SemLogRuntimeManager->FinishEvent(LeftHandLogEvent.Value);
-			LeftHandLogEvent.Key = nullptr;
-		}
-	}
-}
-
-void UCPickup::GenerateDropEvent(AActor * ItemToDrop, EHand FromHandPosition)
-{
-	if (SemLogRuntimeManager == nullptr) return;
-
-	if (ItemToDrop != nullptr) {
-		bool bUsedBothHands = false;
-		FOwlIndividualName HandIndividual;
-
-		switch (FromHandPosition)
-		{
-		case EHand::Left:
-			HandIndividual = PlayerCharacter->LeftHandIndividual;
-			break;
-		case EHand::Right:
-			HandIndividual = PlayerCharacter->RightHandIndividual;
-			break;
-		case EHand::Both:
-			bUsedBothHands = true;
-			break;
-		}
-
-		FString HandUsed;
-		if (bUsedBothHands) {
-			HandUsed = FString("BothHands");
-		}
-		else {
-			HandUsed = HandIndividual.Class;
-		}
-
-		// Log Pickup event
-		const FString ItemClass = FTagStatics::GetKeyValue(ItemToDrop, SEMLOG_TAG, "Class");
-		const FString ItemID = FTagStatics::GetKeyValue(ItemToDrop, SEMLOG_TAG, "Id");
-
-		// Create contact event and other actor individual
-		const FOwlIndividualName OtherIndividual("log", ItemClass, ItemID);
-		const FOwlIndividualName ContactIndividual("log", "GraspingSomething", FSLUtils::GenerateRandomFString(4));
-
-		// Owl prefixed names
-		const FOwlPrefixName RdfType("rdf", "type");
-		const FOwlPrefixName RdfAbout("rdf", "about");
-		const FOwlPrefixName RdfResource("rdf", "resource");
-		const FOwlPrefixName RdfDatatype("rdf", "datatype");
-		const FOwlPrefixName TaskContext("knowrob", "taskContext");
-		const FOwlPrefixName PerformedBy("knowrob", "performedBy");
-		const FOwlPrefixName ActedOn("knowrob", "objectActedOn");
-		const FOwlPrefixName OwlNamedIndividual("owl", "NamedIndividual");
-
-		// Owl classes
-		const FOwlClass XsdString("xsd", "string");
-		const FOwlClass TouchingSituation("knowrob_u", "GraspingSituation");
-
-
-		if (bUsedBothHands == false) {
-			// Generate event for CSV logger
-			TArray <FOwlTriple> Properties;
-			Properties.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-			Properties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Drop-" + HandUsed));
-			Properties.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-			Properties.Add(FOwlTriple(PerformedBy, RdfResource, HandIndividual));
-			TSharedPtr<FOwlNode> ContactEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, Properties));
-
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->StartEvent(ContactEvent);
-			// *** *** *** *** *** *** *** ***
-
-			if (FromHandPosition == EHand::Right) {
-				RightHandLogEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToDrop, ContactEvent);
-			}
-			else {
-				LeftHandLogEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToDrop, ContactEvent);
-			}
-
-		}
-		else {
-			// Generate event for CSV logger
-			TArray <FOwlTriple> PropertiesCSV;
-			PropertiesCSV.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-			PropertiesCSV.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Drop-" + HandUsed));
-			PropertiesCSV.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-			TSharedPtr<FOwlNode> CSVEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, PropertiesCSV));
-
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->StartEvent(CSVEvent);
-			BothHandLogEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToDrop, CSVEvent);
-			// *** *** *** *** *** *** *** ***
-		}
-	}
-}
-
-void UCPickup::FinishDropEvent(AActor * ItemToDrop)
-{
-	if (SemLogRuntimeManager == nullptr || ItemToDrop == nullptr) return;
-
-	if (RightHandLogEvent.Key != LeftHandLogEvent.Key) {
-		// It's a single handed event
-		TSharedPtr<FOwlNode> Event;
-
-		if (RightHandLogEvent.Key == ItemToDrop) {
-			Event = RightHandLogEvent.Value;
-			RightHandLogEvent.Key = nullptr;
-		}
-		else if (LeftHandLogEvent.Key == ItemToDrop) {
-			Event = LeftHandLogEvent.Value;
-			LeftHandLogEvent.Key = nullptr;
-		}
-
-		if (Event.IsValid()) {
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->FinishEvent(Event);
-			SemLogRuntimeManager->FinishEvent(Event);
-		}
-	}
-	else {
-		// It's a two handed event
-
-		if (BothHandLogEvent.Key == ItemToDrop) {
-			// Finish CSV logger event
-			if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->FinishEvent(BothHandLogEvent.Value);
-			BothHandLogEvent.Key = nullptr;
-		}
-
-		if (RightHandLogEvent.Key == ItemToDrop) {
-			// Finish right hand event
-			SemLogRuntimeManager->FinishEvent(RightHandLogEvent.Value);
-			RightHandLogEvent.Key = nullptr;
-		}
-
-		if (LeftHandLogEvent.Key == ItemToDrop) {
-			// Finish left hand event
-			SemLogRuntimeManager->FinishEvent(LeftHandLogEvent.Value);
-			LeftHandLogEvent.Key = nullptr;
-		}
-	}
-}
-
-void UCPickup::GenerateDragEvent(AActor * ItemToDrag, EHand FromHandPosition)
-{
-	if (SemLogRuntimeManager == nullptr) return;
-
-	if (ItemToDrag != nullptr) {
-
-		FOwlIndividualName HandIndividual;
-
-		switch (FromHandPosition)
-		{
-		case EHand::Left:
-			HandIndividual = PlayerCharacter->LeftHandIndividual;
-			break;
-		case EHand::Right:
-			HandIndividual = PlayerCharacter->RightHandIndividual;
-			break;
-		default:
-			return;
-		}
-
-		FString HandUsed = HandIndividual.Class;
-
-		// Log Pickup event
-		const FString ItemClass = FTagStatics::GetKeyValue(ItemToDrag, SEMLOG_TAG, "Class");
-		const FString ItemID = FTagStatics::GetKeyValue(ItemToDrag, SEMLOG_TAG, "Id");
-
-		// Create contact event and other actor individual
-		const FOwlIndividualName OtherIndividual("log", ItemClass, ItemID);
-		const FOwlIndividualName GraspingIndividual("log", "GraspingSomething", FSLUtils::GenerateRandomFString(4));
-
-		// Owl prefixed names
-		const FOwlPrefixName RdfType("rdf", "type");
-		const FOwlPrefixName RdfAbout("rdf", "about");
-		const FOwlPrefixName RdfResource("rdf", "resource");
-		const FOwlPrefixName RdfDatatype("rdf", "datatype");
-		const FOwlPrefixName TaskContext("knowrob", "taskContext");
-		const FOwlPrefixName PerformedBy("knowrob", "performedBy");
-		const FOwlPrefixName ActedOn("knowrob", "objectActedOn");
-		const FOwlPrefixName OwlNamedIndividual("owl", "NamedIndividual");
-
-		// Owl classes
-		const FOwlClass XsdString("xsd", "string");
-		const FOwlClass TouchingSituation("knowrob_u", "GraspingSituation");
-
-		TArray <FOwlTriple> Properties;
-		Properties.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-		Properties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Drag-" + HandUsed));
-		Properties.Add(FOwlTriple(PerformedBy, RdfResource, HandIndividual));
-		Properties.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-
-		TSharedPtr<FOwlNode> DragEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, GraspingIndividual, Properties));
-
-		// Start the event with the given properties
-
-		if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->StartEvent(DragEvent);
-	}
-}
-
-void UCPickup::FinishDragEvent(AActor * ItemToDrag)
-{
-	if (SemLogRuntimeManager == nullptr) return;
-	TSharedPtr<FOwlNode> Event;
-
-	if (RightHandLogEvent.Key == ItemToDrag) {
-		Event = RightHandLogEvent.Value;
-		RightHandLogEvent.Key = nullptr;
-	}
-	else if (LeftHandLogEvent.Key == ItemToDrag) {
-		Event = LeftHandLogEvent.Value;
-		LeftHandLogEvent.Key = nullptr;
-	}
-
-	if (PlayerCharacter->LogComponent != nullptr) PlayerCharacter->LogComponent->FinishEvent(Event);
-	SemLogRuntimeManager->FinishEvent(Event);
-}
-
-void UCPickup::StartSemLogGraspEvent(AActor * ItemToHandle, EHand HandPosition)
-{
-	if (SemLogRuntimeManager == nullptr) return;
-
-	if (ItemToHandle != nullptr) {
-		bool bUsedBothHands = false;
-		FOwlIndividualName HandIndividual;
-
-		switch (HandPosition)
-		{
-		case EHand::Left:
-			HandIndividual = PlayerCharacter->LeftHandIndividual;
-			break;
-		case EHand::Right:
-			HandIndividual = PlayerCharacter->RightHandIndividual;
-			break;
-		case EHand::Both:
-			bUsedBothHands = true;
-			break;
-		}
-
-		// Log Pickup event
-		const FString ItemClass = FTagStatics::GetKeyValue(ItemToHandle, SEMLOG_TAG, "Class");
-		const FString ItemID = FTagStatics::GetKeyValue(ItemToHandle, SEMLOG_TAG, "Id");
-
-		// Create contact event and other actor individual
-		const FOwlIndividualName OtherIndividual("log", ItemClass, ItemID);
-		const FOwlIndividualName ContactIndividual("log", "GraspingSomething", FSLUtils::GenerateRandomFString(4));
-
-		// Owl prefixed names
-		const FOwlPrefixName RdfType("rdf", "type");
-		const FOwlPrefixName RdfAbout("rdf", "about");
-		const FOwlPrefixName RdfResource("rdf", "resource");
-		const FOwlPrefixName RdfDatatype("rdf", "datatype");
-		const FOwlPrefixName TaskContext("knowrob", "taskContext");
-		const FOwlPrefixName PerformedBy("knowrob", "performedBy");
-		const FOwlPrefixName ActedOn("knowrob", "objectActedOn");
-		const FOwlPrefixName OwlNamedIndividual("owl", "NamedIndividual");
-
-		// Owl classes
-		const FOwlClass XsdString("xsd", "string");
-		const FOwlClass TouchingSituation("knowrob", "GraspingSomething");
-
-		if (bUsedBothHands == false) {
-			TArray <FOwlTriple> Properties;
-			Properties.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-			Properties.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Grasp-" + HandIndividual.GetName() + "-" + OtherIndividual.GetName()));
-			Properties.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-			Properties.Add(FOwlTriple(PerformedBy, RdfResource, HandIndividual));
-			TSharedPtr<FOwlNode> GraspEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, Properties));
-
-			if (SemLogRuntimeManager->StartEvent(GraspEvent)) {
-				if (HandPosition == EHand::Right) {
-					SemLogRightHandEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToHandle, GraspEvent);
-				}
-				else {
-					SemLogLeftHandEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToHandle, GraspEvent);
-				}
-			}
-
-		}
-		else {
-			// Generate two separated events for semlogger
-			// *** Right hand event
-			TArray <FOwlTriple> PropertiesRightHand;
-			PropertiesRightHand.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-			PropertiesRightHand.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Grasp-" + PlayerCharacter->RightHandIndividual.GetName() + "-" + OtherIndividual.GetName()));
-			PropertiesRightHand.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-			PropertiesRightHand.Add(FOwlTriple(PerformedBy, RdfResource, PlayerCharacter->RightHandIndividual));
-			TSharedPtr<FOwlNode> RightHandEventEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, PropertiesRightHand));
-			// Start the event with the given properties
-			if (SemLogRuntimeManager->StartEvent(RightHandEventEvent))
-			{
-				SemLogRightHandEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToHandle, RightHandEventEvent);
-			}
-
-			// *** Left hand event
-			TArray <FOwlTriple> PropertiesLeftHand;
-			PropertiesLeftHand.Add(FOwlTriple(RdfType, RdfResource, TouchingSituation));
-			PropertiesLeftHand.Add(FOwlTriple(TaskContext, RdfDatatype, XsdString, "Grasp-" + PlayerCharacter->LeftHandIndividual.GetName() + "-" + OtherIndividual.GetName()));
-			PropertiesLeftHand.Add(FOwlTriple(ActedOn, RdfResource, OtherIndividual));
-			PropertiesLeftHand.Add(FOwlTriple(PerformedBy, RdfResource, PlayerCharacter->LeftHandIndividual));
-			TSharedPtr<FOwlNode> LeftHandEventEvent = MakeShareable(new FOwlNode(OwlNamedIndividual, RdfAbout, ContactIndividual, PropertiesLeftHand));
-
-			// Start the event with the given properties
-			if (SemLogRuntimeManager->StartEvent(LeftHandEventEvent))
-			{
-				SemLogLeftHandEvent = TTuple<AActor*, TSharedPtr<FOwlNode>>(ItemToHandle, LeftHandEventEvent);
-			}
-		}
-
-
-
-	}
-}
-
-void UCPickup::EndSemLogGraspEvent(AActor * ItemToHandle)
-{
-	if (SemLogRuntimeManager == nullptr) return;
-
-	if (SemLogRightHandEvent.Key != SemLogLeftHandEvent.Key) {
-		if (SemLogRightHandEvent.Key == ItemToHandle) {
-			SemLogRuntimeManager->FinishEvent(SemLogRightHandEvent.Value);
-			SemLogRightHandEvent.Key = nullptr;
-		}
-		else if (SemLogLeftHandEvent.Key == ItemToHandle) {
-			SemLogRuntimeManager->FinishEvent(SemLogLeftHandEvent.Value);
-			SemLogLeftHandEvent.Key = nullptr;
-		}
-	}
-	else {
-		// Both hands used
-		SemLogRuntimeManager->FinishEvent(SemLogRightHandEvent.Value);
-		SemLogRightHandEvent.Key = nullptr;
-		SemLogRuntimeManager->FinishEvent(SemLogLeftHandEvent.Value);
-		SemLogLeftHandEvent.Key = nullptr;
-	}
-}
-
 void UCPickup::RotationMode()
 {
 	if (RotationValue == 0 && UsedHand == EHand::Left) {
@@ -1214,7 +738,6 @@ void UCPickup::OnStackCheckIsDone(bool wasSuccessful)
 		if (BaseItemToPick != nullptr) {
 			SetMovementSpeed(-MassOfLastItemPickedUp);
 			UnstackItems(BaseItemToPick);
-			FinishPickupEvent(BaseItemToPick); // Still create the finish event
 		}
 	}
 
@@ -1240,9 +763,6 @@ void UCPickup::StartDrag()
 	DeltaVectorToDrag.Z = 0;
 
 	SetLockedByComponent(true);
-
-	GenerateDragEvent(ItemToDrag, UsedHand);
-	StartSemLogGraspEvent(ItemToDrag, UsedHand);
 }
 
 void UCPickup::DragItem()
@@ -1271,9 +791,6 @@ void UCPickup::DragItem()
 
 void UCPickup::EndDrag()
 {
-	FinishDragEvent(ItemToDrag);
-	EndSemLogGraspEvent(ItemToDrag);
-
 	ItemToDrag = nullptr;
 	bIsDragging = false;
 }
@@ -1284,16 +801,6 @@ void UCPickup::StartDropItem()
 	SetLockedByComponent(true);
 
 	RotationOfItemToDrop = FRotator::ZeroRotator;
-
-	if (ItemInLeftHand == ItemInRightHand && ItemInLeftHand != nullptr) {
-		GenerateDropEvent(ItemInLeftHand, EHand::Both);
-	}
-	else if (UsedHand == EHand::Right && ItemInRightHand != nullptr) {
-		GenerateDropEvent(ItemInRightHand, EHand::Right);
-	}
-	else if (UsedHand == EHand::Left && ItemInLeftHand != nullptr) {
-		GenerateDropEvent(ItemInLeftHand, EHand::Left);
-	}
 }
 
 void UCPickup::DropItem()
@@ -1334,10 +841,6 @@ void UCPickup::DropItem()
 			Mass += CastActor->GetStaticMeshComponent()->GetMass();
 		}
 	}
-
-	FinishDropEvent(ItemToDrop);
-	EndSemLogGraspEvent(ItemToDrop);
-
 	Mass += ItemToDrop->GetStaticMeshComponent()->GetMass();
 
 	if (ItemInRightHand == ItemInLeftHand) {
@@ -1461,19 +964,6 @@ void UCPickup::CancelActions()
 		// Pick up event canceled
 		if (BaseItemToPick != nullptr) {
 			SetMovementSpeed(-MassOfLastItemPickedUp);
-
-			if (OtherActorToEvent.Contains(BaseItemToPick)) {
-				PlayerCharacter->LogComponent->CancelEvent(OtherActorToEvent[BaseItemToPick]);
-			}
-		}
-	}
-	else {
-		// Drop event canceled
-		if (ItemInLeftHand != nullptr && OtherActorToEvent.Contains(ItemInLeftHand)) {
-			PlayerCharacter->LogComponent->CancelEvent(OtherActorToEvent[ItemInLeftHand]);
-		}
-		else if (ItemInRightHand != nullptr && OtherActorToEvent.Contains(ItemInRightHand)) {
-			PlayerCharacter->LogComponent->CancelEvent(OtherActorToEvent[ItemInRightHand]);
 		}
 	}
 

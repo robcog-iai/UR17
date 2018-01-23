@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "CoreMinimal.h"
-#include "SLRuntimeManager.h"
 #include "COpenClose.generated.h"
 
 class ACharacterController; // Use Forward Declaration. Including the header in COpenClose.cpp
@@ -41,13 +40,6 @@ private:
 
 	AStaticMeshActor* ClickedActor; // The last clicked actor
 	void AddForceToObject(float DeltaTime);
-
-	ASLRuntimeManager* SemLogRuntimeManager; // SemLogger instance
-	TSharedPtr<FOwlNode> CurrentLogEvent; // The current log event
-	TSharedPtr<FOwlNode> CurrentSemLogEvent;
-
-	void StartLogEvent(AActor* ActorToHandle);
-	void FinishLogEvent(AActor* ActorToHandle);
 
 	// *** Input ***
 	bool bLeftMouseHold;

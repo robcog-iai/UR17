@@ -8,7 +8,6 @@
 #include "GameFramework/Actor.h"
 #include "../../StackChecker.h"
 #include "CoreMinimal.h"
-#include "SLRuntimeManager.h"
 #include "CPickup.generated.h"
 
 UENUM()
@@ -124,8 +123,6 @@ private:
 
 	AStaticMeshActor* BaseItemToPick; // The item we are about to pick up	
 
-	TMap<AActor*, TSharedPtr<FOwlNode>> OtherActorToEvent;	// Map of other actor to individual name of the contact event
-
 	EHand UsedHand; // The hand we currently use for our interaction
 
 	bool bIsDragging;
@@ -214,29 +211,6 @@ private:
 	void OnInteractionKeyReleased(bool bIsRightKey);
 
 	void ResetComponentState();
-
-	// Logging
-
-	TTuple<AActor*, TSharedPtr<FOwlNode>> LeftHandLogEvent;
-	TTuple<AActor*, TSharedPtr<FOwlNode>> RightHandLogEvent;
-	TTuple<AActor*, TSharedPtr<FOwlNode>> BothHandLogEvent;
-
-	void GeneratePickupEvent(AActor* ItemToPickup, EHand HandPosition);
-	void FinishPickupEvent(AActor* ItemToPickup);
-
-	void GenerateDropEvent(AActor* ItemToDrop, EHand FromHandPosition);
-	void FinishDropEvent(AActor* ItemToDrop);
-
-	void GenerateDragEvent(AActor* ItemToDrag, EHand FromHandPosition);
-	void FinishDragEvent(AActor* ItemToDrag);
-
-	// Semlog
-	ASLRuntimeManager* SemLogRuntimeManager;
-	TTuple<AActor*, TSharedPtr<FOwlNode>> SemLogLeftHandEvent;
-	TTuple<AActor*, TSharedPtr<FOwlNode>> SemLogRightHandEvent;
-
-	void StartSemLogGraspEvent(AActor* ItemToHandle, EHand HandPosition);
-	void EndSemLogGraspEvent(AActor* ItemToHandle);
 
 	//After this point added by Waldemar Zeitler
 public:

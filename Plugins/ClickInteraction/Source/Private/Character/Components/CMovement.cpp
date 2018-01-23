@@ -15,7 +15,7 @@ UCMovement::UCMovement()
 	,SpeedLimit(5.0f)
 	,SpeedUpValue(0.01f)
 	,SpeedUpTime(0.05f)
-	, bIsMoving(false)
+	,bIsMoving(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -47,8 +47,6 @@ void UCMovement::BeginPlay()
 
 void UCMovement::MoveForward(const float Val) {
 	if (bCanMove == false) return;
-
-
 
 	if ((Character->Controller != nullptr) && (Val != 0.0f))
 	{

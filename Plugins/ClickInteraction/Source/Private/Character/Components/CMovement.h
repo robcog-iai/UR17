@@ -31,7 +31,6 @@ public:
 
 	void AddControllerYawInput(const float Val);
 
-
 	// The maximum (or default) speed
 	UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
 		float MaxMovementSpeed;

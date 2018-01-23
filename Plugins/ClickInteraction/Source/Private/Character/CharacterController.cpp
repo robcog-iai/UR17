@@ -50,7 +50,6 @@ void ACharacterController::BeginPlay()
 	// *** *** *** *** *** ***
 	
 	SetupScenario();
-	GenerateLevelInfo(); // Start logging
 }
 
 // Called every frame
@@ -142,15 +141,6 @@ void ACharacterController::SetupComponentsOnConstructor()
 		PickupComponent->RegisterComponent();
 
 		PickupComponent->PlayerCharacter = this;
-	}
-
-	if (LogComponent == nullptr) {
-		LogComponent = CreateDefaultSubobject<UCLogger>(TEXT("Log Component"));
-		LogComponent->bEditableWhenInherited = true;
-		AddInstanceComponent(LogComponent);
-		LogComponent->RegisterComponent();
-
-		LogComponent->PlayerCharacter = this;
 	}
 }
 

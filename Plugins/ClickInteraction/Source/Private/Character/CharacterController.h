@@ -6,7 +6,6 @@
 #include "../Private/Character/Components/CMovement.h"
 #include "../Private/Character/Components/COpenClose.h"
 #include "../Private/Character/Components/CPickup.h"
-#include "../Private/Character/Components/CLogger.h"
 
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 
@@ -87,8 +86,6 @@ public:
 	UPROPERTY(EditAnywhere, Instanced)
 	UCPickup* PickupComponent;
 
-	UPROPERTY(EditAnywhere, Instanced)
-	UCLogger* LogComponent;
 	// ******************************
 
 	AStaticMeshActor* FocussedActor; // The currently focussed actor
