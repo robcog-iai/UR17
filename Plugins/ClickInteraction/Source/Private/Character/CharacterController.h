@@ -7,7 +7,6 @@
 #include "../Private/Character/Components/COpenClose.h"
 #include "../Private/Character/Components/CPickup.h"
 #include "../Private/Character/Components/CLogger.h"
-#include "SLLevelInfo.h"
 
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 
@@ -70,8 +69,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CI - Debug")
 		bool bIsDebugMode;
 
-	ASLLevelInfo* LevelInfo;
-
 	bool bRaytraceEnabled;
 
 protected:
@@ -106,10 +103,6 @@ public:
 
 	FHitResult GetRaycastResult();
 
-	// Hand individual
-	FOwlIndividualName LeftHandIndividual;
-	FOwlIndividualName RightHandIndividual;
-
 private:
 	ACharacter* Character;
 	FHitResult RaycastResult; // The result of the constant raycasting
@@ -132,8 +125,6 @@ private:
 	void SetPlayerMovable(bool bIsMovable);
 
 	void SetupScenario();
-
-	void GenerateLevelInfo();
 
 	//After this point the code is written by Wlademar Zeitler
 public:

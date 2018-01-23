@@ -9,7 +9,6 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine.h" // Needed for GEngine
 #include "TagStatics.h"
-#include "SLUtils.h"
 #include "../Private/Character/CharacterController.h"
 #include "Components/StaticMeshComponent.h"
 
@@ -142,7 +141,6 @@ void AStackChecker::ShakeDone()
 			EvaluateStabilityCheck();
 		}
 	}
-
 }
 
 void AStackChecker::EvaluateStabilityCheck()

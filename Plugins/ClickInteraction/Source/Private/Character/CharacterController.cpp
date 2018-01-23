@@ -2,7 +2,7 @@
 // Author: David Brinkmann
 
 #define TAG_KEY_INTERACTABLE "Interactable"
-#define CAMERA_TAG "SemLog;Runtime,Dynamic;Class,CharacterCamera;Id,Abci;"
+#define CAMERA_TAG "Runtime,Dynamic;Class,CharacterCamera;Id,Abci;"
 
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 100000.0f,FColor::White,text, false);
 #define printAndStop(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 100000.0f,FColor::Red,text, false); GetWorld()->GetFirstPlayerController()->SetPause(true);
@@ -12,7 +12,6 @@
 #include "CharacterController.h"
 #include "DrawDebugHelpers.h"
 #include "TagStatics.h"
-#include "SLContactManager.h"
 #include "Engine.h" // Needed for GEngine
 
 // Sets default values
@@ -42,47 +41,6 @@ void ACharacterController::BeginPlay()
 	}
 
 	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "ClickInteraction", TAG_KEY_INTERACTABLE, "True");
-
-
-	// Find all SLContactManagerComponents in the world which then will be ignored when raycasting
-	if (GetWorld() != nullptr) {
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-		{
-			// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-			AActor* Actor = *ActorItr;
-
-			UActorComponent* ActorComponent = Actor->GetComponentByClass(USLContactManager::StaticClass());
-			if (ActorComponent != nullptr) {
-				UE_LOG(LogTemp, Warning, TEXT("ACharacterController::BeginPlay: Found component %s in Actor %s"), *ActorComponent->GetName(), *Actor->GetName());
-
-				UPrimitiveComponent* CastComponent = Cast<UPrimitiveComponent>(ActorComponent);
-
-				if (CastComponent == nullptr) {
-					UE_LOG(LogTemp, Warning, TEXT("ACharacterController::BeginPlay: Cast failed %s"), *ActorComponent->GetName());
-				}
-			}
-		}
-	}
-
-	// Get Levelinfo
-	// Get the semantic log runtime manager from the world
-	for (TActorIterator<ASLLevelInfo>RMItr(GetWorld()); RMItr; ++RMItr)
-	{
-		LevelInfo = *RMItr;
-		break;
-	}
-
-
-	// *** Get hand individual
-	int32 RightHandTagIndex = FTagStatics::GetTagTypeIndex(RightHandPosition, "SemLog");
-	if (RightHandTagIndex != INDEX_NONE) {
-		RightHandIndividual = FOwlIndividualName("log", FTagStatics::GetKeyValue(RightHandPosition->Tags[RightHandTagIndex], "Class"), FTagStatics::GetKeyValue(RightHandPosition->Tags[RightHandTagIndex], "Id"));
-	}
-
-	int32 LeftHandTagIndex = FTagStatics::GetTagTypeIndex(LeftHandPosition, "SemLog");
-	if (LeftHandTagIndex != INDEX_NONE) {
-		LeftHandIndividual = FOwlIndividualName("log", FTagStatics::GetKeyValue(LeftHandPosition->Tags[LeftHandTagIndex], "Class"), FTagStatics::GetKeyValue(LeftHandPosition->Tags[LeftHandTagIndex], "Id"));
-	}
 
 	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
 	PlayerController = Cast<APlayerController>(GetController());
@@ -235,8 +193,6 @@ void ACharacterController::StartRaytrace()
 	GetWorld()->LineTraceSingleByChannel(RaycastResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
 }
 
-
-
 void ACharacterController::CheckIntractability()
 {
 	AActor* Actor = RaycastResult.GetActor();
@@ -300,68 +256,6 @@ void ACharacterController::SetupScenario()
 			PickupComponent->bStackModeEnabled = true;
 		}
 		break;
-	}
-}
-
-void ACharacterController::GenerateLevelInfo()
-{
-	if (LevelInfo != nullptr) {
-
-		FOwlTriple LevelProperties;
-		FOwlTriple LevelNumberHands;
-		FOwlTriple LevelStackingEnabled;
-
-		FString ScenarioText; // Scenario for own logger
-		FString GameMode; // Mode for own logger
-
-		switch (ScenarioType) {
-		case EScenarioType::OnePersonBreakfast:
-			LevelProperties = FOwlTriple("knowrob:taskContext", "rdf:datatype", "&xsd;string", "OnePersonBreakfast");
-			ScenarioText = FString("OnePersonBreakfast");
-			break;
-		case EScenarioType::TwoPersonBreakfast:
-			LevelProperties = FOwlTriple("knowrob:taskContext", "rdf:datatype", "&xsd;string", "TwoPersonBreakfast");
-			ScenarioText = FString("TwoPersonBreakfast");
-			break;
-		case EScenarioType::FourPersonBreakfast:
-			LevelProperties = FOwlTriple("knowrob:taskContext", "rdf:datatype", "&xsd;string", "FourPersonBreakfast");
-			ScenarioText = FString("FourPersonBreakfast");
-			break;
-		}
-
-		if (PickupComponent != nullptr) {
-
-			if (PickupComponent->bTwoHandMode) {
-				LevelNumberHands = FOwlTriple("knowrob:numberOfHands", "rdf:datatype", "&xsd;integer", "2");
-				GameMode.Append("Two-Hand");
-			}
-			else {
-				LevelNumberHands = FOwlTriple("knowrob:numberOfHands", "rdf:datatype", "&xsd;integer", "1");
-				GameMode.Append("One-Hand");
-			}
-
-			if (PickupComponent->bStackModeEnabled) {
-				LevelStackingEnabled = FOwlTriple("knowrob:stackingEnabled", "rdf:datatype", "&xsd;bool", "True");
-				GameMode.Append(" (Stack)");
-			}
-			else {
-				LevelStackingEnabled = FOwlTriple("knowrob:stackingEnabled", "rdf:datatype", "&xsd;bool", "False");
-			}
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("ACharacterController::GenerateLevelInfo: Pickup component not found"));
-		}
-
-
-		if (LogComponent != nullptr) {
-			LogComponent->StartLogger(ScenarioText, GameMode);
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("ACharacterController::GenerateLevelInfo: Log component not found"));
-		}
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("ACharacterController::GenerateLevelInfo: Skipping LevelInfo. LevelInfo actor not found"));
 	}
 }
 
