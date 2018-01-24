@@ -23,6 +23,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	bool bIsCutting = false;
+
 	// The rest of the functions
 	UFUNCTION()
 	void OnBladeBeginOverlap(

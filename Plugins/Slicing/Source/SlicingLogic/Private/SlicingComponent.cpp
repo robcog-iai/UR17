@@ -38,7 +38,7 @@ void USlicingComponent::BeginPlay()
 void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	if (!bIsCutting) return;
 	//* Needed for the debug option booleans
 	FSlicingLogicModule& SlicingLogicModule =
 		FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
@@ -70,10 +70,11 @@ void USlicingComponent::OnBladeBeginOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherComp->ComponentHasTag(FName("Cuttable")))
+	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || bIsCutting)
 	{
 		return;
 	}
+	bIsCutting = true;
 	/*
 	Converting the given Component to Procedural Mesh Component
 	*/
@@ -110,7 +111,7 @@ void USlicingComponent::OnBladeEndOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
+	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass() || !bIsCutting)
 	{
 		return;
 	}
@@ -135,4 +136,5 @@ void USlicingComponent::OnBladeEndOverlap(
 
 	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 	Parent->SetCollisionProfileName(FName("PhysicsActor"));
+	bIsCutting = false;
 }
