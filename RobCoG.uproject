@@ -17,11 +17,6 @@
 		{
 			"Name": "ClickInteraction",
 			"Enabled": true
-		},
-		{
-			"Name": "USemLog",
-			"Enabled": true,
-			"MarketplaceURL": "http://robcog.org/"
 		}
 	]
 }
