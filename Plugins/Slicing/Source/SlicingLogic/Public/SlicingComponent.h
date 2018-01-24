@@ -25,6 +25,8 @@ public:
 
 	bool bIsCutting = false;
 
+	FTransform relLocation;
+
 	// The rest of the functions
 	UFUNCTION()
 	void OnBladeBeginOverlap(

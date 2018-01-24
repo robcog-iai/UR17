@@ -75,6 +75,7 @@ void USlicingComponent::OnBladeBeginOverlap(
 		return;
 	}
 	bIsCutting = true;
+	relLocation = OtherComp->GetRelativeTransform();
 	/*
 	Converting the given Component to Procedural Mesh Component
 	*/
@@ -115,6 +116,7 @@ void USlicingComponent::OnBladeEndOverlap(
 	{
 		bIsCutting = false;
 	}
+	if (OverlappedComp->OverlapComponent(relLocation.GetLocation(), relLocation.GetRotation, OverlappedComp->GetCollisionShape())) return;
 	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
 	{
 		return;
