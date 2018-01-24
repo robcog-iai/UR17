@@ -129,6 +129,8 @@ void USlicingComponent::OnBladeEndOverlap(
 	);
 
 	OutputProceduralMesh->bGenerateOverlapEvents = true;
+	OutputProceduralMesh->SetEnableGravity(true);
+	OutputProceduralMesh->SetSimulatePhysics(true);
 	OutputProceduralMesh->ComponentTags = OtherComp->ComponentTags;
 
 	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
