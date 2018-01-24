@@ -16,6 +16,14 @@ public:
 	USlicingComponent();
 
 public:
+	// The names of the sockets that are also needed by the editor
+	static const FName SocketHandleName;
+	static const FName SocketBladeName;
+	static const FName SocketCuttingExitpointName;
+	// The tag names needed for recognition of objects related to the slicing plugin
+	static const FName TagCuttable;
+	static const FName TagCutting;
+
 	// Called before BeginPlay()
 	virtual void InitializeComponent() override;
 	// Called when the game starts

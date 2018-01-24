@@ -11,6 +11,13 @@
 #include "Components/StaticMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
 
+// Setting the text for the static names used in the editor
+const FName USlicingComponent::SocketHandleName = "SlicingHandle";
+const FName USlicingComponent::SocketBladeName = "SlicingBlade";
+const FName USlicingComponent::SocketCuttingExitpointName = "SlicingCuttingExitpoint";
+const FName USlicingComponent::TagCuttable = "Cuttable";
+const FName USlicingComponent::TagCutting = "Knife";
+
 USlicingComponent::USlicingComponent()
 {
 	// Needed if one wants to use the TickComponent function
@@ -49,12 +56,12 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		TArray<USceneComponent*> Parents;
 		this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			Parents[0]->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.01f);
+			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(5, 5), FColor::Red, false, 0.01f);
 	}
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Test"));
+		UE_LOG(LogTemp, Warning, TEXT("CONSOLE OUTPUT WORKS"));
 	}
 
 	if (SlicingLogicModule.bEnableDebugShowTrajectory)
@@ -62,7 +69,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		TArray<USceneComponent*> Parents;
 		this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			Parents[0]->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Blue, false, 1.0f);
+			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(5, 5), FColor::Blue, false, 1.0f);
 	}
 }
 
@@ -70,7 +77,7 @@ void USlicingComponent::OnBladeBeginOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || bIsCutting)
+	if (!OtherComp->ComponentHasTag(TagCuttable) || bIsCutting)
 	{
 		return;
 	}
@@ -119,7 +126,7 @@ void USlicingComponent::OnBladeEndOverlap(
 
 	if (OverlappedComp->OverlapComponent(relLocation.GetLocation(), relLocation.GetRotation(), OverlappedComp->GetCollisionShape())) return;
 
-	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
+	if (!OtherComp->ComponentHasTag(TagCuttable) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
 	{
 		return;
 	}
@@ -129,7 +136,7 @@ void USlicingComponent::OnBladeEndOverlap(
 
 	UKismetProceduralMeshLibrary::SliceProceduralMesh(
 		(UProceduralMeshComponent*)OtherComp,
-		Parents[0]->GetSocketLocation(FName("BladeBox")),
+		Parents[0]->GetSocketLocation(SocketBladeName),
 		Parents[0]->GetUpVector(),
 		true,
 		OutputProceduralMesh,
