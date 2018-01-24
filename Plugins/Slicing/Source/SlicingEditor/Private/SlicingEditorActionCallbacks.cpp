@@ -70,28 +70,26 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Handle"));
 			HandleBox->SetWorldLocation(Mesh->GetSocketLocation("Handle"));
 			FVector TempScale = Mesh->GetSocketTransform(FName("Handle")).GetScale3D();
-			HandleBox->SetBoxExtent(TempScale * 3.5);
-			HandleBox->SetWorldScale3D(FVector(1, 1, 1));
+			HandleBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
 			HandleBox->SetCollisionProfileName(FName("BlockAll"));
 			HandleBox->bGenerateOverlapEvents = false;
-
+			
 			USlicingComponent* BladeBox = NewObject<USlicingComponent>(Mesh, FName("BladeBox"));
 			BladeBox->RegisterComponent();
 			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("BladeBox"));
 			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
 			TempScale = Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D();
-			BladeBox->SetBoxExtent(TempScale * 3.5);
-			BladeBox->SetWorldScale3D(FVector(1, 1, 1));
+			BladeBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
 			BladeBox->bGenerateOverlapEvents = true;
 			BladeBox->SetCollisionProfileName(FName("OverlapAll"));
+			BladeBox->bMultiBodyOverlap = false;
 
 			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>(Mesh, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->RegisterComponent();
 			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpointBox"));
 			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation("CuttingExitpointBox"));
 			TempScale = Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D();
-			CuttingExitpointBox->SetBoxExtent(TempScale * 3.5);
-			CuttingExitpointBox->SetWorldScale3D(FVector(1, 1, 1));
+			CuttingExitpointBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
 			CuttingExitpointBox->SetCollisionProfileName(FName("OverlapAll"));
 			CuttingExitpointBox->bGenerateOverlapEvents = false;
 		} 

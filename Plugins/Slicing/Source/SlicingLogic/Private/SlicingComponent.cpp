@@ -45,7 +45,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if (SlicingLogicModule.bEnableDebugShowPlane)
 	{
-		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), this->GetComponentRotation().Quaternion(), FColor::Green, 0.01f);
+		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), this->GetComponentRotation().Quaternion(), FColor::Green, true, 0.01f);
 		TArray<USceneComponent*> Parents;
 		this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
@@ -111,7 +111,11 @@ void USlicingComponent::OnBladeEndOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass() || !bIsCutting)
+	if (bIsCutting) 
+	{
+		bIsCutting = false;
+	}
+	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
 	{
 		return;
 	}
