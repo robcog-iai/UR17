@@ -46,9 +46,10 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	if (SlicingLogicModule.bEnableDebugShowPlane)
 	{
 		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), this->GetComponentRotation().Quaternion(), FColor::Green);
-
+		TArray<USceneComponent*> Parents;
+		this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.01f);
+			Parents[0]->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.01f);
 	}
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
@@ -58,8 +59,10 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if (SlicingLogicModule.bEnableDebugShowTrajectory)
 	{
+		TArray<USceneComponent*> Parents;
+		this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Blue, false, 1.0f);
+			Parents[0]->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Blue, false, 1.0f);
 	}
 }
 
@@ -112,11 +115,13 @@ void USlicingComponent::OnBladeEndOverlap(
 		return;
 	}
 	UProceduralMeshComponent* OutputProceduralMesh;
+	TArray<USceneComponent*> Parents;
+	this->GetParentComponents(Parents);
 
 	UKismetProceduralMeshLibrary::SliceProceduralMesh(
 		(UProceduralMeshComponent*)OtherComp,
-		this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")),
-		this->GetAttachmentRoot()->GetUpVector(),
+		Parents[0]->GetSocketLocation(FName("BladeBox")),
+		Parents[0]->GetUpVector(),
 		true,
 		OutputProceduralMesh,
 		EProcMeshSliceCapOption::NoCap,
