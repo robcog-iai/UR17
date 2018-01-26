@@ -17,6 +17,10 @@
 		{
 			"Name": "ClickInteraction",
 			"Enabled": true
+		},
+		{
+			"Name": "UGame",
+			"Enabled": false
 		}
 	]
 }

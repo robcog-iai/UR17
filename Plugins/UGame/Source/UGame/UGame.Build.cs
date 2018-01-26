@@ -1,17 +1,17 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: Andrei Haidu (http://haidu.eu)
+// Some copyright should be here...
 
 using UnrealBuildTool;
 
-public class SemLog : ModuleRules
+public class UGame : ModuleRules
 {
-	public SemLog(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-
-        PublicIncludePaths.AddRange(
+	public UGame(ReadOnlyTargetRules Target) : base(Target)
+	{
+		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+		
+		PublicIncludePaths.AddRange(
 			new string[] {
-				"SemLog/Public"
+				"UGame/Public"
+				
 				// ... add public include paths required here ...
 			}
 			);
@@ -19,7 +19,8 @@ public class SemLog : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"SemLog/Private",
+				"UGame/Private",
+				
 				// ... add other private include paths required here ...
 			}
 			);
@@ -29,6 +30,7 @@ public class SemLog : ModuleRules
 			new string[]
 			{
 				"Core",
+				
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -41,9 +43,7 @@ public class SemLog : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "Json",
-                "JsonUtilities",
-				"UTags",
+
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
