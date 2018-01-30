@@ -1,12 +1,12 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
-#define PLUGIN_TAG "ClickInteraction"
+#define PLUGIN_TAG "UGame"
 #define TAG_KEY_PICKUP "Pickup"
 #define STACKCHECK_RANGE 500.0f
 #define PICKUP_SHADOW_SCALE_FACTOR 0.4f // The scale factor when testing collisions on pickup
 
-#include "CPickup.h"
+#include "GPickup.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -15,7 +15,7 @@
 #include "Engine.h"
 
 // Sets default values for this component's properties
-UCPickup::UCPickup()
+UGPickup::UGPickup()
 	:RotationValue(0)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
@@ -45,7 +45,7 @@ UCPickup::UCPickup()
 
 
 // Called when the game starts
-void UCPickup::BeginPlay()
+void UGPickup::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -57,8 +57,8 @@ void UCPickup::BeginPlay()
 
 	UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
 
-	PlayerInputComponent->BindAction("CancelAction", IE_Pressed, this, &UCPickup::CancelActions);
-	PlayerInputComponent->BindAction("CancelAction", IE_Released, this, &UCPickup::StopCancelActions);
+	PlayerInputComponent->BindAction("CancelAction", IE_Pressed, this, &UGPickup::CancelActions);
+	PlayerInputComponent->BindAction("CancelAction", IE_Released, this, &UGPickup::StopCancelActions);
 
 	// Create Static mesh actors for hands to weld items we pickup into this position
 	if (PlayerCharacter->LeftHandPosition == nullptr || PlayerCharacter->RightHandPosition == nullptr || PlayerCharacter->BothHandPosition == nullptr) {
@@ -130,7 +130,7 @@ void UCPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	}
 }
 
-void UCPickup::StartPickup()
+void UGPickup::StartPickup()
 {
 	if (bTwoHandMode == false && (ItemInRightHand != nullptr || ItemInLeftHand != nullptr)) return; // We only have one hand but already holding something
 	SetLockedByComponent(true);
@@ -183,7 +183,7 @@ void UCPickup::StartPickup()
 	// *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 }
 
-void UCPickup::PickupItem()
+void UGPickup::PickupItem()
 {
 	if (BaseItemToPick == nullptr || bItemCanBePickedUp == false) {
 		SetMovementSpeed(-MassOfLastItemPickedUp);
@@ -231,7 +231,7 @@ void UCPickup::PickupItem()
 	PlayerCharacter->bRaytraceEnabled = true;
 }
 
-void UCPickup::ShadowPickupItem()
+void UGPickup::ShadowPickupItem()
 {
 	if (ItemToHandle == nullptr) return;
 	if (BaseItemToPick == nullptr) return;
@@ -332,7 +332,7 @@ void UCPickup::ShadowPickupItem()
 	ShadowBaseItem = ShadowRoot;
 }
 
-TArray<AStaticMeshActor*> UCPickup::FindAllStackableItems(AStaticMeshActor* ActorToPickup)
+TArray<AStaticMeshActor*> UGPickup::FindAllStackableItems(AStaticMeshActor* ActorToPickup)
 {
 	TArray<AStaticMeshActor*>  StackedItems;
 	int countNewItemsFound = 0;
@@ -395,7 +395,7 @@ TArray<AStaticMeshActor*> UCPickup::FindAllStackableItems(AStaticMeshActor* Acto
 	return StackedItems;
 }
 
-AStaticMeshActor * UCPickup::GetItemStack(AStaticMeshActor * BaseItem)
+AStaticMeshActor * UGPickup::GetItemStack(AStaticMeshActor * BaseItem)
 {
 	TArray<AStaticMeshActor*>  StackOfItems = FindAllStackableItems(BaseItem);
 
@@ -411,7 +411,7 @@ AStaticMeshActor * UCPickup::GetItemStack(AStaticMeshActor * BaseItem)
 	return BaseItem;
 }
 
-AStaticMeshActor * UCPickup::GetNewShadowItem(AStaticMeshActor * FromActor)
+AStaticMeshActor * UGPickup::GetNewShadowItem(AStaticMeshActor * FromActor)
 {
 	FActorSpawnParameters Parameters;
 	AStaticMeshActor* NewShadowPickupItem = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), Parameters);
@@ -431,7 +431,7 @@ AStaticMeshActor * UCPickup::GetNewShadowItem(AStaticMeshActor * FromActor)
 	return NewShadowPickupItem;
 }
 
-void UCPickup::UnstackItems(AStaticMeshActor * BaseItem)
+void UGPickup::UnstackItems(AStaticMeshActor * BaseItem)
 {
 	if (BaseItem == nullptr) return;
 
@@ -453,7 +453,7 @@ void UCPickup::UnstackItems(AStaticMeshActor * BaseItem)
 	}
 }
 
-FHitResult UCPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActor * ItemToSweep, TArray<AActor*> IgnoredActors)
+FHitResult UGPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActor * ItemToSweep, TArray<AActor*> IgnoredActors)
 {
 	TArray<FHitResult> Hits;
 	FComponentQueryParams Params;
@@ -470,7 +470,7 @@ FHitResult UCPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActo
 	return FHitResult();
 }
 
-void UCPickup::DisableShadowItems()
+void UGPickup::DisableShadowItems()
 {
 	for (auto& ShdwItm : ShadowItems) {
 		ShdwItm->Destroy();
@@ -485,7 +485,7 @@ void UCPickup::DisableShadowItems()
 	}
 }
 
-FVector UCPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
+FVector UGPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
 {
 	FVector ItemOrigin;
 	FVector ItemBoundExtend;
@@ -496,7 +496,7 @@ FVector UCPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
 	return FVector(PointOnSurface.X, PointOnSurface.Y, PointOnSurface.Z + ItemBoundExtend.Z) - DeltaOfPivotToCenter;
 }
 
-FHitResult UCPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector StartOffset, FVector TargetOffset)
+FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector StartOffset, FVector TargetOffset)
 {
 	FHitResult RaycastResult;
 
@@ -526,30 +526,30 @@ FHitResult UCPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FV
 	return RaycastResult;
 }
 
-void UCPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
+void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("LeftHandAction", IE_Pressed, this, &UCPickup::InputLeftHandPressed);
-	PlayerInputComponent->BindAction("LeftHandAction", IE_Released, this, &UCPickup::InputLeftHandReleased);
+	PlayerInputComponent->BindAction("LeftHandAction", IE_Pressed, this, &UGPickup::InputLeftHandPressed);
+	PlayerInputComponent->BindAction("LeftHandAction", IE_Released, this, &UGPickup::InputLeftHandReleased);
 
-	PlayerInputComponent->BindAction("RightHandAction", IE_Pressed, this, &UCPickup::InputRightHandPressed);
-	PlayerInputComponent->BindAction("RightHandAction", IE_Released, this, &UCPickup::InputRightHandReleased);
+	PlayerInputComponent->BindAction("RightHandAction", IE_Pressed, this, &UGPickup::InputRightHandPressed);
+	PlayerInputComponent->BindAction("RightHandAction", IE_Released, this, &UGPickup::InputRightHandReleased);
 
-	PlayerInputComponent->BindAction("ForceDrop", IE_Pressed, this, &UCPickup::InputForceDrop);
-	PlayerInputComponent->BindAction("ForceDrop", IE_Released, this, &UCPickup::InputForceDrop);
+	PlayerInputComponent->BindAction("ForceDrop", IE_Pressed, this, &UGPickup::InputForceDrop);
+	PlayerInputComponent->BindAction("ForceDrop", IE_Released, this, &UGPickup::InputForceDrop);
 
-	PlayerInputComponent->BindAction("DragObject", IE_Pressed, this, &UCPickup::InputDragging);
-	PlayerInputComponent->BindAction("DragObject", IE_Released, this, &UCPickup::InputDragging);
+	PlayerInputComponent->BindAction("DragObject", IE_Pressed, this, &UGPickup::InputDragging);
+	PlayerInputComponent->BindAction("DragObject", IE_Released, this, &UGPickup::InputDragging);
 
-	PlayerInputComponent->BindAction("ForceSinglePickup", IE_Pressed, this, &UCPickup::InputForceSinglePickup);
-	PlayerInputComponent->BindAction("ForceSinglePickup", IE_Released, this, &UCPickup::InputForceSinglePickup);
+	PlayerInputComponent->BindAction("ForceSinglePickup", IE_Pressed, this, &UGPickup::InputForceSinglePickup);
+	PlayerInputComponent->BindAction("ForceSinglePickup", IE_Released, this, &UGPickup::InputForceSinglePickup);
 
-	PlayerInputComponent->BindAction("RotateDroppingItem", IE_Pressed, this, &UCPickup::StepRotation);
+	PlayerInputComponent->BindAction("RotateDroppingItem", IE_Pressed, this, &UGPickup::StepRotation);
 
 	// Rotation mode after pressing Tab (by Waldemar Zeitler)
-	PlayerInputComponent->BindAction("RotationMode", IE_Pressed, this, &UCPickup::RotationMode);
+	PlayerInputComponent->BindAction("RotationMode", IE_Pressed, this, &UGPickup::RotationMode);
 }
 
-void UCPickup::InputLeftHandPressed()
+void UGPickup::InputLeftHandPressed()
 {
 	if (bLeftMouseHold) return; // We already clicked that key
 	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
@@ -560,7 +560,7 @@ void UCPickup::InputLeftHandPressed()
 	OnInteractionKeyPressed(false);
 }
 
-void UCPickup::InputLeftHandReleased()
+void UGPickup::InputLeftHandReleased()
 {
 	if (bLeftMouseHold == false) return; // We can't release if we didn't clicked first
 	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
@@ -570,7 +570,7 @@ void UCPickup::InputLeftHandReleased()
 	OnInteractionKeyReleased(false);
 }
 
-void UCPickup::InputRightHandPressed()
+void UGPickup::InputRightHandPressed()
 {
 	if (bRightMouseHold) return; // We already clicked that key
 	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
@@ -581,7 +581,7 @@ void UCPickup::InputRightHandPressed()
 	OnInteractionKeyPressed(true);
 }
 
-void UCPickup::InputRightHandReleased()
+void UGPickup::InputRightHandReleased()
 {
 	if (bRightMouseHold == false) return;  // We can't release if we didn't clicked first
 	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
@@ -591,17 +591,17 @@ void UCPickup::InputRightHandReleased()
 	OnInteractionKeyReleased(true);
 }
 
-void UCPickup::InputForceDrop()
+void UGPickup::InputForceDrop()
 {
 	bForceDropKeyDown = !bForceDropKeyDown;
 }
 
-void UCPickup::InputDragging()
+void UGPickup::InputDragging()
 {
 	bDraggingKeyDown = !bDraggingKeyDown;
 }
 
-void UCPickup::InputForceSinglePickup()
+void UGPickup::InputForceSinglePickup()
 {
 	bForceSinglePickupKeyDown = !bForceSinglePickupKeyDown;
 
@@ -613,12 +613,12 @@ void UCPickup::InputForceSinglePickup()
 	GEngine->AddOnScreenDebugMessage(3, MessageDisplayTime, FColor::Green, "Single Item Pickup", false);
 }
 
-void UCPickup::StepRotation()
+void UGPickup::StepRotation()
 {
 	RotationOfItemToDrop += FRotator::MakeFromEuler(FVector(0, 0, 90));
 }
 
-void UCPickup::OnInteractionKeyPressed(bool bIsRightKey)
+void UGPickup::OnInteractionKeyPressed(bool bIsRightKey)
 {
 	if (ItemToHandle != nullptr && bForceDropKeyDown == false) {
 		if (SetOfPickupItems.Contains(ItemToHandle)) {
@@ -652,7 +652,7 @@ void UCPickup::OnInteractionKeyPressed(bool bIsRightKey)
 	}
 }
 
-void UCPickup::OnInteractionKeyHold(bool bIsRightKey)
+void UGPickup::OnInteractionKeyHold(bool bIsRightKey)
 {
 	if (bIsDragging) {
 		DragItem();
@@ -665,7 +665,7 @@ void UCPickup::OnInteractionKeyHold(bool bIsRightKey)
 	}
 }
 
-void UCPickup::OnInteractionKeyReleased(bool bIsRightKey)
+void UGPickup::OnInteractionKeyReleased(bool bIsRightKey)
 {
 	if (bIsDragging) {
 		EndDrag();
@@ -683,7 +683,7 @@ void UCPickup::OnInteractionKeyReleased(bool bIsRightKey)
 	ResetComponentState();
 }
 
-void UCPickup::ResetComponentState()
+void UGPickup::ResetComponentState()
 {
 	DisableShadowItems();
 	SetLockedByComponent(false);
@@ -691,7 +691,7 @@ void UCPickup::ResetComponentState()
 	CancelDetachItems();
 }
 
-void UCPickup::RotationMode()
+void UGPickup::RotationMode()
 {
 	if (RotationValue == 0 && UsedHand == EHand::Left) {
 		RotationValue = 1;
@@ -704,7 +704,7 @@ void UCPickup::RotationMode()
 	}
 }
 
-void UCPickup::StartStackCheck()
+void UGPickup::StartStackCheck()
 {
 	if (BaseItemToPick != nullptr && StackChecker != nullptr) {
 		TArray<AActor*> Children;
@@ -723,7 +723,7 @@ void UCPickup::StartStackCheck()
 	}
 }
 
-void UCPickup::OnStackCheckIsDone(bool wasSuccessful)
+void UGPickup::OnStackCheckIsDone(bool wasSuccessful)
 {
 
 	bStackCheckSuccess = wasSuccessful;
@@ -748,7 +748,7 @@ void UCPickup::OnStackCheckIsDone(bool wasSuccessful)
 	}
 }
 
-void UCPickup::StartDrag()
+void UGPickup::StartDrag()
 {
 	ItemToDrag = ItemToHandle;
 	bIsDragging = true;
@@ -765,7 +765,7 @@ void UCPickup::StartDrag()
 	SetLockedByComponent(true);
 }
 
-void UCPickup::DragItem()
+void UGPickup::DragItem()
 {
 	if (ItemToDrag == nullptr) return;
 	if (UsedHand == EHand::Right && ItemInRightHand != nullptr || UsedHand == EHand::Left && ItemInLeftHand != nullptr || UsedHand == EHand::Both && ItemInLeftHand != nullptr) {
@@ -789,13 +789,13 @@ void UCPickup::DragItem()
 
 }
 
-void UCPickup::EndDrag()
+void UGPickup::EndDrag()
 {
 	ItemToDrag = nullptr;
 	bIsDragging = false;
 }
 
-void UCPickup::StartDropItem()
+void UGPickup::StartDropItem()
 {
 	bIsItemDropping = true;
 	SetLockedByComponent(true);
@@ -803,7 +803,7 @@ void UCPickup::StartDropItem()
 	RotationOfItemToDrop = FRotator::ZeroRotator;
 }
 
-void UCPickup::DropItem()
+void UGPickup::DropItem()
 {
 	bIsItemDropping = false;
 	if (ShadowBaseItem == nullptr) return;
@@ -858,7 +858,7 @@ void UCPickup::DropItem()
 	}
 }
 
-void UCPickup::ShadowDropItem()
+void UGPickup::ShadowDropItem()
 {
 	DisableShadowItems();
 
@@ -954,7 +954,7 @@ void UCPickup::ShadowDropItem()
 	}
 }
 
-void UCPickup::CancelActions()
+void UGPickup::CancelActions()
 {
 	bAllCanceled = true;
 	ResetComponentState();
@@ -973,12 +973,12 @@ void UCPickup::CancelActions()
 	bLeftMouseHold = false;
 }
 
-void UCPickup::StopCancelActions()
+void UGPickup::StopCancelActions()
 {
 	bAllCanceled = false;
 }
 
-void UCPickup::CancelDetachItems()
+void UGPickup::CancelDetachItems()
 {
 	if (BaseItemToPick != nullptr) {
 		TArray<AActor*> Children;
@@ -992,7 +992,7 @@ void UCPickup::CancelDetachItems()
 	}
 }
 
-void UCPickup::SetLockedByComponent(bool bIsLocked)
+void UGPickup::SetLockedByComponent(bool bIsLocked)
 {
 	if (bIsLocked) {
 		PlayerCharacter->LockedByComponent = this;
@@ -1002,7 +1002,7 @@ void UCPickup::SetLockedByComponent(bool bIsLocked)
 	}
 }
 
-bool UCPickup::CalculateIfBothHandsNeeded()
+bool UGPickup::CalculateIfBothHandsNeeded()
 {
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(true);
 	if (bBothHandsDependOnMass) {

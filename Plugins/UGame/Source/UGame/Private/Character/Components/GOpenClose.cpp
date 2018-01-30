@@ -1,10 +1,10 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
 #define TAG_KEY_OPENCLOSABLE "OpenCloseable"
 
 // Fill out your copyright notice in the Description page of Project Settings.
-#include "COpenClose.h"
+#include "GOpenClose.h"
 
 #include "../Private/Character/CharacterController.h"
 #include "Components/StaticMeshComponent.h"
@@ -15,7 +15,7 @@
 
 
 // Sets default values for this component's properties
-UCOpenClose::UCOpenClose()
+UGOpenClose::UGOpenClose()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -26,18 +26,18 @@ UCOpenClose::UCOpenClose()
 
 
 // Called when the game starts
-void UCOpenClose::BeginPlay()
+void UGOpenClose::BeginPlay()
 {
 	Super::BeginPlay();
 
 	SetOfOpenCloasableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "ClickInteraction", TAG_KEY_OPENCLOSABLE, "True");
 
-	if (PlayerCharacter == nullptr) UE_LOG(LogTemp, Fatal, TEXT("UCOpenClose::BeginPlay: The PlayerCharacter was not assigned. Restarting the editor might fix this."));
+	if (PlayerCharacter == nullptr) UE_LOG(LogTemp, Fatal, TEXT("UGOpenClose::BeginPlay: The PlayerCharacter was not assigned. Restarting the editor might fix this."));
 }
 
 
 // Called every frame
-void UCOpenClose::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGOpenClose::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -47,16 +47,16 @@ void UCOpenClose::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	OnInteractionKeyHold(bRightMouseHold, DeltaTime);
 }
 
-void UCOpenClose::SetupKeyBindings(UInputComponent * PlayerInputComponent)
+void UGOpenClose::SetupKeyBindings(UInputComponent * PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("LeftHandAction", IE_Pressed, this, &UCOpenClose::InputLeftHandPressed);
-	PlayerInputComponent->BindAction("LeftHandAction", IE_Released, this, &UCOpenClose::InputLeftHandReleased);
+	PlayerInputComponent->BindAction("LeftHandAction", IE_Pressed, this, &UGOpenClose::InputLeftHandPressed);
+	PlayerInputComponent->BindAction("LeftHandAction", IE_Released, this, &UGOpenClose::InputLeftHandReleased);
 
-	PlayerInputComponent->BindAction("RightHandAction", IE_Pressed, this, &UCOpenClose::InputRightHandPressed);
-	PlayerInputComponent->BindAction("RightHandAction", IE_Released, this, &UCOpenClose::InputRightHandReleased);
+	PlayerInputComponent->BindAction("RightHandAction", IE_Pressed, this, &UGOpenClose::InputRightHandPressed);
+	PlayerInputComponent->BindAction("RightHandAction", IE_Released, this, &UGOpenClose::InputRightHandReleased);
 }
 
-void UCOpenClose::SetLockedByComponent(bool bIsLocked)
+void UGOpenClose::SetLockedByComponent(bool bIsLocked)
 {
 	if (bIsLocked) {
 		PlayerCharacter->LockedByComponent = this;
@@ -66,7 +66,7 @@ void UCOpenClose::SetLockedByComponent(bool bIsLocked)
 	}
 }
 
-void UCOpenClose::AddForceToObject(float DeltaTime)
+void UGOpenClose::AddForceToObject(float DeltaTime)
 {
 	float MouseX;
 	float MouseY;
@@ -84,7 +84,7 @@ void UCOpenClose::AddForceToObject(float DeltaTime)
 	Mesh->AddForce(Actor->GetActorForwardVector() * ForceToAdd, NAME_None, true);
 }
 
-void UCOpenClose::InputLeftHandPressed()
+void UGOpenClose::InputLeftHandPressed()
 {
 	if (bLeftMouseHold) return; // We already clicked that key
 	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
@@ -93,7 +93,7 @@ void UCOpenClose::InputLeftHandPressed()
 	OnInteractionKeyPressed(false);
 }
 
-void UCOpenClose::InputLeftHandReleased()
+void UGOpenClose::InputLeftHandReleased()
 {
 	if (bLeftMouseHold == false) return; // We can't release if we didn't clicked first
 	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
@@ -102,7 +102,7 @@ void UCOpenClose::InputLeftHandReleased()
 	OnInteractionKeyReleased(false);
 }
 
-void UCOpenClose::InputRightHandPressed()
+void UGOpenClose::InputRightHandPressed()
 {
 	if (bRightMouseHold) return; // We already clicked that key
 	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
@@ -111,7 +111,7 @@ void UCOpenClose::InputRightHandPressed()
 	OnInteractionKeyPressed(true);
 }
 
-void UCOpenClose::InputRightHandReleased()
+void UGOpenClose::InputRightHandReleased()
 {
 	if (bRightMouseHold == false) return;  // We can't release if we didn't clicked first
 	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
@@ -120,7 +120,7 @@ void UCOpenClose::InputRightHandReleased()
 	OnInteractionKeyReleased(true);
 }
 
-void UCOpenClose::OnInteractionKeyPressed(bool bIsRightKey)
+void UGOpenClose::OnInteractionKeyPressed(bool bIsRightKey)
 {
 	if (PlayerCharacter->FocussedActor != nullptr && SetOfOpenCloasableItems.Contains(PlayerCharacter->FocussedActor))
 	{
@@ -154,7 +154,7 @@ void UCOpenClose::OnInteractionKeyPressed(bool bIsRightKey)
 	}
 }
 
-void UCOpenClose::OnInteractionKeyHold(bool bIsRightKey, float DeltaTime)
+void UGOpenClose::OnInteractionKeyHold(bool bIsRightKey, float DeltaTime)
 {
 	if (ClickedActor != nullptr)
 	{
@@ -163,7 +163,7 @@ void UCOpenClose::OnInteractionKeyHold(bool bIsRightKey, float DeltaTime)
 	}
 }
 
-void UCOpenClose::OnInteractionKeyReleased(bool bIsRightKey)
+void UGOpenClose::OnInteractionKeyReleased(bool bIsRightKey)
 {
 	if (ClickedActor != nullptr)
 	{

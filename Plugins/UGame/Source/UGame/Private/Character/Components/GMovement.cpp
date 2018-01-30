@@ -1,16 +1,16 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
 #define CROUCHING_HEIGHT 0.3f
 #define CROUCH_SPEED 0.2f
 
-#include "CMovement.h"
+#include "GMovement.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values for this component's properties
-UCMovement::UCMovement()
+UGMovement::UGMovement()
 	:CurrentSpeed(0)
 	,SpeedLimit(5.0f)
 	,SpeedUpValue(0.01f)
@@ -29,7 +29,7 @@ UCMovement::UCMovement()
 
 
 // Called when the game starts
-void UCMovement::BeginPlay()
+void UGMovement::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -45,7 +45,7 @@ void UCMovement::BeginPlay()
 	SetMovable(true);
 }
 
-void UCMovement::MoveForward(const float Val) {
+void UGMovement::MoveForward(const float Val) {
 	if (bCanMove == false) return;
 
 	if ((Character->Controller != nullptr) && (Val != 0.0f))
@@ -76,7 +76,7 @@ void UCMovement::MoveForward(const float Val) {
 	}
 }
 
-void UCMovement::MoveRight(const float Val) {
+void UGMovement::MoveRight(const float Val) {
 	if (bCanMove == false) return;
 
 	if ((Character->Controller != nullptr) && (Val != 0.0f))
@@ -103,7 +103,7 @@ void UCMovement::MoveRight(const float Val) {
 	}
 }
 
-void UCMovement::AddControllerPitchInput(const float Val) {
+void UGMovement::AddControllerPitchInput(const float Val) {
 	if (bCanMove == false) return;
 
 	if (Character != nullptr)
@@ -112,7 +112,7 @@ void UCMovement::AddControllerPitchInput(const float Val) {
 	}
 }
 
-void UCMovement::AddControllerYawInput(const float Val) {
+void UGMovement::AddControllerYawInput(const float Val) {
 	if (bCanMove == false) return;
 	if (Character != nullptr)
 	{
@@ -120,21 +120,21 @@ void UCMovement::AddControllerYawInput(const float Val) {
 	}
 }
 
-void UCMovement::ToggleCrouch()
+void UGMovement::ToggleCrouch()
 {
 	if (bIsCrouching) {
 		// We stopped crouching
 		bIsCrouching = false;
-		GetOwner()->GetWorldTimerManager().SetTimer(CrouchTimer, this, &UCMovement::SmoothStandUp, 0.001f, true);
+		GetOwner()->GetWorldTimerManager().SetTimer(CrouchTimer, this, &UGMovement::SmoothStandUp, 0.001f, true);
 	}
 	else {
 		// We started crouching
 		bIsCrouching = true;
-		GetOwner()->GetWorldTimerManager().SetTimer(CrouchTimer, this, &UCMovement::SmoothCrouch, 0.001f, true);
+		GetOwner()->GetWorldTimerManager().SetTimer(CrouchTimer, this, &UGMovement::SmoothCrouch, 0.001f, true);
 	}
 }
 
-void UCMovement::SmoothCrouch()
+void UGMovement::SmoothCrouch()
 {
 	UCapsuleComponent* Capsule = Character->GetCapsuleComponent();
 
@@ -146,7 +146,7 @@ void UCMovement::SmoothCrouch()
 	}
 }
 
-void UCMovement::SmoothStandUp()
+void UGMovement::SmoothStandUp()
 {
 	UCapsuleComponent* Capsule = Character->GetCapsuleComponent();
 
@@ -160,7 +160,7 @@ void UCMovement::SmoothStandUp()
 
 
 // Called every frame
-void UCMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	// Check if the character is still moving. If not reset the CurrentSpeed and SpeedUpTime. (By Waldemar Zeitler)
@@ -173,7 +173,7 @@ void UCMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 }
 
 
-void UCMovement::SetupKeyBindings(UInputComponent * PlayerInputComponent)
+void UGMovement::SetupKeyBindings(UInputComponent * PlayerInputComponent)
 {
 	/* Setup Input
 	/* In Project setings -> Input
@@ -185,23 +185,23 @@ void UCMovement::SetupKeyBindings(UInputComponent * PlayerInputComponent)
 	*/
 
 	// Set up gameplay key bindings
-	PlayerInputComponent->BindAxis("MoveForward", this, &UCMovement::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &UCMovement::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &UGMovement::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &UGMovement::MoveRight);
 	// Default Camera view bindings
-	PlayerInputComponent->BindAxis("CameraPitch", this, &UCMovement::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("CameraYaw", this, &UCMovement::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("CameraPitch", this, &UGMovement::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("CameraYaw", this, &UGMovement::AddControllerYawInput);
 
-	PlayerInputComponent->BindAction("ToggleCrouch", IE_Pressed, this, &UCMovement::ToggleCrouch);
-	PlayerInputComponent->BindAction("ToggleCrouch", IE_Released, this, &UCMovement::ToggleCrouch);
+	PlayerInputComponent->BindAction("ToggleCrouch", IE_Pressed, this, &UGMovement::ToggleCrouch);
+	PlayerInputComponent->BindAction("ToggleCrouch", IE_Released, this, &UGMovement::ToggleCrouch);
 
 }
 
-void UCMovement::SetMovable(bool bCanMove)
+void UGMovement::SetMovable(bool bCanMove)
 {
 	this->bCanMove = bCanMove;
 }
 
-float UCMovement::VelocitySpeedUp(float TimeStep)
+float UGMovement::VelocitySpeedUp(float TimeStep)
 {
 	// The variables are fixed and change the curve of the function, if changed
 	int TVariable = 1;

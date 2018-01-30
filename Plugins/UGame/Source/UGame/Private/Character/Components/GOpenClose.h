@@ -1,24 +1,24 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
 #pragma once
 
 #include "Components/ActorComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "CoreMinimal.h"
-#include "COpenClose.generated.h"
+#include "GOpenClose.generated.h"
 
 class ACharacterController; // Use Forward Declaration. Including the header in COpenClose.cpp
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class CLICKINTERACTION_API UCOpenClose : public UActorComponent
+class UGAME_API UGOpenClose : public UActorComponent
 {
 	GENERATED_BODY()
 
 
 public:
 	// Sets default values for this component's properties
-	UCOpenClose();
+	UGOpenClose();
 
 	UPROPERTY(EditAnyWhere, Category = "CI - General")
 		float ForceToApply;

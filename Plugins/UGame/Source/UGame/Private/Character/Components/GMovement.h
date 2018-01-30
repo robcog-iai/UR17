@@ -1,5 +1,5 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
 #pragma once
 
@@ -7,16 +7,16 @@
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
 #include "Engine.h"
-#include "CMovement.generated.h"
+#include "GMovement.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class CLICKINTERACTION_API UCMovement : public UActorComponent
+class UGAME_API UGMovement : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UCMovement();
+	UGMovement();
 
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -1,14 +1,13 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
 #pragma once
 
 #include "Components/ActorComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Actor.h"
-#include "../../StackChecker.h"
 #include "CoreMinimal.h"
-#include "CPickup.generated.h"
+#include "GPickup.generated.h"
 
 UENUM()
 enum EHand
@@ -21,13 +20,13 @@ enum EHand
 class ACharacterController; // Use Forward Declaration. Including the header in CPickup.cpp
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class CLICKINTERACTION_API UCPickup : public UActorComponent
+class UGAME_API UGPickup : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UCPickup();
+	UGPickup();
 
 	AStaticMeshActor* ItemInLeftHand;
 	AStaticMeshActor* ItemInRightHand;

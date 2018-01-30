@@ -1,11 +1,11 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
 #pragma once
 
-#include "../Private/Character/Components/CMovement.h"
-#include "../Private/Character/Components/COpenClose.h"
-#include "../Private/Character/Components/CPickup.h"
+#include "../Private/Character/Components/GMovement.h"
+#include "../Private/Character/Components/GOpenClose.h"
+#include "../Private/Character/Components/GPickup.h"
 
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 
@@ -13,7 +13,7 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/Character.h"
-#include "CharacterController.generated.h"
+#include "GameController.generated.h"
 
 UENUM(BlueprintType)
 enum class EScenarioType : uint8
@@ -32,13 +32,13 @@ enum class EInteractionMode : uint8
 };
 
 UCLASS()
-class CLICKINTERACTION_API ACharacterController : public ACharacter
+class UGAME_API AGameController : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	ACharacterController();
+	AGameController();
 
 	// The context scenario type
 	UPROPERTY(EditAnywhere, Category = "CI - Scenario Setup")
@@ -78,13 +78,13 @@ public:
 
 	// Components attached to this actor
 	UPROPERTY(EditAnywhere, Instanced)
-	UCMovement* MovementComponent;
+	UGMovement* MovementComponent;
 
 	UPROPERTY(EditAnywhere, Instanced)
-	UCOpenClose* OpenCloseComponent;
+	UGOpenClose* OpenCloseComponent;
 
 	UPROPERTY(EditAnywhere, Instanced)
-	UCPickup* PickupComponent;
+	UGPickup* PickupComponent;
 
 	// ******************************
 

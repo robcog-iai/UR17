@@ -1,5 +1,5 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
-// Author: David Brinkmann
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
 #define TAG_KEY_INTERACTABLE "Interactable"
 #define CAMERA_TAG "Runtime,Dynamic;Class,CharacterCamera;Id,Abci;"
@@ -9,13 +9,13 @@
 #define logText(text) UE_LOG(LogTemp, Warning, TEXT(text));
 #define logAndStop(text) UE_LOG(LogTemp, Warning, TEXT(text)); GetWorld()->GetFirstPlayerController()->SetPause(true);
 
-#include "CharacterController.h"
+#include "GameController.h"
 #include "DrawDebugHelpers.h"
 #include "TagStatics.h"
 #include "Engine.h" // Needed for GEngine
 
 // Sets default values
-ACharacterController::ACharacterController()
+AGameController::AGameController()
 	:PlayerController(nullptr) // Set PlayerController (by Waldemar Zeitler)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -29,7 +29,7 @@ ACharacterController::ACharacterController()
 }
 
 // Called when the game starts or when spawned
-void ACharacterController::BeginPlay()
+void AGameController::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -53,7 +53,7 @@ void ACharacterController::BeginPlay()
 }
 
 // Called every frame
-void ACharacterController::Tick(float DeltaTime)
+void AGameController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -67,7 +67,7 @@ void ACharacterController::Tick(float DeltaTime)
 
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
-	// Rotate the object depending of the rotation mode
+	// Rotate the object depending of the rotation mode by Waldemar Zeitler
 	if (PickupComponent->RotationValue != 0) {
 		// Get mouse position on screen
 		float XMouse;
@@ -107,7 +107,7 @@ void ACharacterController::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void ACharacterController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -116,17 +116,17 @@ void ACharacterController::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (OpenCloseComponent != nullptr) OpenCloseComponent->SetupKeyBindings(PlayerInputComponent);
 }
 
-void ACharacterController::SetupComponentsOnConstructor()
+void AGameController::SetupComponentsOnConstructor()
 {
 	if (MovementComponent == nullptr) {
-		MovementComponent = CreateDefaultSubobject<UCMovement>(TEXT("Movement Component"));
+		MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
 		MovementComponent->bEditableWhenInherited = true;
 		AddInstanceComponent(MovementComponent);
 		MovementComponent->RegisterComponent();
 	}
 
 	if (OpenCloseComponent == nullptr) {
-		OpenCloseComponent = CreateDefaultSubobject<UCOpenClose>(TEXT("OpenClose Component"));
+		OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
 		OpenCloseComponent->bEditableWhenInherited = true;
 		AddInstanceComponent(OpenCloseComponent);
 		OpenCloseComponent->RegisterComponent();
@@ -135,7 +135,7 @@ void ACharacterController::SetupComponentsOnConstructor()
 	}
 
 	if (PickupComponent == nullptr) {
-		PickupComponent = CreateDefaultSubobject<UCPickup>(TEXT("Pickup Component"));
+		PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
 		PickupComponent->bEditableWhenInherited = true;
 		AddInstanceComponent(PickupComponent);
 		PickupComponent->RegisterComponent();
@@ -144,7 +144,7 @@ void ACharacterController::SetupComponentsOnConstructor()
 	}
 }
 
-void ACharacterController::StartRaytrace()
+void AGameController::StartRaytrace()
 {
 	if (bRaytraceEnabled == false) return;
 	FVector CamLoc;
@@ -183,7 +183,7 @@ void ACharacterController::StartRaytrace()
 	GetWorld()->LineTraceSingleByChannel(RaycastResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
 }
 
-void ACharacterController::CheckIntractability()
+void AGameController::CheckIntractability()
 {
 	AActor* Actor = RaycastResult.GetActor();
 
@@ -216,7 +216,7 @@ void ACharacterController::CheckIntractability()
 	}
 }
 
-void ACharacterController::SetPlayerMovable(bool bIsMovable)
+void AGameController::SetPlayerMovable(bool bIsMovable)
 {
 	if (MovementComponent != nullptr)
 	{
@@ -225,7 +225,7 @@ void ACharacterController::SetPlayerMovable(bool bIsMovable)
 	}
 }
 
-void ACharacterController::SetupScenario()
+void AGameController::SetupScenario()
 {
 	switch (InteractionMode) {
 	case EInteractionMode::OneHandMode:
@@ -249,7 +249,7 @@ void ACharacterController::SetupScenario()
 	}
 }
 
-FHitResult ACharacterController::GetRaycastResult()
+FHitResult AGameController::GetRaycastResult()
 {
 	return RaycastResult;
 }
