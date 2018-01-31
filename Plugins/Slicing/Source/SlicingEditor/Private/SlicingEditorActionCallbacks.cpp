@@ -5,9 +5,10 @@
 
 #include "Core.h"
 #include "Editor.h"
-#include "Engine/Selection.h"
 
 #include "Components/BoxComponent.h"
+#include "Engine/Selection.h"
+#include "Engine/StaticMeshActor.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
 
@@ -58,56 +59,73 @@ bool FSlicingEditorActionCallbacks::OnIsEnableDebugShowTrajectoryEnabled(bool* b
 	return *bButtonValue;
 }
 
-void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
+void FSlicingEditorActionCallbacks::FillSocketsWithComponents()
 {
-	USelection* Selection = GEditor->GetSelectedComponents();
-	UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Selection->GetSelectedObject(0));
-	if (Mesh != NULL && Mesh != nullptr)
+	// Get all selected StaticMeshActors
+	TArray<AStaticMeshActor*> SelectedStaticMeshActors;
+	GEditor->GetSelectedActors()->GetSelectedObjects<AStaticMeshActor>(SelectedStaticMeshActors);
+
+	// DEBUG (console)
+	if (SelectedStaticMeshActors.Num() == 0)
 	{
-		if (Mesh->ComponentHasTag(FName("Knife")))
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: No StaticMeshActor was selected."));
+	}
+
+	// Create the BoxComponents for every selected StaticMeshActor
+	for (AStaticMeshActor* StaticMeshActor : SelectedStaticMeshActors)
+	{
+		UStaticMeshComponent* StaticMesh = StaticMeshActor->GetStaticMeshComponent();
+
+		if (StaticMesh->ComponentHasTag(FName("Knife")))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Has Sockets = Success"));
+			UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: Socket-filling --SUCCESSFUL--"));
 
-			float BoxScale = 3.5;
-
-			UBoxComponent* HandleBox = NewObject<UBoxComponent>(Mesh, USlicingComponent::SocketHandleName);
-			HandleBox->RegisterComponent();
-			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, USlicingComponent::SocketHandleName);
-			HandleBox->SetWorldLocation(Mesh->GetSocketLocation(USlicingComponent::SocketHandleName));
-			FVector TempScale = Mesh->GetSocketTransform(USlicingComponent::SocketHandleName).GetScale3D();
-			HandleBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
-			HandleBox->SetCollisionProfileName(FName("BlockAll"));
-			HandleBox->bGenerateOverlapEvents = false;
-			
-			USlicingComponent* BladeBox = NewObject<USlicingComponent>(Mesh, USlicingComponent::SocketBladeName);
-			BladeBox->RegisterComponent();
-			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, USlicingComponent::SocketBladeName);
-			BladeBox->SetWorldLocation(Mesh->GetSocketLocation(USlicingComponent::SocketBladeName));
-			TempScale = Mesh->GetSocketTransform(USlicingComponent::SocketBladeName).GetScale3D();
-			BladeBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
-			BladeBox->bGenerateOverlapEvents = true;
-			BladeBox->SetCollisionProfileName(FName("OverlapAll"));
-			BladeBox->bMultiBodyOverlap = false;
-
-			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>(Mesh, USlicingComponent::SocketCuttingExitpointName);
-			CuttingExitpointBox->RegisterComponent();
-			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, USlicingComponent::SocketCuttingExitpointName);
-			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation(USlicingComponent::SocketCuttingExitpointName));
-			TempScale = Mesh->GetSocketTransform(USlicingComponent::SocketCuttingExitpointName).GetScale3D();
-			CuttingExitpointBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
-			CuttingExitpointBox->SetCollisionProfileName(FName("OverlapAll"));
-			CuttingExitpointBox->bGenerateOverlapEvents = false;
-		} 
+			FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
+			FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
+			FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(StaticMesh);
+		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Has Sockets = FAILURE"));
+			UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: Does not have proper sockets."));
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Null Error in Box Creation"));
-	}
 }
+
+void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents)
+{
+	float SocketToBoxScale = 3.5;
+
+	BoxComponent->RegisterComponent();
+	BoxComponent->AttachToComponent(StaticMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
+	BoxComponent->SetWorldLocation(StaticMesh->GetSocketLocation(SocketName));
+	FVector TempScale = StaticMesh->GetSocketTransform(SocketName).GetScale3D();
+	BoxComponent->SetBoxExtent(FVector(1, 1, 1) * SocketToBoxScale);
+	BoxComponent->SetCollisionProfileName(CollisionProfileName);
+	BoxComponent->bGenerateOverlapEvents = bGenerateOverlapEvents;
+	BoxComponent->bMultiBodyOverlap = false;
+}
+
+void FSlicingEditorActionCallbacks::AddHandleComponent(UStaticMeshComponent* StaticMesh)
+{
+	UBoxComponent* HandleComponent = NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketHandleName);
+	
+	FSlicingEditorActionCallbacks::AddBoxComponent(StaticMesh, HandleComponent, USlicingComponent::SocketHandleName, FName("BlockAll"), false);
+}
+
+void FSlicingEditorActionCallbacks::AddBladeComponent(UStaticMeshComponent* StaticMesh)
+{
+	USlicingComponent* BladeComponent = NewObject<USlicingComponent>(StaticMesh, USlicingComponent::SocketBladeName);
+
+	FSlicingEditorActionCallbacks::AddBoxComponent(StaticMesh, BladeComponent, USlicingComponent::SocketBladeName, FName("OverlapAll"), true);
+}
+
+void FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(UStaticMeshComponent* StaticMesh)
+{
+	UBoxComponent* CuttingExitpointComponent = NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketCuttingExitpointName);
+
+	FSlicingEditorActionCallbacks::AddBoxComponent(StaticMesh, CuttingExitpointComponent, USlicingComponent::SocketCuttingExitpointName, FName("OverlapAll"), false);
+}
+
 
 void FSlicingEditorActionCallbacks::ReplaceSocketsOfAllStaticMeshComponents()
 {

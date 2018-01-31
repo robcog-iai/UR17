@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 
+#include "Components/BoxComponent.h"
+
 class FSlicingEditorActionCallbacks
 {
 public:
-
 	/** Static mesh editor */
 	static void ShowInstructions();
 
@@ -20,7 +21,14 @@ public:
 
 	/** Level editor helper functions */
 	//* Replaces the marked sockets of a selected StaticMeshComponent to Components that can be used for slicing
-	static void ReplaceSocketsWithComponents();
+	static void FillSocketsWithComponents();
 	//* Replaces the marked sockets of ALL StaticMeshComponents to Components that can be used for slicing
 	static void ReplaceSocketsOfAllStaticMeshComponents();
+
+private:
+	/** Creates the components that fill the sockets */
+	static void AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents);
+	static void AddHandleComponent(UStaticMeshComponent* StaticMesh);
+	static void AddBladeComponent(UStaticMeshComponent* StaticMesh);
+	static void AddCuttingExitpointComponent(UStaticMeshComponent* StaticMesh);
 };
