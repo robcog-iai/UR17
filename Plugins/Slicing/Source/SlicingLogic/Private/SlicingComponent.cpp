@@ -88,7 +88,7 @@ void USlicingComponent::OnBladeBeginOverlap(
 	}
 	bIsCutting = true;
 	//relLocation = OtherComp->GetRelativeTransform();
-	relLocation = OtherComp->GetRelativeTransform().GetRelativeTransform(OverlappedComp->GetComponentTransform());
+	relLocation = OtherComp->GetComponentTransform().GetRelativeTransform(OverlappedComp->GetComponentTransform());
 	/*
 	Converting the given Component to Procedural Mesh Component
 	*/
