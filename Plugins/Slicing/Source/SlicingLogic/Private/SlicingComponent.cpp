@@ -10,6 +10,7 @@
 #include "ProceduralMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
+#include "TransformCalculus.h"
 
 // Setting the text for the static names used in the editor
 const FName USlicingComponent::SocketHandleName = "SlicingHandle";
@@ -88,7 +89,8 @@ void USlicingComponent::OnBladeBeginOverlap(
 	}
 	bIsCutting = true;
 	//relLocation = OtherComp->GetRelativeTransform();
-	relLocation = OtherComp->GetComponentTransform().GetRelativeTransform(OverlappedComp->GetComponentTransform());
+	relLocation = OtherComp->GetComponentTransform().GetRelativeTransformReverse(OverlappedComp->GetComponentTransform());
+	
 	/*
 	Converting the given Component to Procedural Mesh Component
 	*/
