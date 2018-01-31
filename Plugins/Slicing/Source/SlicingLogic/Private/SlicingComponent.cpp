@@ -102,7 +102,7 @@ void USlicingComponent::OnBladeBeginOverlap(
 
 			UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
 				((UStaticMeshComponent*)ReferencedComponent), 0, NewComponent, true);
-
+			bIsCutting = false;
 			ReferencedComponent->DestroyComponent();
 		}
 	}
@@ -112,9 +112,9 @@ void USlicingComponent::OnBladeEndOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (bIsCutting) 
+	if (!bIsCutting) 
 	{
-		bIsCutting = false;
+		return;
 	}
 
 	if (OverlappedComp->OverlapComponent(relLocation.GetLocation(), relLocation.GetRotation(), OverlappedComp->GetCollisionShape())) return;
