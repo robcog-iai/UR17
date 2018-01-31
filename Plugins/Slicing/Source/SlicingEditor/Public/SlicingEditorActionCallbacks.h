@@ -21,9 +21,7 @@ public:
 
 	/** Level editor helper functions */
 	//* Replaces the marked sockets of a selected StaticMeshComponent to Components that can be used for slicing
-	static void FillSocketsWithComponents();
-	//* Replaces the marked sockets of ALL StaticMeshComponents to Components that can be used for slicing
-	static void ReplaceSocketsOfAllStaticMeshComponents();
+	static void MakeCuttingObject();
 
 private:
 	/** Creates the components that fill the sockets */
