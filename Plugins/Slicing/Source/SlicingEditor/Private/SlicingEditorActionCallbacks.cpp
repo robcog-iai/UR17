@@ -13,14 +13,19 @@
 
 void FSlicingEditorActionCallbacks::ShowInstructions()
 {
-	FMessageDialog* Instructions = new FMessageDialog();
 	const FText InstructionsTitle =
 		LOCTEXT("SlicingInstructions_Title", "Instructions to edit an object to be able to slice");
+	const FText InstructionsText = FText::FromString(
+		FString("To alter an object to be able to slice other objects, ") +
+		FString("the user needs to create multiple Sockets on the position - and with the size of - ") +
+		FString("certain areas needed for cutting objects. These sockets need specific names to specify ") +
+		FString("the area they are used for.\n\nCutting Blade: ") + USlicingComponent::SocketBladeName.ToString() +
+		FString("\nCutting Handle: ") + USlicingComponent::SocketHandleName.ToString() +
+		FString("\nCutting Exitpoint: ") + USlicingComponent::SocketCuttingExitpointName.ToString());
 
-	Instructions->Debugf(
-		LOCTEXT("SlicingInstructions", "To alter an object to be able to slice other objects, the user needs to create multiple Sockets on the position - and with the size of - certain areas needed for cutting objects. These sockets need specific names to specify the area they are used for.\n\nCutting Blade: ...\nCutting Handle: ...\nCutting Exitpoint: ..."),
-		&InstructionsTitle
-	);
+	// Display the popup-window
+	FMessageDialog* Instructions = new FMessageDialog();
+	Instructions->Debugf(InstructionsText, &InstructionsTitle);
 }
 
 void FSlicingEditorActionCallbacks::OnEnableDebugConsoleOutput(bool* bButtonValue)
@@ -65,30 +70,30 @@ void FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents()
 
 			float BoxScale = 3.5;
 
-			UBoxComponent* HandleBox = NewObject<UBoxComponent>(Mesh,FName("Handle"));
+			UBoxComponent* HandleBox = NewObject<UBoxComponent>(Mesh, USlicingComponent::SocketHandleName);
 			HandleBox->RegisterComponent();
-			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Handle"));
-			HandleBox->SetWorldLocation(Mesh->GetSocketLocation("Handle"));
-			FVector TempScale = Mesh->GetSocketTransform(FName("Handle")).GetScale3D();
+			HandleBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, USlicingComponent::SocketHandleName);
+			HandleBox->SetWorldLocation(Mesh->GetSocketLocation(USlicingComponent::SocketHandleName));
+			FVector TempScale = Mesh->GetSocketTransform(USlicingComponent::SocketHandleName).GetScale3D();
 			HandleBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
 			HandleBox->SetCollisionProfileName(FName("BlockAll"));
 			HandleBox->bGenerateOverlapEvents = false;
 			
-			USlicingComponent* BladeBox = NewObject<USlicingComponent>(Mesh, FName("BladeBox"));
+			USlicingComponent* BladeBox = NewObject<USlicingComponent>(Mesh, USlicingComponent::SocketBladeName);
 			BladeBox->RegisterComponent();
-			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("BladeBox"));
-			BladeBox->SetWorldLocation(Mesh->GetSocketLocation("BladeBox"));
-			TempScale = Mesh->GetSocketTransform(FName("BladeBox")).GetScale3D();
+			BladeBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, USlicingComponent::SocketBladeName);
+			BladeBox->SetWorldLocation(Mesh->GetSocketLocation(USlicingComponent::SocketBladeName));
+			TempScale = Mesh->GetSocketTransform(USlicingComponent::SocketBladeName).GetScale3D();
 			BladeBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
 			BladeBox->bGenerateOverlapEvents = true;
 			BladeBox->SetCollisionProfileName(FName("OverlapAll"));
 			BladeBox->bMultiBodyOverlap = false;
 
-			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>(Mesh, FName("CuttingExitpointBox"));
+			UBoxComponent* CuttingExitpointBox = NewObject<UBoxComponent>(Mesh, USlicingComponent::SocketCuttingExitpointName);
 			CuttingExitpointBox->RegisterComponent();
-			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("CuttingExitpointBox"));
-			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation("CuttingExitpointBox"));
-			TempScale = Mesh->GetSocketTransform(FName("CuttingExitpointBox")).GetScale3D();
+			CuttingExitpointBox->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetIncludingScale, USlicingComponent::SocketCuttingExitpointName);
+			CuttingExitpointBox->SetWorldLocation(Mesh->GetSocketLocation(USlicingComponent::SocketCuttingExitpointName));
+			TempScale = Mesh->GetSocketTransform(USlicingComponent::SocketCuttingExitpointName).GetScale3D();
 			CuttingExitpointBox->SetBoxExtent(FVector(BoxScale, BoxScale, BoxScale));
 			CuttingExitpointBox->SetCollisionProfileName(FName("OverlapAll"));
 			CuttingExitpointBox->bGenerateOverlapEvents = false;
