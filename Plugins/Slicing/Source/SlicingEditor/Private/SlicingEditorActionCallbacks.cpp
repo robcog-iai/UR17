@@ -59,20 +59,10 @@ bool FSlicingEditorActionCallbacks::OnIsEnableDebugShowTrajectoryEnabled(bool* b
 	return *bButtonValue;
 }
 
-void FSlicingEditorActionCallbacks::MakeCuttingObject()
+void FSlicingEditorActionCallbacks::MakeCuttingObjects()
 {
-	// Get all selected StaticMeshActors
-	TArray<AStaticMeshActor*> SelectedStaticMeshActors;
-	GEditor->GetSelectedActors()->GetSelectedObjects<AStaticMeshActor>(SelectedStaticMeshActors);
-
-	if (SelectedStaticMeshActors.Num() == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: No StaticMeshActor was selected."));
-		return;
-	}
-
 	// Create the BoxComponents for every selected StaticMeshActor
-	for (AStaticMeshActor* StaticMeshActor : SelectedStaticMeshActors)
+	for (AStaticMeshActor* StaticMeshActor : FSlicingEditorActionCallbacks::GetSelectedStaticMeshActors())
 	{
 		UStaticMeshComponent* StaticMesh = StaticMeshActor->GetStaticMeshComponent();
 
@@ -80,6 +70,37 @@ void FSlicingEditorActionCallbacks::MakeCuttingObject()
 		FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
 		FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(StaticMesh);
 	}
+}
+
+void FSlicingEditorActionCallbacks::MakeCuttableObjects()
+{
+	for (AStaticMeshActor* StaticMeshActor : FSlicingEditorActionCallbacks::GetSelectedStaticMeshActors())
+	{
+		UStaticMeshComponent* StaticMeshComponent = StaticMeshActor->GetStaticMeshComponent();
+
+		// Make the actor identifiable to the cutting object
+		if (!StaticMeshComponent->ComponentTags.Contains(USlicingComponent::TagCuttable))
+		{
+			StaticMeshComponent->ComponentTags.Add(USlicingComponent::TagCuttable);
+		}
+		
+		// Let the cutting object go through the actor
+		StaticMeshActor->GetStaticMeshComponent()->bGenerateOverlapEvents = true;
+	}
+}
+
+TArray<AStaticMeshActor*> FSlicingEditorActionCallbacks::GetSelectedStaticMeshActors()
+{
+	TArray<AStaticMeshActor*> SelectedStaticMeshActors;
+	GEditor->GetSelectedActors()->GetSelectedObjects<AStaticMeshActor>(SelectedStaticMeshActors);
+
+	if (SelectedStaticMeshActors.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: No StaticMeshActor was selected."));
+		return TArray<AStaticMeshActor*>();
+	}
+
+	return SelectedStaticMeshActors;
 }
 
 void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents)

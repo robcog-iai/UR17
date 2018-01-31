@@ -71,12 +71,12 @@ void FSlicingEditorModule::InitializeUIButtons()
 		FIsActionChecked::CreateStatic(&FSlicingEditorActionCallbacks::OnIsEnableDebugShowTrajectoryEnabled, &SlicingLogicModule.bEnableDebugShowTrajectory)
 	);
 	PluginCommandList->MapAction(
-		Commands.ReplaceSelectedSockets,
-		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::MakeCuttingObject)
+		Commands.MakeCuttingObjects,
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::MakeCuttingObjects)
 	);
 	PluginCommandList->MapAction(
-		Commands.ReplaceAllSockets,
-		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::MakeCuttingObject)
+		Commands.MakeCuttableObjects,
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::MakeCuttableObjects)
 	);
 }
 
@@ -124,8 +124,8 @@ TSharedRef<SWidget> FSlicingEditorModule::CreateDebugOptionMenu()
 		Builder.AddMenuEntry(Commands.EnableDebugConsoleOutput);
 		Builder.AddMenuEntry(Commands.EnableDebugShowPlane);
 		Builder.AddMenuEntry(Commands.EnableDebugShowTrajectory);
-		Builder.AddMenuEntry(Commands.ReplaceSelectedSockets);
-		Builder.AddMenuEntry(Commands.ReplaceAllSockets);
+		Builder.AddMenuEntry(Commands.MakeCuttingObjects);
+		Builder.AddMenuEntry(Commands.MakeCuttableObjects);
 	}
 	Builder.EndSection();
 
