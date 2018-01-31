@@ -6,9 +6,9 @@
 #include "Core.h"
 #include "Editor.h"
 
-#include "Engine/Selection.h"
-
 #include "Components/BoxComponent.h"
+#include "Engine/Selection.h"
+#include "Engine/StaticMeshActor.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"
 
@@ -61,32 +61,33 @@ bool FSlicingEditorActionCallbacks::OnIsEnableDebugShowTrajectoryEnabled(bool* b
 
 void FSlicingEditorActionCallbacks::FillSocketsWithComponents()
 {
-	USelection* Selection = GEditor->GetSelectedComponents();
-	UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Selection->GetSelectedObject(0));
-	if (Mesh != NULL && Mesh != nullptr)
+	// Get all selected StaticMeshActors
+	TArray<AStaticMeshActor*> SelectedStaticMeshActors;
+	GEditor->GetSelectedActors()->GetSelectedObjects<AStaticMeshActor>(SelectedStaticMeshActors);
+
+	// DEBUG (console)
+	if (SelectedStaticMeshActors.Num() == 0)
 	{
-		if (Mesh->ComponentHasTag(FName("Knife")))
-		{
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: No StaticMeshActor was selected."));
+	}
+
+	// Create the BoxComponents for every selected StaticMeshActor
+	for (AStaticMeshActor* StaticMeshActor : SelectedStaticMeshActors)
+	{
 		UStaticMeshComponent* StaticMesh = StaticMeshActor->GetStaticMeshComponent();
 
-		if (StaticMesh != NULL && StaticMesh != nullptr)
+		if (StaticMesh->ComponentHasTag(FName("Knife")))
 		{
-			if (StaticMesh->ComponentHasTag(FName("Knife")))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Has Sockets = Success"));
+			UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: Socket-filling --SUCCESSFUL--"));
 
-				FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
-				FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
-				FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(StaticMesh);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Has Sockets = FAILURE"));
-			}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Null Error in Box Creation"));
-	}
+			FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
+			FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
+			FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(StaticMesh);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: Does not have proper sockets."));
+		}
 	}
 }
 
@@ -109,7 +110,6 @@ void FSlicingEditorActionCallbacks::AddHandleComponent(UStaticMeshComponent* Sta
 	UBoxComponent* HandleComponent = NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketHandleName);
 	
 	FSlicingEditorActionCallbacks::AddBoxComponent(StaticMesh, HandleComponent, USlicingComponent::SocketHandleName, FName("BlockAll"), false);
->>>>>>> Extracted creation of boxcomponent into seperate functions.
 }
 
 void FSlicingEditorActionCallbacks::AddBladeComponent(UStaticMeshComponent* StaticMesh)
