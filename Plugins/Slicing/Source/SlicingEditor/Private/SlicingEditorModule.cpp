@@ -72,11 +72,11 @@ void FSlicingEditorModule::InitializeUIButtons()
 	);
 	PluginCommandList->MapAction(
 		Commands.ReplaceSelectedSockets,
-		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents)
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::FillSocketsWithComponents)
 	);
 	PluginCommandList->MapAction(
 		Commands.ReplaceAllSockets,
-		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents)
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::FillSocketsWithComponents)
 	);
 }
 
