@@ -57,6 +57,11 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
 			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(5, 5), FColor::Red, false, 0.01f);
+
+		// TODO: DEBUG ENTRANCE POINT
+		TArray<UPrimitiveComponent*> temp;
+		this->GetOverlappingComponents(temp);
+		DrawDebugBox(this->GetWorld(), temp[0]->GetComponentLocation() + relLocation.GetLocation(), FVector(3, 3, 3), FColor::Green, false, 1.0F);
 	}
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
@@ -82,7 +87,8 @@ void USlicingComponent::OnBladeBeginOverlap(
 		return;
 	}
 	bIsCutting = true;
-	relLocation = OtherComp->GetRelativeTransform();
+	//relLocation = OtherComp->GetRelativeTransform();
+	relLocation = OtherComp->GetRelativeTransform().GetRelativeTransform(OverlappedComp->GetComponentTransform());
 	/*
 	Converting the given Component to Procedural Mesh Component
 	*/
@@ -123,8 +129,9 @@ void USlicingComponent::OnBladeEndOverlap(
 	{
 		return;
 	}
-
-	if (OverlappedComp->OverlapComponent(relLocation.GetLocation(), relLocation.GetRotation(), OverlappedComp->GetCollisionShape())) return;
+	if (OverlappedComp->OverlapComponent(relLocation.GetLocation(), 
+		relLocation.GetRotation(), 
+		OverlappedComp->GetCollisionShape())) return;
 
 	if (!OtherComp->ComponentHasTag(TagCuttable) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
 	{
