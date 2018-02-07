@@ -10,7 +10,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
-#include "../Private/Character/CharacterController.h"
+#include "../Private/Character/GameController.h"
 #include "TagStatics.h"
 #include "Engine.h"
 
@@ -21,9 +21,6 @@ UGPickup::UGPickup()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// *** *** *** Default values *** *** ***
-	bPerformStabilityCheckForStacks = true;
 
 	MaximumMassToCarry = 10.0f;
 	bMassEffectsMovementSpeed = true;
@@ -41,6 +38,8 @@ UGPickup::UGPickup()
 	bCheckForCollisionsOnPickup = false;
 	bCheckForCollisionsOnDrop = true;
 	// *** *** *** *** *** *** *** ***
+
+	TransparentMaterial = nullptr;
 }
 
 
@@ -92,26 +91,15 @@ void UGPickup::BeginPlay()
 	BothHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
 	// *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 
-	// Bind Delegate to StackChecker
-	if (StackChecker != nullptr) {
-		StackChecker->OnStackCheckDone.AddDynamic(this, &UCPickup::OnStackCheckIsDone);
-		UE_LOG(LogTemp, Warning, TEXT("Bound OnStackCheckIsDone delegate"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Stack checker assigned"));
-	}
 
 	MaxMovementSpeed = PlayerCharacter->MovementComponent->MaxMovementSpeed;
 }
 
 
 // Called every frame
-void UCPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (bIsStackChecking == true) return; // Bail out if a stack check is running
 
 	bool bLockedByOtherComponent = PlayerCharacter->LockedByComponent != nullptr &&  PlayerCharacter->LockedByComponent != this;
 
@@ -673,9 +661,6 @@ void UGPickup::OnInteractionKeyReleased(bool bIsRightKey)
 	else if (bIsItemDropping) {
 		DropItem();
 	}
-	else if (bPerformStabilityCheckForStacks) {
-		StartStackCheck();
-	}
 	else {
 		PickupItem();
 	}
@@ -704,24 +689,6 @@ void UGPickup::RotationMode()
 	}
 }
 
-void UGPickup::StartStackCheck()
-{
-	if (BaseItemToPick != nullptr && StackChecker != nullptr) {
-		TArray<AActor*> Children;
-		BaseItemToPick->GetAttachedActors(Children);
-		if (Children.Num() == 0) {
-			PickupItem(); // We don't pickup a stack but a single item
-			return;
-		}
-
-		bIsStackChecking = true;
-		StackChecker->StartCheck(BaseItemToPick);
-
-		if (PlayerCharacter->MovementComponent != nullptr) {
-			PlayerCharacter->MovementComponent->SetMovable(false);
-		}
-	}
-}
 
 void UGPickup::OnStackCheckIsDone(bool wasSuccessful)
 {
@@ -1028,7 +995,7 @@ bool UGPickup::CalculateIfBothHandsNeeded()
 	return false;
 }
 
-void UCPickup::SetMovementSpeed(float Weight)
+void UGPickup::SetMovementSpeed(float Weight)
 {
 	if (PlayerCharacter->MovementComponent == nullptr) return;
 	MassToCarry += Weight;

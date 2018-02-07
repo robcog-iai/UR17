@@ -11,7 +11,7 @@
 *
 */
 UCLASS()
-class CLICKINTERACTION_API AHUDElement : public AHUD
+class UGAME_API AHUDElement : public AHUD
 {
 	GENERATED_BODY()
 

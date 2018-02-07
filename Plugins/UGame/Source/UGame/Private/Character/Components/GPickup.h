@@ -17,7 +17,7 @@ enum EHand
 	Both UMETA(DisplayName = "Both")
 };
 
-class ACharacterController; // Use Forward Declaration. Including the header in CPickup.cpp
+class AGameController; // Use Forward Declaration. Including the header in CPickup.cpp
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UGAME_API UGPickup : public UActorComponent
@@ -34,14 +34,6 @@ public:
 	// The materials for the shadow items
 	UPROPERTY(EditAnyWhere, Category = "CI - General")
 		UMaterial* TransparentMaterial;
-
-	// The StackChecker actor
-	UPROPERTY(EditAnyWhere, Category = "CI - General")
-		AStackChecker* StackChecker;
-
-	// Whether or not to perform a stability check
-	UPROPERTY(EditAnyWhere, Category = "CI - General")
-		bool bPerformStabilityCheckForStacks;
 
 	// Whether or nor the player can use both hands
 	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
@@ -95,7 +87,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CI - Collision")
 		bool bEnableCollisionOfItemsInHand;
 
-	ACharacterController * PlayerCharacter; // The player character instance
+	AGameController * PlayerCharacter; // The player character instance
 
 	TArray<AStaticMeshActor*> ShadowItems; // The array that holds all the current shadow items
 
@@ -135,8 +127,6 @@ private:
 	AStaticMeshActor* ItemToHandle; // The item which is currently focused by the player
 	AActor* ItemToDrag; // The item we are currently dragging around
 	AStaticMeshActor* ShadowBaseItem; // The shadow root item fr pickup and drop actions
-
-	void StartStackCheck();
 
 	// The callback function after stack check is done
 	UFUNCTION()
@@ -221,7 +211,6 @@ public:
 	 */
 	void RotationMode();
 
-public:
 	int RotationValue;
 };
 

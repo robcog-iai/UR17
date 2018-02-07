@@ -6,7 +6,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "GOpenClose.h"
 
-#include "../Private/Character/CharacterController.h"
+#include "../Private/Character/GameController.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "TagStatics.h"

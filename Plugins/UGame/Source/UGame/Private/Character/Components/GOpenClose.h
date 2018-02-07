@@ -8,13 +8,12 @@
 #include "CoreMinimal.h"
 #include "GOpenClose.generated.h"
 
-class ACharacterController; // Use Forward Declaration. Including the header in COpenClose.cpp
+class AGameController; // Use Forward Declaration. Including the header in COpenClose.cpp
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UGAME_API UGOpenClose : public UActorComponent
 {
 	GENERATED_BODY()
-
 
 public:
 	// Sets default values for this component's properties
@@ -23,7 +22,7 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "CI - General")
 		float ForceToApply;
 
-	ACharacterController * PlayerCharacter; // The player character instance
+	AGameController * PlayerCharacter; // The player character instance
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
