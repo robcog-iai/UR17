@@ -107,10 +107,12 @@ void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* Static
 {
 	float SocketToBoxScale = 3.5;
 
+	// Makes the added component editable in the editor and saveable in the level
+	BoxComponent->GetAttachmentRootActor()->AddInstanceComponent(BoxComponent);
+
 	BoxComponent->RegisterComponent();
 	BoxComponent->AttachToComponent(StaticMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
 	BoxComponent->SetWorldLocation(StaticMesh->GetSocketLocation(SocketName));
-	FVector TempScale = StaticMesh->GetSocketTransform(SocketName).GetScale3D();
 	BoxComponent->SetBoxExtent(FVector(1, 1, 1) * SocketToBoxScale);
 	BoxComponent->SetCollisionProfileName(CollisionProfileName);
 	BoxComponent->bGenerateOverlapEvents = bGenerateOverlapEvents;
