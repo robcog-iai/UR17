@@ -7,17 +7,10 @@
 		{
 			"Name": "RobCoG",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine"
-			]
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
-		{
-			"Name": "ClickInteraction",
-			"Enabled": true
-		},
 		{
 			"Name": "UGame",
 			"Enabled": true
