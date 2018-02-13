@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+#include "Engine/StaticMeshActor.h"
 #include "Components/BoxComponent.h"
 
 class FSlicingEditorActionCallbacks
@@ -20,12 +21,14 @@ public:
 	static bool OnIsEnableDebugShowTrajectoryEnabled(bool* bButtonValue);
 
 	/** Level editor helper functions */
-	//* Replaces the marked sockets of a selected StaticMeshComponent to Components that can be used for slicing
-	static void FillSocketsWithComponents();
-	//* Replaces the marked sockets of ALL StaticMeshComponents to Components that can be used for slicing
-	static void ReplaceSocketsOfAllStaticMeshComponents();
+	//* Adds components needed to make the object be able to cut other objects (proper sockets are needed)
+	static void MakeCuttingObjects();
+	//* Adds/changes properties to make the object be able to get cut by other objects
+	static void MakeCuttableObjects();
 
 private:
+	static TArray<AStaticMeshActor*> GetSelectedStaticMeshActors();
+
 	/** Creates the components that fill the sockets */
 	static void AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents);
 	static void AddHandleComponent(UStaticMeshComponent* StaticMesh);

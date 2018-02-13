@@ -23,7 +23,6 @@ public:
 	static const FName SocketCuttingExitpointName;
 	// The tag names needed for recognition of objects related to the slicing plugin
 	static const FName TagCuttable;
-	static const FName TagCutting;
 
 	// Called before BeginPlay()
 	virtual void InitializeComponent() override;

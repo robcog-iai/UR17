@@ -59,46 +59,60 @@ bool FSlicingEditorActionCallbacks::OnIsEnableDebugShowTrajectoryEnabled(bool* b
 	return *bButtonValue;
 }
 
-void FSlicingEditorActionCallbacks::FillSocketsWithComponents()
+void FSlicingEditorActionCallbacks::MakeCuttingObjects()
 {
-	// Get all selected StaticMeshActors
-	TArray<AStaticMeshActor*> SelectedStaticMeshActors;
-	GEditor->GetSelectedActors()->GetSelectedObjects<AStaticMeshActor>(SelectedStaticMeshActors);
-
-	// DEBUG (console)
-	if (SelectedStaticMeshActors.Num() == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: No StaticMeshActor was selected."));
-	}
-
 	// Create the BoxComponents for every selected StaticMeshActor
-	for (AStaticMeshActor* StaticMeshActor : SelectedStaticMeshActors)
+	for (AStaticMeshActor* StaticMeshActor : FSlicingEditorActionCallbacks::GetSelectedStaticMeshActors())
 	{
 		UStaticMeshComponent* StaticMesh = StaticMeshActor->GetStaticMeshComponent();
 
-		if (StaticMesh->ComponentHasTag(FName("Knife")))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: Socket-filling --SUCCESSFUL--"));
-
-			FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
-			FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
-			FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(StaticMesh);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin: Does not have proper sockets."));
-		}
+		FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
+		FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
+		FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(StaticMesh);
 	}
+}
+
+void FSlicingEditorActionCallbacks::MakeCuttableObjects()
+{
+	for (AStaticMeshActor* StaticMeshActor : FSlicingEditorActionCallbacks::GetSelectedStaticMeshActors())
+	{
+		UStaticMeshComponent* StaticMeshComponent = StaticMeshActor->GetStaticMeshComponent();
+
+		// Make the actor identifiable to the cutting object
+		if (!StaticMeshComponent->ComponentTags.Contains(USlicingComponent::TagCuttable))
+		{
+			StaticMeshComponent->ComponentTags.Add(USlicingComponent::TagCuttable);
+		}
+		
+		// Let the cutting object go through the actor
+		StaticMeshActor->GetStaticMeshComponent()->bGenerateOverlapEvents = true;
+	}
+}
+
+TArray<AStaticMeshActor*> FSlicingEditorActionCallbacks::GetSelectedStaticMeshActors()
+{
+	TArray<AStaticMeshActor*> SelectedStaticMeshActors;
+	GEditor->GetSelectedActors()->GetSelectedObjects<AStaticMeshActor>(SelectedStaticMeshActors);
+
+	if (SelectedStaticMeshActors.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: No StaticMeshActor was selected."));
+		return TArray<AStaticMeshActor*>();
+	}
+
+	return SelectedStaticMeshActors;
 }
 
 void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents)
 {
 	float SocketToBoxScale = 3.5;
 
+	// Makes the added component editable in the editor and saveable in the level
+	BoxComponent->GetAttachmentRootActor()->AddInstanceComponent(BoxComponent);
+
 	BoxComponent->RegisterComponent();
 	BoxComponent->AttachToComponent(StaticMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
 	BoxComponent->SetWorldLocation(StaticMesh->GetSocketLocation(SocketName));
-	FVector TempScale = StaticMesh->GetSocketTransform(SocketName).GetScale3D();
 	BoxComponent->SetBoxExtent(FVector(1, 1, 1) * SocketToBoxScale);
 	BoxComponent->SetCollisionProfileName(CollisionProfileName);
 	BoxComponent->bGenerateOverlapEvents = bGenerateOverlapEvents;
@@ -107,29 +121,59 @@ void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* Static
 
 void FSlicingEditorActionCallbacks::AddHandleComponent(UStaticMeshComponent* StaticMesh)
 {
-	UBoxComponent* HandleComponent = NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketHandleName);
-	
-	FSlicingEditorActionCallbacks::AddBoxComponent(StaticMesh, HandleComponent, USlicingComponent::SocketHandleName, FName("BlockAll"), false);
+	if (!StaticMesh->DoesSocketExist(USlicingComponent::SocketHandleName))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: Socket for the Handle does not exist"));
+		return;
+	}
+
+	UBoxComponent* HandleComponent =
+		NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketHandleName);
+
+	FSlicingEditorActionCallbacks::AddBoxComponent(
+		StaticMesh,
+		HandleComponent,
+		USlicingComponent::SocketHandleName,
+		FName("BlockAll"),
+		false);
 }
 
 void FSlicingEditorActionCallbacks::AddBladeComponent(UStaticMeshComponent* StaticMesh)
 {
-	USlicingComponent* BladeComponent = NewObject<USlicingComponent>(StaticMesh, USlicingComponent::SocketBladeName);
+	if (!StaticMesh->DoesSocketExist(USlicingComponent::SocketBladeName))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: Socket for the Blade does not exist"));
+		return;
+	}
 
-	FSlicingEditorActionCallbacks::AddBoxComponent(StaticMesh, BladeComponent, USlicingComponent::SocketBladeName, FName("OverlapAll"), true);
+	USlicingComponent* BladeComponent =
+		NewObject<USlicingComponent>(StaticMesh, USlicingComponent::SocketBladeName);
+
+	FSlicingEditorActionCallbacks::AddBoxComponent(
+		StaticMesh,
+		BladeComponent,
+		USlicingComponent::SocketBladeName,
+		FName("OverlapAll"),
+		true);
 }
 
 void FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(UStaticMeshComponent* StaticMesh)
 {
-	UBoxComponent* CuttingExitpointComponent = NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketCuttingExitpointName);
+	if (!StaticMesh->DoesSocketExist(USlicingComponent::SocketCuttingExitpointName))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: Socket for the CuttingExitpoint does not exist"));
+		return;
+	}
 
-	FSlicingEditorActionCallbacks::AddBoxComponent(StaticMesh, CuttingExitpointComponent, USlicingComponent::SocketCuttingExitpointName, FName("OverlapAll"), false);
-}
+	UBoxComponent* CuttingExitpointComponent =
+		NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketCuttingExitpointName);
 
-
-void FSlicingEditorActionCallbacks::ReplaceSocketsOfAllStaticMeshComponents()
-{
-	// To be implemented in the future
+	FSlicingEditorActionCallbacks::AddBoxComponent(
+		StaticMesh,
+		CuttingExitpointComponent,
+		USlicingComponent::SocketCuttingExitpointName,
+		FName("OverlapAll"),
+		false);
 }
 
 #undef LOCTEXT_NAMESPACE

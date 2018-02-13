@@ -4,11 +4,12 @@
 #include "SlicingLogicModule.h"
 
 #include "DrawDebugHelpers.h"
+#include "TransformCalculus.h"
 
 #include "Engine/StaticMesh.h"
 #include "Components/BoxComponent.h"
-#include "ProceduralMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "ProceduralMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -17,7 +18,6 @@ const FName USlicingComponent::SocketHandleName = "SlicingHandle";
 const FName USlicingComponent::SocketBladeName = "SlicingBlade";
 const FName USlicingComponent::SocketCuttingExitpointName = "SlicingCuttingExitpoint";
 const FName USlicingComponent::TagCuttable = "Cuttable";
-const FName USlicingComponent::TagCutting = "Knife";
 
 USlicingComponent::USlicingComponent()
 {

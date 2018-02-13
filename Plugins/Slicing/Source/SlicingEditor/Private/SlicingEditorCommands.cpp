@@ -17,10 +17,10 @@ void FSlicingEditorCommands::RegisterCommands()
 	UI_COMMAND(EnableDebugShowTrajectory, "Enable Slicing Trajectory",
 		"Enable slicing trajectory debug view", EUserInterfaceActionType::ToggleButton, FInputChord());
 
-	UI_COMMAND(ReplaceSelectedSockets, "Replace Sockets on Selected Object",
-		"Replaces the sockets of the selected Object to Components that are able to detect collision", EUserInterfaceActionType::Button, FInputChord());
-	UI_COMMAND(ReplaceAllSockets, "Replace Sockets of all StaticMeshComponents",
-		"Replaces sockets of all StaticMeshComponents to Components that are able to detect collision", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(MakeCuttingObjects, "Make Selected StaticMeshActors Be Able to Cut",
+		"Adds components to the sockets of the selected StaticMeshActor, to make it be able to cut other objects", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(MakeCuttableObjects, "Make Selected StaticMeshActors Cuttable",
+		"Adds the necessary properties to the selected SteticMeshActors, so they can be cut", EUserInterfaceActionType::Button, FInputChord());
 }
 
 #undef LOCTEXT_NAMESPACE
