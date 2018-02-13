@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProceduralMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "SlicingComponent.generated.h"
 
@@ -33,8 +34,10 @@ public:
 
 	bool bIsCutting = false;
 
-	FTransform relLocation;
+	FVector relLocation;
+	FQuat relRotation;
 
+	UProceduralMeshComponent* OComponent;
 	// The rest of the functions
 	UFUNCTION()
 	void OnBladeBeginOverlap(

@@ -10,7 +10,7 @@
 #include "ProceduralMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
-#include "TransformCalculus.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Setting the text for the static names used in the editor
 const FName USlicingComponent::SocketHandleName = "SlicingHandle";
@@ -60,9 +60,11 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(5, 5), FColor::Red, false, 0.01f);
 
 		// TODO: DEBUG ENTRANCE POINT
-		TArray<UPrimitiveComponent*> temp;
-		this->GetOverlappingComponents(temp);
-		DrawDebugBox(this->GetWorld(), temp[0]->GetComponentLocation() + relLocation.GetLocation(), FVector(3, 3, 3), FColor::Green, false, 1.0F);
+		DrawDebugBox(this->GetWorld(), UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), FVector(0,0,0)), FVector(4, 4, 4), FColor::Blue, true, 1.0f);
+
+		DrawDebugBox(this->GetWorld(),
+			UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), relLocation), 
+			FVector(3, 3, 3), OComponent->GetComponentQuat(), FColor::Green, true, 1.0F);
 	}
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
@@ -87,9 +89,7 @@ void USlicingComponent::OnBladeBeginOverlap(
 	{
 		return;
 	}
-	bIsCutting = true;
-	//relLocation = OtherComp->GetRelativeTransform();
-	relLocation = OtherComp->GetComponentTransform().GetRelativeTransformReverse(OverlappedComp->GetComponentTransform());
+	//relLocation = OtherComp->GetComponentTransform().GetRelativeTransform(this->GetComponentTransform());
 	
 	/*
 	Converting the given Component to Procedural Mesh Component
@@ -97,6 +97,13 @@ void USlicingComponent::OnBladeBeginOverlap(
 	UPrimitiveComponent* ReferencedComponent = OtherComp;
 	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 	Parent->SetCollisionProfileName(FName("OverlapAll"));
+	bIsCutting = true;
+	/*
+		If Physics are on, the relative location and such will be seen relative to the world location.
+	*/
+	relLocation = OtherComp->GetComponentTransform().InverseTransformPosition(OverlappedComp->GetComponentLocation());
+	//relLocation = OverlappedComp->GetComponentLocation() - OtherComp->GetComponentLocation();
+	relRotation = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
 	if (ReferencedComponent != nullptr  && ReferencedComponent != NULL)
 	{
 		// In case the Component is a StaticMeshComponent, uses following to make a ProceduralMeshComponent
@@ -119,7 +126,9 @@ void USlicingComponent::OnBladeBeginOverlap(
 				((UStaticMeshComponent*)ReferencedComponent), 0, NewComponent, true);
 			bIsCutting = false;
 			ReferencedComponent->DestroyComponent();
+			return;
 		}
+		OComponent = (UProceduralMeshComponent*) OtherComp;
 	}
 }
 
@@ -131,8 +140,8 @@ void USlicingComponent::OnBladeEndOverlap(
 	{
 		return;
 	}
-	if (OverlappedComp->OverlapComponent(relLocation.GetLocation(), 
-		relLocation.GetRotation(), 
+	if (OverlappedComp->OverlapComponent(OtherComp->GetComponentLocation() + relLocation,
+		OtherComp->GetComponentQuat() + relRotation,
 		OverlappedComp->GetCollisionShape())) return;
 
 	if (!OtherComp->ComponentHasTag(TagCuttable) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())

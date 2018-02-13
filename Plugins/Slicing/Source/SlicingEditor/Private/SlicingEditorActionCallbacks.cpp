@@ -102,7 +102,7 @@ void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* Static
 	BoxComponent->SetBoxExtent(FVector(1, 1, 1) * SocketToBoxScale);
 	BoxComponent->SetCollisionProfileName(CollisionProfileName);
 	BoxComponent->bGenerateOverlapEvents = bGenerateOverlapEvents;
-	BoxComponent->bMultiBodyOverlap = false;
+	BoxComponent->bMultiBodyOverlap = true;
 }
 
 void FSlicingEditorActionCallbacks::AddHandleComponent(UStaticMeshComponent* StaticMesh)
