@@ -60,7 +60,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(5, 5), FColor::Red, false, 0.01f);
 
 		// TODO: DEBUG ENTRANCE POINT
-		DrawDebugBox(this->GetWorld(), UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), FVector(0,0,0)), FVector(4, 4, 4), FColor::Blue, true, 1.0f);
+		//DrawDebugBox(this->GetWorld(), UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), FVector(0,0,0)), FVector(4, 4, 4), FColor::Blue, true, 1.0f);
 
 		DrawDebugBox(this->GetWorld(),
 			UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), relLocation), 
@@ -140,9 +140,16 @@ void USlicingComponent::OnBladeEndOverlap(
 	{
 		return;
 	}
-	if (OverlappedComp->OverlapComponent(OtherComp->GetComponentLocation() + relLocation,
-		OtherComp->GetComponentQuat() + relRotation,
-		OverlappedComp->GetCollisionShape())) return;
+	if (OverlappedComp->OverlapComponent(UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), relLocation),
+		OComponent->GetComponentQuat(),
+		OverlappedComp->GetCollisionShape())) 
+	{
+		UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
+		Parent->SetCollisionProfileName(FName("PhysicsActor"));
+		bIsCutting = false;
+
+		return;
+	}
 
 	if (!OtherComp->ComponentHasTag(TagCuttable) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
 	{
