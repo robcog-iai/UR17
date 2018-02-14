@@ -41,6 +41,7 @@ void USlicingComponent::InitializeComponent()
 void USlicingComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 }
 
 void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -95,7 +96,6 @@ void USlicingComponent::OnBladeBeginOverlap(
 	Converting the given Component to Procedural Mesh Component
 	*/
 	UPrimitiveComponent* ReferencedComponent = OtherComp;
-	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 	Parent->SetCollisionProfileName(FName("OverlapAll"));
 	bIsCutting = true;
 	/*
@@ -144,7 +144,7 @@ void USlicingComponent::OnBladeEndOverlap(
 		OComponent->GetComponentQuat(),
 		OverlappedComp->GetCollisionShape())) 
 	{
-		UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
+		//UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 		Parent->SetCollisionProfileName(FName("PhysicsActor"));
 		bIsCutting = false;
 
@@ -174,7 +174,7 @@ void USlicingComponent::OnBladeEndOverlap(
 	OutputProceduralMesh->SetSimulatePhysics(true);
 	OutputProceduralMesh->ComponentTags = OtherComp->ComponentTags;
 
-	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
+	//UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 	Parent->SetCollisionProfileName(FName("PhysicsActor"));
 	bIsCutting = false;
 }

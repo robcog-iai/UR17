@@ -32,6 +32,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	bool bIsCutting = false;
+	
+	UStaticMeshComponent* Parent;
 
 	FVector relLocation;
 	FQuat relRotation;
