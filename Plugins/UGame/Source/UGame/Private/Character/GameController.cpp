@@ -48,7 +48,8 @@ void AGameController::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
 	}
 	// *** *** *** *** *** ***
-	
+	//LeftHandPosition = SpawnActor<AActor>(FVector(0, 0, 0), FRotator(0, 0, 0));
+
 	SetupScenario();
 }
 
