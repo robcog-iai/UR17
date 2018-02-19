@@ -5,6 +5,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine.h"
 #include "GameFramework/Actor.h"
 #include "CoreMinimal.h"
 #include "GPickup.generated.h"

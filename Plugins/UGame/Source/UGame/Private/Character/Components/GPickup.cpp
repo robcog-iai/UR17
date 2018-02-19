@@ -678,10 +678,10 @@ void UGPickup::ResetComponentState()
 
 void UGPickup::RotationMode()
 {
-	if (RotationValue == 0 && UsedHand == EHand::Left) {
+	if (RotationValue == 0 || RotationValue == 2 && ItemInLeftHand != nullptr) {
 		RotationValue = 1;
 	}
-	else if (RotationValue == 1 && UsedHand == EHand::Right) {
+	else if (RotationValue == 1 || RotationValue == 0 && ItemInRightHand != nullptr) {
 		RotationValue = 2;
 	} 
 	else {

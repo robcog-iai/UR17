@@ -10,6 +10,7 @@ public class UGame : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UTags" });
 
+        /**
         PublicIncludePaths.AddRange(
 			new string[] {
 				"UGame/Public"
@@ -25,9 +26,8 @@ public class UGame : ModuleRules
 				
 				// ... add other private include paths required here ...
 			}
-			);
-		
-		
+			);		
+		*/
 
 	}
 }

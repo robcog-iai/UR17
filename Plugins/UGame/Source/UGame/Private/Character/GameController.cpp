@@ -40,7 +40,7 @@ void AGameController::BeginPlay()
 		Character->PlayerState->bIsSpectator = true;
 	}
 
-	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "ClickInteraction", TAG_KEY_INTERACTABLE, "True");
+	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
 
 	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
 	PlayerController = Cast<APlayerController>(GetController());
@@ -101,7 +101,7 @@ void AGameController::Tick(float DeltaTime)
 		if (PickupComponent->RotationValue == 1) {
 			PickupComponent->ItemInLeftHand->SetActorRotation(rot);
 		}
-		else {
+		else if (PickupComponent->RotationValue == 2) {
 			PickupComponent->ItemInRightHand->SetActorRotation(rot);
 		}
 	}
