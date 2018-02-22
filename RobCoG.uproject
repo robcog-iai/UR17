@@ -4,14 +4,14 @@
 	"Category": "",
 	"Description": "",
 	"Modules": [
-    {
-      "Name": "RobCoG",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine"
-      ]
-    }
+		{
+			"Name": "RobCoG",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
 	],
 	"Plugins": [
 		{

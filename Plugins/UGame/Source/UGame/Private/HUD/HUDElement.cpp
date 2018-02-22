@@ -21,5 +21,4 @@ void AHUDElement::DrawHUD()
 
 		Canvas->DrawItem(TileItem);
 	}
-
 }

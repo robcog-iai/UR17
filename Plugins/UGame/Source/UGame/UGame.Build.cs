@@ -8,26 +8,8 @@ public class UGame : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UTags" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UTags", "UMG" });
 
-        /**
-        PublicIncludePaths.AddRange(
-			new string[] {
-				"UGame/Public"
-				
-				// ... add public include paths required here ...
-			}
-			);
-				
-		
-		PrivateIncludePaths.AddRange(
-			new string[] {
-				"UGame/Private",
-				
-				// ... add other private include paths required here ...
-			}
-			);		
-		*/
-
-	}
+        PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+    }
 }

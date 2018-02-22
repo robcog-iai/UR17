@@ -123,8 +123,6 @@ private:
 	bool bStackCheckSuccess;
 	bool bItemCanBePickedUp;
 
-	FRotator RotationOfItemToDrop;
-
 	AStaticMeshActor* ItemToHandle; // The item which is currently focused by the player
 	AActor* ItemToDrag; // The item we are currently dragging around
 	AStaticMeshActor* ShadowBaseItem; // The shadow root item fr pickup and drop actions
@@ -182,18 +180,10 @@ private:
 	bool bLeftMouseHold;
 	bool bRightMouseHold;
 
-	bool bForceDropKeyDown;
-	bool bDraggingKeyDown;
-	bool bForceSinglePickupKeyDown;
-
 	void InputLeftHandPressed();
 	void InputLeftHandReleased();
 	void InputRightHandPressed();
 	void InputRightHandReleased();
-	void InputForceDrop();
-	void InputDragging();
-	void InputForceSinglePickup();
-	void StepRotation();
 	// *** *** *** *** ***
 
 	void OnInteractionKeyPressed(bool bIsRightKey);

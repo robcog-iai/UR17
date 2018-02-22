@@ -103,9 +103,6 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	bool bLockedByOtherComponent = PlayerCharacter->LockedByComponent != nullptr &&  PlayerCharacter->LockedByComponent != this;
 
-	if (bForceDropKeyDown) GEngine->AddOnScreenDebugMessage(1, 0.1f, FColor::Green, FString("Force Drop Enabled"), true);
-	if (bDraggingKeyDown || bIsDragging) GEngine->AddOnScreenDebugMessage(2, 0.1f, FColor::Green, FString("Drag Mode"), true);
-
 	if (bLockedByOtherComponent == false && bAllCanceled == false) {
 		ItemToHandle = PlayerCharacter->FocussedActor;
 
@@ -124,7 +121,7 @@ void UGPickup::StartPickup()
 	SetLockedByComponent(true);
 
 	PlayerCharacter->bRaytraceEnabled = false;
-	if (bForceSinglePickupKeyDown || bStackModeEnabled == false) {
+	if (bStackModeEnabled == false) {
 		BaseItemToPick = ItemToHandle;
 	}
 	else {
@@ -522,17 +519,6 @@ void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("RightHandAction", IE_Pressed, this, &UGPickup::InputRightHandPressed);
 	PlayerInputComponent->BindAction("RightHandAction", IE_Released, this, &UGPickup::InputRightHandReleased);
 
-	PlayerInputComponent->BindAction("ForceDrop", IE_Pressed, this, &UGPickup::InputForceDrop);
-	PlayerInputComponent->BindAction("ForceDrop", IE_Released, this, &UGPickup::InputForceDrop);
-
-	PlayerInputComponent->BindAction("DragObject", IE_Pressed, this, &UGPickup::InputDragging);
-	PlayerInputComponent->BindAction("DragObject", IE_Released, this, &UGPickup::InputDragging);
-
-	PlayerInputComponent->BindAction("ForceSinglePickup", IE_Pressed, this, &UGPickup::InputForceSinglePickup);
-	PlayerInputComponent->BindAction("ForceSinglePickup", IE_Released, this, &UGPickup::InputForceSinglePickup);
-
-	PlayerInputComponent->BindAction("RotateDroppingItem", IE_Pressed, this, &UGPickup::StepRotation);
-
 	// Rotation mode after pressing Tab (by Waldemar Zeitler)
 	PlayerInputComponent->BindAction("RotationMode", IE_Pressed, this, &UGPickup::RotationMode);
 }
@@ -579,58 +565,26 @@ void UGPickup::InputRightHandReleased()
 	OnInteractionKeyReleased(true);
 }
 
-void UGPickup::InputForceDrop()
-{
-	bForceDropKeyDown = !bForceDropKeyDown;
-}
-
-void UGPickup::InputDragging()
-{
-	bDraggingKeyDown = !bDraggingKeyDown;
-}
-
-void UGPickup::InputForceSinglePickup()
-{
-	bForceSinglePickupKeyDown = !bForceSinglePickupKeyDown;
-
-	float MessageDisplayTime = 0;
-	if (bForceSinglePickupKeyDown) {
-		MessageDisplayTime = 100000.0f;
-	}
-
-	GEngine->AddOnScreenDebugMessage(3, MessageDisplayTime, FColor::Green, "Single Item Pickup", false);
-}
-
-void UGPickup::StepRotation()
-{
-	RotationOfItemToDrop += FRotator::MakeFromEuler(FVector(0, 0, 90));
-}
-
 void UGPickup::OnInteractionKeyPressed(bool bIsRightKey)
 {
-	if (ItemToHandle != nullptr && bForceDropKeyDown == false) {
+	if (ItemToHandle != nullptr) {
 		if (SetOfPickupItems.Contains(ItemToHandle)) {
-			if (bDraggingKeyDown) {
-				StartDrag(); // We only want to drag the item
-			}
-			else {
-				if (bIsRightKey) {
-					// Right hand handling
-					if (ItemInRightHand == nullptr) {
-						StartPickup();
-					}
-					else {
-						if (bIsItemDropping == false) StartDropItem();
-					}
+			if (bIsRightKey) {
+				// Right hand handling
+				if (ItemInRightHand == nullptr) {
+					StartPickup();
 				}
 				else {
-					// Left hand handling
-					if (ItemInLeftHand == nullptr) {
-						StartPickup();
-					}
-					else {
-						if (bIsItemDropping == false) StartDropItem();
-					}
+					if (bIsItemDropping == false) StartDropItem();
+				}
+			}
+			else {
+				// Left hand handling
+				if (ItemInLeftHand == nullptr) {
+					StartPickup();
+				}
+				else {
+					if (bIsItemDropping == false) StartDropItem();
 				}
 			}
 		}
@@ -766,12 +720,13 @@ void UGPickup::StartDropItem()
 {
 	bIsItemDropping = true;
 	SetLockedByComponent(true);
-
-	RotationOfItemToDrop = FRotator::ZeroRotator;
 }
 
 void UGPickup::DropItem()
 {
+	// Set the rotation value, because the item is not hold in the hand anymore 
+	RotationValue = 0;
+
 	bIsItemDropping = false;
 	if (ShadowBaseItem == nullptr) return;
 
@@ -876,7 +831,7 @@ void UGPickup::ShadowDropItem()
 	if (RaycastHit.Actor != nullptr) {
 
 		if (bCheckForCollisionsOnDrop) {
-			ShadowRoot->SetActorRotation(ShadowRoot->GetActorRotation() + RotationOfItemToDrop);
+			ShadowRoot->SetActorRotation(ShadowRoot->GetActorRotation());
 
 			// Checking for collisions between the player and the position the player wants to drop the item
 			FVector FromPosition = CamLoc;
