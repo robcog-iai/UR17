@@ -49,4 +49,6 @@ public:
 	void OnBladeEndOverlap(
 		UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex);
+
+	bool bWrongCutting = false;
 };

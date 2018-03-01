@@ -31,6 +31,7 @@ USlicingComponent::USlicingComponent()
 	// Register the logic functions
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingComponent::OnBladeBeginOverlap);
 	OnComponentEndOverlap.AddDynamic(this, &USlicingComponent::OnBladeEndOverlap);
+
 }
 
 void USlicingComponent::InitializeComponent()
@@ -52,17 +53,23 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	FSlicingLogicModule& SlicingLogicModule =
 		FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
 
+	// TODO: Test in real case.
+	if (!bWrongCutting) bWrongCutting = OComponent->OverlapComponent(Parent->GetChildComponent(0)->GetComponentLocation(),
+		Parent->GetChildComponent(0)->GetComponentQuat(), ((UPrimitiveComponent*)Parent->GetChildComponent(0))->GetCollisionShape());
+
 	if (SlicingLogicModule.bEnableDebugShowPlane)
 	{
+		// Draws Box of Logic Box
 		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), this->GetComponentRotation().Quaternion(), FColor::Green, true, 0.01f);
-		TArray<USceneComponent*> Parents;
-		this->GetParentComponents(Parents);
+
+		// Draws the plane - TODO Test
+		//TArray<USceneComponent*> Parents;
+		//this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(5, 5), FColor::Red, false, 0.01f);
+			/*Parents[0]->GetSocketLocation(SocketBladeName)*/ UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), relLocation),
+			FVector2D(5, 5), FColor::Red, false, 0.01f);
 
-		// TODO: DEBUG ENTRANCE POINT
-		//DrawDebugBox(this->GetWorld(), UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), FVector(0,0,0)), FVector(4, 4, 4), FColor::Blue, true, 1.0f);
-
+		// Entrancepoint DEBUG
 		DrawDebugBox(this->GetWorld(),
 			UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), relLocation), 
 			FVector(3, 3, 3), OComponent->GetComponentQuat(), FColor::Green, true, 1.0F);
@@ -70,6 +77,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if (SlicingLogicModule.bEnableDebugConsoleOutput)
 	{
+		// Currently has no other usage (reasonable one at least)
 		UE_LOG(LogTemp, Warning, TEXT("CONSOLE OUTPUT WORKS"));
 	}
 
@@ -78,7 +86,7 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		TArray<USceneComponent*> Parents;
 		this->GetParentComponents(Parents);
 		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(5, 5), FColor::Blue, false, 1.0f);
+			Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(2, 4), FColor::Blue, false, 1.0f);
 	}
 }
 
@@ -136,8 +144,9 @@ void USlicingComponent::OnBladeEndOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (!bIsCutting) 
+	if (!bIsCutting || bWrongCutting) 
 	{
+		bWrongCutting = false;
 		return;
 	}
 	if (OverlappedComp->OverlapComponent(UKismetMathLibrary::TransformLocation(OComponent->GetComponentTransform(), relLocation),
