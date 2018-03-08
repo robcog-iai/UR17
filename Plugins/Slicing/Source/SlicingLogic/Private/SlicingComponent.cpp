@@ -188,6 +188,7 @@ void USlicingComponent::OnBladeEndOverlap(
 
 	SlicingObject->SetCollisionProfileName(FName("PhysicsActor"));
 	bIsCurrentlyCutting = false;
+	FlushPersistentDebugLines(this->GetWorld());
 }
 
 void USlicingComponent::DrawSlicingComponents()
@@ -207,12 +208,12 @@ void USlicingComponent::DrawSlicingPlane()
 {
 	FPlane SlicingPlane = FPlane(GetAttachmentRoot()->GetComponentLocation(), GetUpVector());
 
-	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation);
-	//+ FVector(0,5,0);
+	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation)
+		+ FVector(0,5,0);
 
 	//FVector ComponentExtraPosition = UKismetSystemLibrary::GetComponentBounds(...)
 
-	DrawDebugSolidPlane(GetWorld(), SlicingPlane, ComponentPosition, FVector2D(4, 4), FColor::Red, false);
+	DrawDebugSolidPlane(GetWorld(), SlicingPlane, ComponentPosition, FVector2D(5, 4), FColor::Red, false);
 }
 
 void USlicingComponent::DrawCuttingEntrancePoint()
@@ -232,5 +233,5 @@ void USlicingComponent::DrawCuttingTrajectory()
 	TArray<USceneComponent*> Parents;
 	this->GetParentComponents(Parents);
 	DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-		Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(0.3, 5), FColor::Blue, false);
+		Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(0.3, 5), FColor::Blue, true);
 }
