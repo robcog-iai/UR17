@@ -205,11 +205,11 @@ void USlicingComponent::DrawSlicingComponents()
 }
 
 void USlicingComponent::DrawSlicingPlane()
-{
-	FPlane SlicingPlane = FPlane(GetAttachmentRoot()->GetComponentLocation(), GetUpVector());
+{	
+	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
 
 	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation)
-		+ FVector(0,5,0);
+		- FVector(0, 5, 0);
 
 	//FVector ComponentExtraPosition = UKismetSystemLibrary::GetComponentBounds(...)
 
@@ -218,9 +218,10 @@ void USlicingComponent::DrawSlicingPlane()
 
 void USlicingComponent::DrawCuttingEntrancePoint()
 {
-	DrawDebugBox(this->GetWorld(),
-		UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation),
-		FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Green, true, 1.0F);
+	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation);
+	
+	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(),
+		FColor::Green, true, 1.0F);
 }
 
 void USlicingComponent::DrawCuttingExitPoint()
@@ -230,8 +231,8 @@ void USlicingComponent::DrawCuttingExitPoint()
 
 void USlicingComponent::DrawCuttingTrajectory()
 {
-	TArray<USceneComponent*> Parents;
-	this->GetParentComponents(Parents);
-	DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-		Parents[0]->GetSocketLocation(SocketBladeName), FVector2D(0.3, 5), FColor::Blue, true);
+	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
+	
+	DrawDebugSolidPlane(GetWorld(), SlicingPlane, SlicingObject->GetSocketLocation(SocketBladeName),
+		FVector2D(0.3, 5), FColor::Blue, true);
 }
