@@ -10,7 +10,7 @@
 class FSlicingEditorActionCallbacks
 {
 public:
-	/** Static mesh editor */
+	/**** Static mesh editor ****/
 	static void ShowInstructions();
 
 	static void OnEnableDebugConsoleOutput(bool* bButtonValue);
@@ -20,7 +20,7 @@ public:
 	static void OnEnableDebugShowTrajectory(bool* bButtonValue);
 	static bool OnIsEnableDebugShowTrajectoryEnabled(bool* bButtonValue);
 
-	/** Level editor helper functions */
+	/**** Level editor helper functions ****/
 	//* Adds components needed to make the object be able to cut other objects (proper sockets are needed)
 	static void MakeCuttingObjects();
 	//* Adds/changes properties to make the object be able to get cut by other objects
@@ -29,7 +29,7 @@ public:
 private:
 	static TArray<AStaticMeshActor*> GetSelectedStaticMeshActors();
 
-	/** Creates the components that fill the sockets */
+	/**** Creates the components that fill the sockets ****/
 	static void AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents);
 	static void AddHandleComponent(UStaticMeshComponent* StaticMesh);
 	static void AddBladeComponent(UStaticMeshComponent* StaticMesh);

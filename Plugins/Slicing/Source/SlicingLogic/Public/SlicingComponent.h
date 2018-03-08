@@ -2,9 +2,13 @@
 
 #pragma once
 
+#include "SlicingLogicModule.h"
+
 #include "CoreMinimal.h"
 #include "ProceduralMeshComponent.h"
+
 #include "Components/BoxComponent.h"
+
 #include "SlicingComponent.generated.h"
 
 UCLASS()
@@ -17,29 +21,34 @@ public:
 	USlicingComponent();
 
 public:
-	// The names of the sockets that are also needed by the editor
+	/**** The names of the sockets that are also needed by the editor ****/
 	static const FName SocketHandleName;
 	static const FName SocketBladeName;
 	static const FName SocketCuttingExitpointName;
-	// The tag names needed for recognition of objects related to the slicing plugin
+	//* The tag name needed to recognize objects in the world that are cuttable by the Slicing plugin
 	static const FName TagCuttable;
 
-	// Called before BeginPlay()
+	/**** The implementation of standard component functions ****/
 	virtual void InitializeComponent() override;
-	// Called when the game starts
 	virtual void BeginPlay() override;
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	bool bIsCutting = false;
+	//* Describes whether the cutting object is currently in the process of cutting a cuttable object
+	bool bIsCurrentlyCutting = false;
+	//* If pulled out, the slicing will be aborted
+	bool bPulledOutCuttingObject = false;
 	
-	UStaticMeshComponent* Parent;
+	//* The component of the object, the SlicingComponent is attached to
+	UStaticMeshComponent* SlicingObject;
+	//* The object that is currently being cut, but did not go through the slicing process yet
+	UProceduralMeshComponent* CutComponent;
+	//* Needed for the debug option booleans
+	FSlicingLogicModule* SlicingLogicModule;
 
 	FVector relLocation;
 	FQuat relRotation;
 
-	UProceduralMeshComponent* OComponent;
-	// The rest of the functions
+	/**** Implementation of the overlap events for slicing/aborting the slicing ****/
 	UFUNCTION()
 	void OnBladeBeginOverlap(
 		UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -50,5 +59,10 @@ public:
 		UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex);
 
-	bool bWrongCutting = false;
+private:
+	void DrawSlicingComponents();
+	void DrawSlicingPlane();
+	void DrawCuttingEntrancePoint();
+	void DrawCuttingExitPoint();
+	void DrawCuttingTrajectory();
 };

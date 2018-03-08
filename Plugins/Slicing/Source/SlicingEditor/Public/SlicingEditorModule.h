@@ -11,19 +11,19 @@ class FMenuBuilder;
 class FSlicingEditorModule: public IModuleInterface
 {
 public:
-	/** IModuleInterface implementation */
+	/**** IModuleInterface implementation ****/
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 	
 private:
 	TSharedPtr<class FUICommandList> PluginCommandList;
 
-	/** Creating the UI elements */
+	/**** Creating the UI elements ****/
 	void InitializeUIButtons();
 	void CreateInstructionsButton();
 	void CreateDebugButtons();
 
-	/** Needed to build the UI elements */
+	/**** Needed to build the UI elements ****/
 	TSharedRef<SWidget> CreateDebugOptionMenu();
 	void AddInstructionsButton(FToolBarBuilder& Builder);
 	void AddDebugOptions(FToolBarBuilder& Builder);
