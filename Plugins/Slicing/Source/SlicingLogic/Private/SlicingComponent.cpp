@@ -107,7 +107,7 @@ void USlicingComponent::OnBladeBeginOverlap(
 	Converting the given Component to Procedural Mesh Component
 	*/
 	UPrimitiveComponent* ReferencedComponent = OtherComp;
-	SlicingObject->SetCollisionProfileName(FName("OverlapAll"));
+	SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
 	bIsCurrentlyCutting = true;
 	/*
 		If Physics are on, the relative location and such will be seen relative to the world location.
@@ -157,7 +157,7 @@ void USlicingComponent::OnBladeEndOverlap(
 		CutComponent->GetComponentQuat(),
 		OverlappedComp->GetCollisionShape())) 
 	{
-		SlicingObject->SetCollisionProfileName(FName("PhysicsActor"));
+		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 		bIsCurrentlyCutting = false;
 
 		return;
