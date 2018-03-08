@@ -232,7 +232,7 @@ void USlicingComponent::DrawCuttingExitPoint()
 void USlicingComponent::DrawCuttingTrajectory()
 {
 	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
-	
+
 	DrawDebugSolidPlane(GetWorld(), SlicingPlane, SlicingObject->GetSocketLocation(SocketBladeName),
-		FVector2D(0.3, 5), FColor::Blue, true);
+		FVector2D(5, 0.3), FColor::Blue, true);
 }
