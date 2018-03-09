@@ -2,12 +2,9 @@
 
 #include "SlicingLogicModule.h"
 
-#include "Engine/StaticMesh.h"
 #include "StaticMeshResources.h"
 #include "ProceduralMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
-
-#include "DrawDebugHelpers.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingLogicModule"
 
@@ -20,54 +17,29 @@ void FSlicingLogicModule::ShutdownModule()
 {
 	// Empty as of right now
 }
-/*
-void FSlicingLogicModule::SetMaterialForSection(UMaterialInterface* InputMaterial)
+
+void FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* StaticMeshComponent)
 {
-	if (InputMaterial == NULL) return;
-	MaterialReferenceNewSection = InputMaterial;
+	// Needed so that the component can be cut/changed in runtime
+	((UStaticMeshComponent*)StaticMeshComponent)->GetStaticMesh()->bAllowCPUAccess = true;
+
+	UProceduralMeshComponent* ProceduralMeshComponent = NewObject<UProceduralMeshComponent>(StaticMeshComponent);
+	ProceduralMeshComponent->SetRelativeTransform(StaticMeshComponent->GetRelativeTransform());
+	ProceduralMeshComponent->RegisterComponent();
+	ProceduralMeshComponent->SetCollisionProfileName(FName("PhysicsActor"));
+	ProceduralMeshComponent->bUseComplexAsSimpleCollision = false;
+	ProceduralMeshComponent->SetEnableGravity(true);
+	ProceduralMeshComponent->SetSimulatePhysics(true);
+	ProceduralMeshComponent->bGenerateOverlapEvents = true;
+	ProceduralMeshComponent->ComponentTags = StaticMeshComponent->ComponentTags;
+
+	// Copies the materials from the StaticMeshComponent
+	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
+		((UStaticMeshComponent*)StaticMeshComponent), 0, ProceduralMeshComponent, true);
+
+	// Remove the old static mesh
+	StaticMeshComponent->DestroyComponent();
 }
-
-void FSlicingLogicModule::ConvertToProceduralMeshComponent(UPrimitiveComponent* ReferencedComponent)
-{
-	// In case the Component is a StaticMeshComponent, uses following to make a ProceduralMeshComponent
-	if (ReferencedComponent != nullptr && ReferencedComponent->GetClass() == UStaticMeshComponent::StaticClass())
-	{
-		if (((UStaticMeshComponent*)ReferencedComponent)->GetStaticMesh())
-		{
-			((UStaticMeshComponent*) ReferencedComponent)->GetStaticMesh()->bAllowCPUAccess = true;
-
-			UProceduralMeshComponent* NewComponent = NewObject<UProceduralMeshComponent>(ReferencedComponent);
-			NewComponent->SetRelativeTransform(ReferencedComponent->GetRelativeTransform());
-			NewComponent->RegisterComponent();
-			NewComponent->SetCollisionProfileName(FName("PhysicsActor"));
-			NewComponent->bUseComplexAsSimpleCollision = false;
-			NewComponent->SetEnableGravity(true);
-			NewComponent->SetSimulatePhysics(true);
-			NewComponent->bGenerateOverlapEvents = true;
-
-			UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
-				((UStaticMeshComponent*)ReferencedComponent), 0, NewComponent, true);
-
-			ReferencedComponent->DestroyComponent();
-		}
-	}
-}
-
-void FSlicingLogicModule::CutGivenComponent(UPrimitiveComponent* InputComponent, FVector PlanePosition, FVector PlaneNormal)
-{
-	UProceduralMeshComponent* OutputProceduralMesh;
-
-	UKismetProceduralMeshLibrary::SliceProceduralMesh(
-		(UProceduralMeshComponent*)InputComponent,
-		PlanePosition,
-		PlaneNormal,
-		true,
-		OutputProceduralMesh,
-		EProcMeshSliceCapOption::NoCap,
-		MaterialReferenceNewSection
-	);
-}
-*/
 
 #undef LOCTEXT_NAMESPACE
 

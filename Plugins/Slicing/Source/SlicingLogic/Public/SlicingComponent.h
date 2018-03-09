@@ -17,16 +17,16 @@ class SLICINGLOGIC_API USlicingComponent: public UBoxComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values. Called when generated, even in the editor.
-	USlicingComponent();
-
-public:
 	/**** The names of the sockets that are also needed by the editor ****/
 	static const FName SocketHandleName;
 	static const FName SocketBladeName;
 	static const FName SocketCuttingExitpointName;
 	//* The tag name needed to recognize objects in the world that are cuttable by the Slicing plugin
 	static const FName TagCuttable;
+
+public:
+	// Sets default values. Called when generated, even in the editor.
+	USlicingComponent();
 
 	/**** The implementation of standard component functions ****/
 	virtual void InitializeComponent() override;
@@ -45,8 +45,9 @@ public:
 	//* Needed for the debug option booleans
 	FSlicingLogicModule* SlicingLogicModule;
 
-	FVector relLocation;
-	FQuat relRotation;
+	/**** Positional information needed for proper debug-visuals ****/
+	FVector RelativeLocationToCutComponent;
+	FQuat RelativeRotationToCutComponent;
 
 	/**** Implementation of the overlap events for slicing/aborting the slicing ****/
 	UFUNCTION()
@@ -60,6 +61,7 @@ public:
 		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex);
 
 private:
+	/**** The visual-debugging functions ****/
 	void DrawSlicingComponents();
 	void DrawSlicingPlane();
 	void DrawCuttingEntrancePoint();

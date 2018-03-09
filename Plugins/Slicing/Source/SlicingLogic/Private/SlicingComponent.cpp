@@ -66,20 +66,6 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		return;
 	}
 
-	/*
-	// PROBLEM: Always true
-	// Find out whether the CuttingExitpoint is overlapping -> abort slicing
-	if (!bPulledOutCuttingObject)
-	{
-		const FVector CuttingExitpointPosition = SlicingObject->GetChildComponent(0)->GetComponentLocation();
-		const FQuat CuttingExitpointRotation = SlicingObject->GetChildComponent(0)->GetComponentQuat();
-		const FCollisionShape CuttingExitpointCollisionShape = ((UPrimitiveComponent*)SlicingObject->GetChildComponent(0))->GetCollisionShape();
-
-		bPulledOutCuttingObject = CutComponent->OverlapComponent(
-			CuttingExitpointPosition, CuttingExitpointRotation, CuttingExitpointCollisionShape);
-	}
-	*/
-
 	if (SlicingLogicModule->bEnableDebugShowPlane)
 	{
 		USlicingComponent::DrawSlicingComponents();
@@ -97,50 +83,38 @@ void USlicingComponent::OnBladeBeginOverlap(
 	UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// This event is only important if the other object actually exists
+	if (OtherComp == nullptr || OtherComp == NULL)
+	{
+		return;
+	}
+	
+	// This event is only important if the other object can actually be cut or if another cut hasn't already started
 	if (!OtherComp->ComponentHasTag(TagCuttable) || bIsCurrentlyCutting)
 	{
 		return;
 	}
-	//relLocation = OtherComp->GetComponentTransform().GetRelativeTransform(this->GetComponentTransform());
 	
-	/*
-	Converting the given Component to Procedural Mesh Component
-	*/
-	UPrimitiveComponent* ReferencedComponent = OtherComp;
+	// Collision should only be ignored with the currently cut object, not the object around it
 	SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Overlap);
-	bIsCurrentlyCutting = true;
-	/*
-		If Physics are on, the relative location and such will be seen relative to the world location.
-	*/
-	relLocation = OtherComp->GetComponentTransform().InverseTransformPosition(OverlappedComp->GetComponentLocation());
-	//relLocation = OverlappedComp->GetComponentLocation() - OtherComp->GetComponentLocation();
-	relRotation = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
-	if (ReferencedComponent != nullptr  && ReferencedComponent != NULL)
+
+	// If physics are on, the relative location and such will be seen relative to the world location
+	RelativeLocationToCutComponent = OtherComp->GetComponentTransform().InverseTransformPosition(OverlappedComp->GetComponentLocation());
+	RelativeRotationToCutComponent = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
+
+	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
+	if (OtherComp->GetClass() == UStaticMeshComponent::StaticClass()
+		&& ((UStaticMeshComponent*)OtherComp)->GetStaticMesh())
 	{
-		// In case the Component is a StaticMeshComponent, uses following to make a ProceduralMeshComponent
-		if (ReferencedComponent->GetClass() == UStaticMeshComponent::StaticClass()
-			&& ((UStaticMeshComponent*)ReferencedComponent)->GetStaticMesh())
-		{
-			((UStaticMeshComponent*)ReferencedComponent)->GetStaticMesh()->bAllowCPUAccess = true;
+		FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(OtherComp);
 
-			UProceduralMeshComponent* NewComponent = NewObject<UProceduralMeshComponent>(ReferencedComponent);
-			NewComponent->SetRelativeTransform(ReferencedComponent->GetRelativeTransform());
-			NewComponent->RegisterComponent();
-			NewComponent->SetCollisionProfileName(FName("PhysicsActor"));
-			NewComponent->bUseComplexAsSimpleCollision = false;
-			NewComponent->SetEnableGravity(true);
-			NewComponent->SetSimulatePhysics(true);
-			NewComponent->bGenerateOverlapEvents = true;
-			NewComponent->ComponentTags = ReferencedComponent->ComponentTags;
-
-			UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
-				((UStaticMeshComponent*)ReferencedComponent), 0, NewComponent, true);
-			bIsCurrentlyCutting = false;
-			ReferencedComponent->DestroyComponent();
-			return;
-		}
-		CutComponent = (UProceduralMeshComponent*) OtherComp;
+		// Retry the event with the new ProceduralMeshComponent
+		return;
 	}
+
+	// The other object is a ProceduralMeshComponent and the cutting can now be continued
+	bIsCurrentlyCutting = true;
+	CutComponent = (UProceduralMeshComponent*) OtherComp;
 }
 
 void USlicingComponent::OnBladeEndOverlap(
@@ -153,10 +127,11 @@ void USlicingComponent::OnBladeEndOverlap(
 		return;
 	}
 
-	if (OverlappedComp->OverlapComponent(UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation),
+	if (OverlappedComp->OverlapComponent(UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent),
 		CutComponent->GetComponentQuat(),
 		OverlappedComp->GetCollisionShape())) 
 	{
+		// Collision should only be ignored with the currently cut object, not the object around it
 		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 		bIsCurrentlyCutting = false;
 
@@ -208,7 +183,7 @@ void USlicingComponent::DrawSlicingPlane()
 {	
 	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
 
-	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation)
+	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent)
 		- FVector(0, 5, 0);
 
 	//FVector ComponentExtraPosition = UKismetSystemLibrary::GetComponentBounds(...)
@@ -218,7 +193,7 @@ void USlicingComponent::DrawSlicingPlane()
 
 void USlicingComponent::DrawCuttingEntrancePoint()
 {
-	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), relLocation);
+	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
 	
 	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(),
 		FColor::Green, true, 1.0F);
@@ -233,8 +208,6 @@ void USlicingComponent::DrawCuttingTrajectory()
 {
 	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
 
-	//DrawDebugSolidPlane(GetWorld(), SlicingPlane, SlicingObject->GetSocketLocation(SocketBladeName),
-		//FVector2D(5, 0.3), FColor::Blue, true);
 	DrawDebugPoint(GetWorld(), SlicingObject->GetSocketLocation(SocketBladeName),
 		2, FColor::Purple, true, -1.0f, (uint8)'\100');
 }
