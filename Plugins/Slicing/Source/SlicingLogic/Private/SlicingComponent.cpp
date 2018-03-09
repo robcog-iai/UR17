@@ -79,9 +79,8 @@ void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	}
 }
 
-void USlicingComponent::OnBladeBeginOverlap(
-	UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void USlicingComponent::OnBladeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// This event is only important if the other object actually exists
 	if (OtherComp == nullptr || OtherComp == NULL)
@@ -117,19 +116,19 @@ void USlicingComponent::OnBladeBeginOverlap(
 	CutComponent = (UProceduralMeshComponent*) OtherComp;
 }
 
-void USlicingComponent::OnBladeEndOverlap(
-	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void USlicingComponent::OnBladeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	// This event is only important if you are actually in the cutting process and not trying to abort it
 	if (!bIsCurrentlyCutting || bPulledOutCuttingObject) 
 	{
 		bPulledOutCuttingObject = false;
 		return;
 	}
 
-	if (OverlappedComp->OverlapComponent(UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent),
-		CutComponent->GetComponentQuat(),
-		OverlappedComp->GetCollisionShape())) 
+	//##!! Wann wird das benötigt???
+	FVector vector = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
+	if (OverlappedComp->OverlapComponent(vector, CutComponent->GetComponentQuat(), OverlappedComp->GetCollisionShape())) 
 	{
 		// Collision should only be ignored with the currently cut object, not the object around it
 		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
@@ -138,30 +137,17 @@ void USlicingComponent::OnBladeEndOverlap(
 		return;
 	}
 
+	//##!! Braucht man eigentlich nicht...
 	if (!OtherComp->ComponentHasTag(TagCuttable) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
 	{
 		return;
 	}
-	UProceduralMeshComponent* OutputProceduralMesh;
-	TArray<USceneComponent*> Parents;
-	this->GetParentComponents(Parents);
 
-	UKismetProceduralMeshLibrary::SliceProceduralMesh(
-		(UProceduralMeshComponent*)OtherComp,
-		Parents[0]->GetSocketLocation(SocketBladeName),
-		Parents[0]->GetUpVector(),
-		true,
-		OutputProceduralMesh,
-		EProcMeshSliceCapOption::NoCap,
-		OtherComp->GetMaterial(0)
-	);
+	SliceComponent(OtherComp);
 
-	OutputProceduralMesh->bGenerateOverlapEvents = true;
-	OutputProceduralMesh->SetEnableGravity(true);
-	OutputProceduralMesh->SetSimulatePhysics(true);
-	OutputProceduralMesh->ComponentTags = OtherComp->ComponentTags;
-
+	//##!! Braucht man das??
 	SlicingObject->SetCollisionProfileName(FName("PhysicsActor"));
+
 	bIsCurrentlyCutting = false;
 	FlushPersistentDebugLines(this->GetWorld());
 }
@@ -210,4 +196,24 @@ void USlicingComponent::DrawCuttingTrajectory()
 
 	DrawDebugPoint(GetWorld(), SlicingObject->GetSocketLocation(SocketBladeName),
 		2, FColor::Purple, true, -1.0f, (uint8)'\100');
+}
+
+void USlicingComponent::SliceComponent(UPrimitiveComponent* CuttableComponent)
+{
+	UProceduralMeshComponent* OutputProceduralMesh;
+
+	UKismetProceduralMeshLibrary::SliceProceduralMesh(
+		(UProceduralMeshComponent*)CuttableComponent,
+		SlicingObject->GetSocketLocation(SocketBladeName),
+		SlicingObject->GetUpVector(),
+		true,
+		OutputProceduralMesh,
+		EProcMeshSliceCapOption::NoCap,
+		CuttableComponent->GetMaterial(0)
+	);
+
+	OutputProceduralMesh->bGenerateOverlapEvents = true;
+	OutputProceduralMesh->SetEnableGravity(true);
+	OutputProceduralMesh->SetSimulatePhysics(true);
+	OutputProceduralMesh->ComponentTags = CuttableComponent->ComponentTags;
 }

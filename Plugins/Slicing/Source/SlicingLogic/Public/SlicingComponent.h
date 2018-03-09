@@ -51,14 +51,12 @@ public:
 
 	/**** Implementation of the overlap events for slicing/aborting the slicing ****/
 	UFUNCTION()
-	void OnBladeBeginOverlap(
-		UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnBladeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnBladeEndOverlap(
-		UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex);
+	void OnBladeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 	/**** The visual-debugging functions ****/
@@ -67,4 +65,6 @@ private:
 	void DrawCuttingEntrancePoint();
 	void DrawCuttingExitPoint();
 	void DrawCuttingTrajectory();
+
+	void SliceComponent(UPrimitiveComponent* CuttableComponent);
 };

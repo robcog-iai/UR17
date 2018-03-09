@@ -6,6 +6,8 @@
 #include "ProceduralMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
 
+#include "Engine/StaticMesh.h"
+
 #define LOCTEXT_NAMESPACE "FSlicingLogicModule"
 
 void FSlicingLogicModule::StartupModule()
