@@ -33,5 +33,5 @@ private:
 	static void AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents);
 	static void AddHandleComponent(UStaticMeshComponent* StaticMesh);
 	static void AddBladeComponent(UStaticMeshComponent* StaticMesh);
-	static void AddCuttingExitpointComponent(UStaticMeshComponent* StaticMesh);
+	static void AddTipComponent(UStaticMeshComponent* StaticMesh);
 };

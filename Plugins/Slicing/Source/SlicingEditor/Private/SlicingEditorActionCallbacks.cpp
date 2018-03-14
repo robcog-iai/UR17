@@ -2,6 +2,8 @@
 
 #include "SlicingEditorActionCallbacks.h"
 #include "SlicingComponent.h"
+#include "SlicingBladeComponent.h"
+#include "SlicingTipComponent.h"
 
 #include "Core.h"
 #include "Editor.h"
@@ -22,7 +24,7 @@ void FSlicingEditorActionCallbacks::ShowInstructions()
 		FString("certain areas needed for cutting objects. These sockets need specific names to specify ") +
 		FString("the area they are used for.\n\nCutting Blade: ") + USlicingComponent::SocketBladeName.ToString() +
 		FString("\nCutting Handle: ") + USlicingComponent::SocketHandleName.ToString() +
-		FString("\nCutting Exitpoint: ") + USlicingComponent::SocketCuttingExitpointName.ToString());
+		FString("\nCutting Tip: ") + USlicingComponent::SocketTipName.ToString());
 
 	// Display the popup-window
 	FMessageDialog* Instructions = new FMessageDialog();
@@ -68,7 +70,7 @@ void FSlicingEditorActionCallbacks::MakeCuttingObjects()
 
 		FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
 		FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
-		FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(StaticMesh);
+		FSlicingEditorActionCallbacks::AddTipComponent(StaticMesh);
 	}
 }
 
@@ -146,8 +148,8 @@ void FSlicingEditorActionCallbacks::AddBladeComponent(UStaticMeshComponent* Stat
 		return;
 	}
 
-	USlicingComponent* BladeComponent =
-		NewObject<USlicingComponent>(StaticMesh, USlicingComponent::SocketBladeName);
+	USlicingBladeComponent* BladeComponent =
+		NewObject<USlicingBladeComponent>(StaticMesh, USlicingComponent::SocketBladeName);
 
 	FSlicingEditorActionCallbacks::AddBoxComponent(
 		StaticMesh,
@@ -157,21 +159,21 @@ void FSlicingEditorActionCallbacks::AddBladeComponent(UStaticMeshComponent* Stat
 		true);
 }
 
-void FSlicingEditorActionCallbacks::AddCuttingExitpointComponent(UStaticMeshComponent* StaticMesh)
+void FSlicingEditorActionCallbacks::AddTipComponent(UStaticMeshComponent* StaticMesh)
 {
-	if (!StaticMesh->DoesSocketExist(USlicingComponent::SocketCuttingExitpointName))
+	if (!StaticMesh->DoesSocketExist(USlicingComponent::SocketTipName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: Socket for the CuttingExitpoint does not exist"));
+		UE_LOG(LogTemp, Warning, TEXT("Slicing-Plugin Error: Socket for the Tip does not exist"));
 		return;
 	}
 
-	UBoxComponent* CuttingExitpointComponent =
-		NewObject<UBoxComponent>(StaticMesh, USlicingComponent::SocketCuttingExitpointName);
+	USlicingTipComponent* TipComponent =
+		NewObject<USlicingTipComponent>(StaticMesh, USlicingComponent::SocketTipName);
 
 	FSlicingEditorActionCallbacks::AddBoxComponent(
 		StaticMesh,
-		CuttingExitpointComponent,
-		USlicingComponent::SocketCuttingExitpointName,
+		TipComponent,
+		USlicingComponent::SocketTipName,
 		FName("OverlapAll"),
 		false);
 }
