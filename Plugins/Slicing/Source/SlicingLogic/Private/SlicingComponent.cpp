@@ -25,8 +25,8 @@ void USlicingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SlicingObject = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 	SlicingLogicModule = &FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
+	SlicingObject = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 }
 
 //void USlicingComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

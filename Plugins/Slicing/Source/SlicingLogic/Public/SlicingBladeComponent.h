@@ -29,8 +29,6 @@ public:
 
 	//* The tip component that is attached to the same SlicingComponent
 	USlicingTipComponent* TipComponent;
-	//* The object that is currently being cut, but did not go through the slicing process yet
-	UPrimitiveComponent* CutComponent;
 
 	/**** Positional information needed for proper debug-visuals ****/
 	FVector RelativeLocationToCutComponent;

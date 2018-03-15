@@ -25,18 +25,19 @@ void USlicingTipComponent::BeginPlay()
 	OnComponentEndOverlap.AddDynamic(this, &USlicingTipComponent::OnEndOverlap);
 
 	bGenerateOverlapEvents = true;
-	UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip gets instantiated"));
 }
 
 void USlicingTipComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip begins overlap"));
-	
+	CutComponent = OtherComp;
+
 	if (BladeComponent->CutComponent != NULL && OtherComp == BladeComponent->CutComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip sets boolean to true"));
 		
+		BladeComponent->bIsCurrentlyCutting = false;
 		bPulledOutCuttingObject = true;
 	}
 }
@@ -45,6 +46,7 @@ void USlicingTipComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip ends overlap"));
+	CutComponent = NULL;
 	
 	if (BladeComponent->CutComponent != NULL && OtherComp == BladeComponent->CutComponent)
 	{
