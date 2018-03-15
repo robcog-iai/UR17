@@ -50,6 +50,11 @@ void USlicingBladeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (SlicingLogicModule->bEnableDebugShowComponents)
+	{
+		USlicingBladeComponent::DrawComponent();
+	}
+
 	// The debugging is only needed when cutting
 	if (!bIsCurrentlyCutting)
 	{
@@ -58,7 +63,6 @@ void USlicingBladeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	if (SlicingLogicModule->bEnableDebugShowPlane)
 	{
-		USlicingBladeComponent::DrawSlicingComponents();
 		USlicingBladeComponent::DrawSlicingPlane();
 		USlicingBladeComponent::DrawCuttingEntrancePoint();
 	}
@@ -156,17 +160,11 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	CutComponent = NULL;
 }
 
-void USlicingBladeComponent::DrawSlicingComponents()
+// Draws the BladeComponent box
+void USlicingBladeComponent::DrawComponent()
 {
-	// Drawing the blade
 	DrawDebugBox(GetWorld(), GetComponentLocation(), GetScaledBoxExtent(), GetComponentRotation().Quaternion(),
-		FColor::Green, true, 0.01f);
-
-	// Drawing the handle
-
-
-	// Drawing the tip
-
+		FColor::Green, false, 0.01f);
 }
 
 void USlicingBladeComponent::DrawSlicingPlane()

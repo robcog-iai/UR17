@@ -45,7 +45,7 @@ public:
 
 private:
 	/**** The visual-debugging functions ****/
-	void DrawSlicingComponents();
+	void DrawComponent();
 	void DrawSlicingPlane();
 	void DrawCuttingEntrancePoint();
 	void DrawCuttingExitPoint();

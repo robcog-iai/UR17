@@ -15,6 +15,8 @@ public:
 
 	static void OnEnableDebugConsoleOutput(bool* bButtonValue);
 	static bool OnIsEnableDebugConsoleOutputEnabled(bool* bButtonValue);
+	static void OnEnableDebugShowComponents(bool* bButtonValue);
+	static bool OnIsEnableDebugShowComponentsEnabled(bool* bButtonValue);
 	static void OnEnableDebugShowPlane(bool* bButtonValue);
 	static bool OnIsEnableDebugShowPlaneEnabled(bool* bButtonValue);
 	static void OnEnableDebugShowTrajectory(bool* bButtonValue);

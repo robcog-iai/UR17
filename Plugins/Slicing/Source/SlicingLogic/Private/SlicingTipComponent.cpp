@@ -3,6 +3,8 @@
 #include "SlicingTipComponent.h"
 #include "SlicingBladeComponent.h"
 
+#include "DrawDebugHelpers.h"
+
 // Called when the game starts
 void USlicingTipComponent::BeginPlay()
 {
@@ -27,6 +29,18 @@ void USlicingTipComponent::BeginPlay()
 	bGenerateOverlapEvents = true;
 }
 
+// Called every frame
+void USlicingTipComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	if (SlicingLogicModule->bEnableDebugShowComponents)
+	{
+		USlicingTipComponent::DrawComponent();
+	}
+}
+
+
 void USlicingTipComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -35,10 +49,9 @@ void USlicingTipComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, A
 
 	if (BladeComponent->CutComponent != NULL && OtherComp == BladeComponent->CutComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip sets boolean to true"));
+		UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip enters the same object as the blade is inside of"));
 		
 		BladeComponent->bIsCurrentlyCutting = false;
-		bPulledOutCuttingObject = true;
 	}
 }
 
@@ -50,8 +63,13 @@ void USlicingTipComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	
 	if (BladeComponent->CutComponent != NULL && OtherComp == BladeComponent->CutComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip sets boolean to false"));
-		
-		bPulledOutCuttingObject = false;
+		UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip exits the same object as the blade is inside of"));
 	}
+}
+
+// Draws the TipComponent box
+void USlicingTipComponent::DrawComponent()
+{
+	DrawDebugBox(GetWorld(), GetComponentLocation(), GetScaledBoxExtent(), GetComponentRotation().Quaternion(),
+		FColor::Green, false, 0.01f);
 }

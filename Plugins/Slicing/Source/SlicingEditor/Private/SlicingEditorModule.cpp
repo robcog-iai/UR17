@@ -59,6 +59,12 @@ void FSlicingEditorModule::InitializeUIButtons()
 		FIsActionChecked::CreateStatic(&FSlicingEditorActionCallbacks::OnIsEnableDebugConsoleOutputEnabled, &SlicingLogicModule.bEnableDebugConsoleOutput)
 	);
 	PluginCommandList->MapAction(
+		Commands.EnableDebugShowComponents,
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::OnEnableDebugShowComponents, &SlicingLogicModule.bEnableDebugShowComponents),
+		FCanExecuteAction(),
+		FIsActionChecked::CreateStatic(&FSlicingEditorActionCallbacks::OnIsEnableDebugShowComponentsEnabled, &SlicingLogicModule.bEnableDebugShowComponents)
+	);
+	PluginCommandList->MapAction(
 		Commands.EnableDebugShowPlane,
 		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::OnEnableDebugShowPlane, &SlicingLogicModule.bEnableDebugShowPlane),
 		FCanExecuteAction(),
@@ -122,6 +128,7 @@ TSharedRef<SWidget> FSlicingEditorModule::CreateDebugOptionMenu()
 	Builder.BeginSection("SlicingDebugOptions");
 	{
 		Builder.AddMenuEntry(Commands.EnableDebugConsoleOutput);
+		Builder.AddMenuEntry(Commands.EnableDebugShowComponents);
 		Builder.AddMenuEntry(Commands.EnableDebugShowPlane);
 		Builder.AddMenuEntry(Commands.EnableDebugShowTrajectory);
 		Builder.AddMenuEntry(Commands.MakeCuttingObjects);

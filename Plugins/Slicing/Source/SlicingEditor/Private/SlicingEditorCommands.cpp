@@ -12,6 +12,8 @@ void FSlicingEditorCommands::RegisterCommands()
 	
 	UI_COMMAND(EnableDebugConsoleOutput, "Enable Console Output",
 		"Enable console debug output", EUserInterfaceActionType::ToggleButton, FInputChord(EKeys::PageDown));
+	UI_COMMAND(EnableDebugShowComponents, "Enable Showing Components",
+		"Enable components debug view", EUserInterfaceActionType::ToggleButton, FInputChord());
 	UI_COMMAND(EnableDebugShowPlane, "Enable Slicing Plane",
 		"Enable slicing plane debug view", EUserInterfaceActionType::ToggleButton, FInputChord());
 	UI_COMMAND(EnableDebugShowTrajectory, "Enable Slicing Trajectory",

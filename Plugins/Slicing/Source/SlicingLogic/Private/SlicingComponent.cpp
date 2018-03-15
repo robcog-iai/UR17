@@ -2,6 +2,8 @@
 
 #include "SlicingComponent.h"
 
+#include "DrawDebugHelpers.h"
+
 // Setting the text for the static names used in the editor
 const FName USlicingComponent::SocketHandleName = "SlicingHandle";
 const FName USlicingComponent::SocketBladeName = "SlicingBlade";

@@ -41,6 +41,16 @@ bool FSlicingEditorActionCallbacks::OnIsEnableDebugConsoleOutputEnabled(bool* bB
 	return *bButtonValue;
 }
 
+void FSlicingEditorActionCallbacks::OnEnableDebugShowComponents(bool* bButtonValue)
+{
+	*bButtonValue = !*bButtonValue;
+}
+
+bool FSlicingEditorActionCallbacks::OnIsEnableDebugShowComponentsEnabled(bool* bButtonValue)
+{
+	return *bButtonValue;
+}
+
 void FSlicingEditorActionCallbacks::OnEnableDebugShowPlane(bool* bButtonValue)
 {
 	*bButtonValue = !*bButtonValue;

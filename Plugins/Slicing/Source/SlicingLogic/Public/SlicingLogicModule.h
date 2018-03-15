@@ -14,6 +14,7 @@ public:
 
 	/** Debug option booleans to be read  */
 	bool bEnableDebugConsoleOutput = true;
+	bool bEnableDebugShowComponents = false;
 	bool bEnableDebugShowPlane = false;
 	bool bEnableDebugShowTrajectory = false;
 
