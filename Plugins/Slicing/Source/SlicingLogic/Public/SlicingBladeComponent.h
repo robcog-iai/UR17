@@ -1,15 +1,14 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #pragma once
 
 #include "SlicingComponent.h"
 
-#include "CoreMinimal.h"
 #include "ProceduralMeshComponent.h"
 
-#include "Components/BoxComponent.h"
-
 #include "SlicingBladeComponent.generated.h"
+
+class USlicingTipComponent;
 
 UCLASS()
 class SLICINGLOGIC_API USlicingBladeComponent: public USlicingComponent
@@ -27,11 +26,11 @@ public:
 
 	//* Describes whether the cutting object is currently in the process of cutting a cuttable object
 	bool bIsCurrentlyCutting = false;
-	//* If pulled out, the slicing will be aborted
-	bool bPulledOutCuttingObject = false;
 
+	//* The tip component that is attached to the same SlicingComponent
+	USlicingTipComponent* TipComponent;
 	//* The object that is currently being cut, but did not go through the slicing process yet
-	UProceduralMeshComponent* CutComponent;
+	UPrimitiveComponent* CutComponent;
 
 	/**** Positional information needed for proper debug-visuals ****/
 	FVector RelativeLocationToCutComponent;
@@ -39,12 +38,12 @@ public:
 
 	/**** Implementation of the overlap events for slicing/aborting the slicing ****/
 	UFUNCTION()
-	void OnBladeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnBladeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 	/**** The visual-debugging functions ****/

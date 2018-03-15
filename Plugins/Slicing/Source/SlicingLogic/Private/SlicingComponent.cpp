@@ -1,4 +1,4 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #include "SlicingComponent.h"
 
@@ -14,12 +14,10 @@ USlicingComponent::USlicingComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	// Enables the usage of the InitializeComponent function
 	bWantsInitializeComponent = true;
-	// Enables the slicing itself
-	bGenerateOverlapEvents = true;
 
 	// Register the overlap events
-	OnComponentBeginOverlap.AddDynamic(this, &USlicingComponent::OnBladeBeginOverlap);
-	OnComponentEndOverlap.AddDynamic(this, &USlicingComponent::OnBladeEndOverlap);
+	//OnComponentBeginOverlap.AddDynamic(this, &USlicingComponent::OnBeginOverlap);
+	//OnComponentEndOverlap.AddDynamic(this, &USlicingComponent::OnEndOverlap);
 }
 
 // Called when the game starts
@@ -31,14 +29,14 @@ void USlicingComponent::BeginPlay()
 	SlicingLogicModule = &FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
 }
 
-void USlicingComponent::OnBladeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	// To be overwritten if used
-}
-
-void USlicingComponent::OnBladeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	// To be overwritten if used
-}
+//void USlicingComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+//	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//	// To be overwritten if used
+//}
+//
+//void USlicingComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+//	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+//{
+//	// To be overwritten if used
+//}

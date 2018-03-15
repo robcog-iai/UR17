@@ -1,4 +1,4 @@
-﻿// Copyright 2017, Institute for Artificial Intelligence
+﻿// Copyright 2018, Institute for Artificial Intelligence
 
 #include "SlicingLogicModule.h"
 

@@ -1,4 +1,4 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #pragma once
 
@@ -6,19 +6,28 @@
 
 #include "SlicingTipComponent.generated.h"
 
+class USlicingBladeComponent;
+
 UCLASS()
 class SLICINGLOGIC_API USlicingTipComponent: public USlicingComponent
 {
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
+
+	//* The tip component that is attached to the same SlicingComponent
+	USlicingBladeComponent* BladeComponent;
+	
+	//* If pulled out, the slicing will be aborted
+	bool bPulledOutCuttingObject = false;
+
 	/**** Implementation of the overlap events to detect early abortion of the slicing ****/
 	UFUNCTION()
-	void OnBladeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnBladeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
-
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

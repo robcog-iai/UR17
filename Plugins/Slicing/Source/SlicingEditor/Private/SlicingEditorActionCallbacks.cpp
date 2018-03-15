@@ -175,7 +175,7 @@ void FSlicingEditorActionCallbacks::AddTipComponent(UStaticMeshComponent* Static
 		TipComponent,
 		USlicingComponent::SocketTipName,
 		FName("OverlapAll"),
-		false);
+		true);
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -1,15 +1,13 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #include "SlicingBladeComponent.h"
+#include "SlicingTipComponent.h"
 
 #include "DrawDebugHelpers.h"
 #include "TransformCalculus.h"
 #include "KismetProceduralMeshLibrary.h"
-#include "ProceduralMeshComponent.h"
 
 #include "Engine/StaticMesh.h"
-#include "Components/BoxComponent.h"
-#include "Components/StaticMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -29,6 +27,22 @@ void USlicingBladeComponent::BeginPlay()
 		// Currently has no other usage (reasonable one at least)
 		UE_LOG(LogTemp, Warning, TEXT("SLICING: The blade component has been loaded into the world"));
 	}
+
+	// Check for the tip component to possibly abort the cutting
+	TArray<USceneComponent*> TipComponents;
+	SlicingObject->GetChildrenComponents(true, TipComponents);
+	for (USceneComponent* Component : TipComponents)
+	{
+		if (Component->GetClass()->IsChildOf(USlicingTipComponent::StaticClass()))
+		{
+			// Only one tip should exist
+			TipComponent = (USlicingTipComponent*)Component;
+		}
+	}
+
+	// Register the overlap events
+	OnComponentBeginOverlap.AddDynamic(this, &USlicingBladeComponent::OnBeginOverlap);
+	OnComponentEndOverlap.AddDynamic(this, &USlicingBladeComponent::OnEndOverlap);
 }
 
 // Called every frame
@@ -55,9 +69,9 @@ void USlicingBladeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	}
 }
 
-void USlicingBladeComponent::OnBladeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
+{	
 	// This event is only important if the other object actually exists
 	if (OtherComp == nullptr || OtherComp == NULL)
 	{
@@ -89,16 +103,21 @@ void USlicingBladeComponent::OnBladeBeginOverlap(UPrimitiveComponent* Overlapped
 
 	// The other object is a ProceduralMeshComponent and the cutting can now be continued
 	bIsCurrentlyCutting = true;
-	CutComponent = (UProceduralMeshComponent*)OtherComp;
+	CutComponent = OtherComp;
 }
 
-void USlicingBladeComponent::OnBladeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	// This event is only important if you are actually in the cutting process and not trying to abort it
-	if (!bIsCurrentlyCutting || bPulledOutCuttingObject)
+	// If the SlicingObject is pulled out, the cutting should not be continued
+	if (TipComponent != NULL && TipComponent->bPulledOutCuttingObject)
 	{
-		bPulledOutCuttingObject = false;
+		return;
+	}
+
+	// This event is only important if you are actually in the cutting process and not trying to abort it
+	if (!bIsCurrentlyCutting)
+	{
 		return;
 	}
 
