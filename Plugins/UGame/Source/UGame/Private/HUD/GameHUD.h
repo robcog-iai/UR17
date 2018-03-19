@@ -13,6 +13,7 @@ UCLASS()
 class UGAME_API AGameHUD : public AHUD
 {
 	GENERATED_BODY()
+
 	// Initializes the Slate UI and adds it as widget content to the game viewport.
 	virtual void PostInitializeComponents() override;
 
@@ -20,6 +21,8 @@ class UGAME_API AGameHUD : public AHUD
 	TSharedPtr<class SGameUI> GameUI;
 
 public:
+	AGameHUD();
+
 	// Called by SMainMenu whenever the Play Game! button has been clicked.
 	UFUNCTION(BlueprintImplementableEvent, Category = "Menus|Game Menu")
 		void PlayGameClicked();
@@ -27,4 +30,14 @@ public:
 	// Called by SMainMenu whenever the Quit Game button has been clicked.
 	UFUNCTION(BlueprintImplementableEvent, Category = "Menus|Game Menu")
 		void QuitGameClicked();
+
+protected:
+	// This will be drawn at the center of the screen.
+	UPROPERTY(EditDefaultsOnly)
+		UTexture2D* CrosshairTexture;
+
+public:
+	// Primary draw call for the HUD.
+	virtual void DrawHUD() override;
+	
 };

@@ -1,6 +1,8 @@
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Waldemar Zeitler
 
-#include "UGame.h"
 #include "UGameModeBase.h"
+#include "UGame.h"
 #include "HUD/GameHUD.h"
 
 AUGameModeBase::AUGameModeBase()
