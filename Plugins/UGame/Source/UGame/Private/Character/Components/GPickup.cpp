@@ -17,6 +17,7 @@
 // Sets default values for this component's properties
 UGPickup::UGPickup()
 	:RotationValue(0)
+	,bMenuActivated(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -107,11 +108,16 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		ItemToHandle = PlayerCharacter->FocussedActor;
 
 		if (bRightMouseHold) {
+			bMenuActivated = true;
+		}
+		/**
+		if (bRightMouseHold) {
 			OnInteractionKeyHold(true);
 		}
 		else if (bLeftMouseHold) {
 			OnInteractionKeyHold(false);
 		}
+		*/
 	}
 }
 

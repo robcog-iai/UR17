@@ -203,5 +203,7 @@ public:
 	void RotationMode();
 
 	int RotationValue;
+
+	bool bMenuActivated;
 };
 

@@ -8,4 +8,8 @@
 AUGameModeBase::AUGameModeBase()
 {
 	HUDClass = AGameHUD::StaticClass();
+
+	AGameHUD* MenuHUD = CreateDefaultSubobject<AGameHUD>(TEXT("MenuHUD"));
+	MenuHUD->DrawMenu();
+
 }

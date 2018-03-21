@@ -16,14 +16,7 @@ AGameHUD::AGameHUD()
 
 void AGameHUD::PostInitializeComponents()
 {
-	Super::PostInitializeComponents();
-
-	SAssignNew(GameUI, SGameUI).GameHUD(this);
-
-	if (GEngine->IsValidLowLevel())
-	{
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameUI.ToSharedRef()));
-	}
+	Super::PostInitializeComponents();	
 }
 
 void AGameHUD::DrawHUD()
@@ -42,5 +35,15 @@ void AGameHUD::DrawHUD()
 		TileItem.BlendMode = SE_BLEND_Translucent;
 
 		Canvas->DrawItem(TileItem);
+	}
+}
+
+void AGameHUD::DrawMenu()
+{
+	SAssignNew(GameUI, SGameUI).GameHUD(this);
+
+	if (GEngine->IsValidLowLevel())
+	{
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameUI.ToSharedRef()));
 	}
 }
