@@ -114,6 +114,7 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	// The other object is a ProceduralMeshComponent and the cutting can now be continued
 	bIsCurrentlyCutting = true;
 	CutComponent = OtherComp;
+	CutComponent->SetNotifyRigidBodyCollision(true);
 }
 
 void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -182,7 +183,6 @@ void USlicingBladeComponent::DrawSlicingPlane()
 void USlicingBladeComponent::DrawCuttingEntrancePoint()
 {
 	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
-
 	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(),
 		FColor::Green, true, 1.0F);
 }
@@ -190,6 +190,10 @@ void USlicingBladeComponent::DrawCuttingEntrancePoint()
 void USlicingBladeComponent::DrawCuttingExitPoint()
 {
 	// Not yet implemented
+	FVector EndPosition = UKismetMathLibrary::TransformLocation(this->GetComponentTransform(), FVector(0, 1000, 0));
+	FHitResult Hits;
+	CutComponent->LineTraceComponent(Hits, EndPosition, this->GetComponentLocation(), FCollisionQueryParams::DefaultQueryParam);
+	DrawDebugBox(GetWorld(), Hits.Location, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Red, true, 1.0F);
 }
 
 void USlicingBladeComponent::DrawCuttingTrajectory()
