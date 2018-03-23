@@ -13,17 +13,6 @@ void SGameUI::Construct(const FArguments& args)
 		[
 			SNew(SOverlay)
 			+ SOverlay::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Top)
-		[
-			SNew(STextBlock)
-			.ColorAndOpacity(FLinearColor::White)
-		.ShadowColorAndOpacity(FLinearColor::Black)
-		.ShadowOffset(FIntPoint(-1, 1))
-		.Font(FSlateFontInfo("Arial", 26))
-		.Text(FText::FromString("Main Menu"))
-		]
-	+ SOverlay::Slot()
 		.HAlign(HAlign_Right)
 		.VAlign(VAlign_Bottom)
 		[

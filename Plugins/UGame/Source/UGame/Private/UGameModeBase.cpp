@@ -3,13 +3,16 @@
 
 #include "UGameModeBase.h"
 #include "UGame.h"
-#include "HUD/GameHUD.h"
 
 AUGameModeBase::AUGameModeBase()
 {
 	HUDClass = AGameHUD::StaticClass();
+	PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
+}
 
-	AGameHUD* MenuHUD = CreateDefaultSubobject<AGameHUD>(TEXT("MenuHUD"));
-	MenuHUD->DrawMenu();
 
+
+void AUGameModeBase::DrawHudMenu()
+{
+	PickupHUD->DrawMenu();
 }

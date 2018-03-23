@@ -4,6 +4,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HUD/GameHUD.h"
 #include "GameFramework/GameModeBase.h"
 #include "UGameModeBase.generated.h"
 
@@ -15,8 +16,10 @@ class UGAME_API AUGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
-
 public:
 	AUGameModeBase();
 
+	AGameHUD* PickupHUD;
+
+	void DrawHudMenu();
 };

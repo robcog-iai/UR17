@@ -11,6 +11,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "../Private/Character/GameController.h"
+#include "../../HUD/GameHUD.h"
 #include "TagStatics.h"
 #include "Engine.h"
 
@@ -94,6 +95,8 @@ void UGPickup::BeginPlay()
 
 
 	MaxMovementSpeed = PlayerCharacter->MovementComponent->MaxMovementSpeed;
+
+	UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
 }
 
 
@@ -107,8 +110,9 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (bLockedByOtherComponent == false && bAllCanceled == false) {
 		ItemToHandle = PlayerCharacter->FocussedActor;
 
-		if (bRightMouseHold) {
+		if (bRightMouseHold && !bMenuActivated) {
 			bMenuActivated = true;
+			UGameMode->DrawHudMenu();
 		}
 		/**
 		if (bRightMouseHold) {
