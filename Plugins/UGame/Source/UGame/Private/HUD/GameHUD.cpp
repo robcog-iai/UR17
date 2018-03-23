@@ -47,3 +47,8 @@ void AGameHUD::DrawMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameUI.ToSharedRef()));
 	}
 }
+
+void AGameHUD::RemoveMenu()
+{
+	GEngine->GameViewport->RemoveAllViewportWidgets();
+}

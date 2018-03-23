@@ -68,6 +68,12 @@ void AGameController::Tick(float DeltaTime)
 
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
+	// Stop movment when menu is active by Wlademar Zeitler
+	if (PickupComponent->bMenuActivated && !bIsMovementLocked)
+	{
+		SetPlayerMovable(false);
+	}
+
 	// Rotate the object depending of the rotation mode by Waldemar Zeitler
 	if (PickupComponent->RotationValue != 0) {
 		// Get mouse position on screen

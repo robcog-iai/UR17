@@ -96,7 +96,10 @@ void UGPickup::BeginPlay()
 
 	MaxMovementSpeed = PlayerCharacter->MovementComponent->MaxMovementSpeed;
 
+	/////////////////////////////////////////////////////////
+
 	UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
+	//Character = Cast<AGameController>(GetWorld()->GetFirstPlayerController());
 }
 
 
@@ -113,6 +116,11 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		if (bRightMouseHold && !bMenuActivated) {
 			bMenuActivated = true;
 			UGameMode->DrawHudMenu();
+		}
+		if (bLeftMouseHold && bMenuActivated)
+		{
+			UGameMode->RemoveMenu();
+			bMenuActivated = false;
 		}
 		/**
 		if (bRightMouseHold) {

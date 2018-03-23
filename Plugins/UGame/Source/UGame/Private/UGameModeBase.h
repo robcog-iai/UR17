@@ -22,4 +22,6 @@ public:
 	AGameHUD* PickupHUD;
 
 	void DrawHudMenu();
+
+	void RemoveMenu();
 };

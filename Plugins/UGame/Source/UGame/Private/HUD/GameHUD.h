@@ -41,4 +41,6 @@ public:
 	virtual void DrawHUD() override;
 	
 	void DrawMenu();
+
+	void RemoveMenu();
 };
