@@ -30,6 +30,7 @@ public:
 
 	/**** The implementation of standard component functions ****/
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	//* Needed for the debug option booleans
 	FSlicingLogicModule* SlicingLogicModule;
@@ -38,12 +39,6 @@ public:
 	//* The object that is currently being cut, but did not go through the slicing process yet
 	UPrimitiveComponent* CutComponent;
 
-	/**** Implementation of the overlap events for the other components ****/
-	//UFUNCTION()
-	//virtual void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	//	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	//UFUNCTION()
-	//virtual void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	//	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+private:
+	void DrawComponent();
 };

@@ -16,10 +16,6 @@ USlicingComponent::USlicingComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	// Enables the usage of the InitializeComponent function
 	bWantsInitializeComponent = true;
-
-	// Register the overlap events
-	//OnComponentBeginOverlap.AddDynamic(this, &USlicingComponent::OnBeginOverlap);
-	//OnComponentEndOverlap.AddDynamic(this, &USlicingComponent::OnEndOverlap);
 }
 
 // Called when the game starts
@@ -31,14 +27,20 @@ void USlicingComponent::BeginPlay()
 	SlicingObject = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 }
 
-//void USlicingComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-//	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-//{
-//	// To be overwritten if used
-//}
-//
-//void USlicingComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-//	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-//{
-//	// To be overwritten if used
-//}
+// Called every frame
+void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (SlicingLogicModule->bEnableDebugShowComponents)
+	{
+		USlicingComponent::DrawComponent();
+	}
+}
+
+// Draws the SlicingComponent box
+void USlicingComponent::DrawComponent()
+{
+	DrawDebugBox(GetWorld(), GetComponentLocation(), GetScaledBoxExtent(), GetComponentRotation().Quaternion(),
+		FColor::Green, false, 0.01f);
+}

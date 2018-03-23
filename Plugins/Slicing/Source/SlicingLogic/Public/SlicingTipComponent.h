@@ -15,7 +15,6 @@ class SLICINGLOGIC_API USlicingTipComponent: public USlicingComponent
 
 public:
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//* The tip component that is attached to the same SlicingComponent
 	USlicingBladeComponent* BladeComponent;
@@ -28,7 +27,4 @@ public:
 	UFUNCTION()
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-private:
-	void DrawComponent();
 };

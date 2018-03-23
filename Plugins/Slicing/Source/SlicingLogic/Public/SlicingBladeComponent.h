@@ -45,11 +45,11 @@ public:
 
 private:
 	/**** The visual-debugging functions ****/
-	void DrawComponent();
 	void DrawSlicingPlane();
 	void DrawCuttingEntrancePoint();
 	void DrawCuttingExitPoint();
 	void DrawCuttingTrajectory();
 
 	void SliceComponent(UPrimitiveComponent* CuttableComponent);
+	void ResetState();
 };

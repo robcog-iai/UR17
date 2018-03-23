@@ -50,11 +50,6 @@ void USlicingBladeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (SlicingLogicModule->bEnableDebugShowComponents)
-	{
-		USlicingBladeComponent::DrawComponent();
-	}
-
 	// The debugging is only needed when cutting
 	if (!bIsCurrentlyCutting)
 	{
@@ -154,18 +149,10 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	//	return;
 	//}
 
+	// After everything is checked, the actual slicing happens here
 	SliceComponent(OtherComp);
 
-	bIsCurrentlyCutting = false;
-	FlushPersistentDebugLines(this->GetWorld());
-	CutComponent = NULL;
-}
-
-// Draws the BladeComponent box
-void USlicingBladeComponent::DrawComponent()
-{
-	DrawDebugBox(GetWorld(), GetComponentLocation(), GetScaledBoxExtent(), GetComponentRotation().Quaternion(),
-		FColor::Green, false, 0.01f);
+	ResetState();
 }
 
 void USlicingBladeComponent::DrawSlicingPlane()
@@ -222,4 +209,12 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	OutputProceduralMesh->SetEnableGravity(true);
 	OutputProceduralMesh->SetSimulatePhysics(true);
 	OutputProceduralMesh->ComponentTags = CuttableComponent->ComponentTags;
+}
+
+// Resets everything to the state the component was in before the cutting-process began
+void USlicingBladeComponent::ResetState()
+{
+	bIsCurrentlyCutting = false;
+	FlushPersistentDebugLines(this->GetWorld());
+	CutComponent = NULL;
 }
