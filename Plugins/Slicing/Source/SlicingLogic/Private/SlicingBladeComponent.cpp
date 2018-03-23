@@ -60,6 +60,7 @@ void USlicingBladeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	{
 		USlicingBladeComponent::DrawSlicingPlane();
 		USlicingBladeComponent::DrawCuttingEntrancePoint();
+		USlicingBladeComponent::DrawCuttingExitPoint();
 	}
 
 	if (SlicingLogicModule->bEnableDebugShowTrajectory)
@@ -129,9 +130,9 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	}
 
 	// Abort the cutting if you stop cutting at the same point you started at
-	FVector vector =
+	FVector CutComponentPosition =
 		UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
-	if (OverlappedComp->OverlapComponent(vector, CutComponent->GetComponentQuat(), OverlappedComp->GetCollisionShape()))
+	if (OverlappedComp->OverlapComponent(CutComponentPosition, CutComponent->GetComponentQuat(), OverlappedComp->GetCollisionShape()))
 	{
 		// Collision should turn back to normal again
 		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
@@ -159,19 +160,21 @@ void USlicingBladeComponent::DrawSlicingPlane()
 {
 	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
 
-	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent)
-		- FVector(0, 5, 0);
+	// This size is actually about double the size of the component, but this is just the amount we need
+	float BladeComponentSize;
+	// Both of those variables are unused and not needed here
+	FVector BladeComponentOrigin, BladeComponentExtends;
+	UKismetSystemLibrary::GetComponentBounds(this, BladeComponentOrigin, BladeComponentExtends, BladeComponentSize);
 
-	//FVector ComponentExtraPosition = UKismetSystemLibrary::GetComponentBounds(...)
-
-	DrawDebugSolidPlane(GetWorld(), SlicingPlane, ComponentPosition, FVector2D(5, 4), FColor::Red, false);
+	DrawDebugSolidPlane(GetWorld(), SlicingPlane, CutComponent->GetComponentLocation(), BladeComponentSize,
+		FColor::Red, false);
 }
 
 void USlicingBladeComponent::DrawCuttingEntrancePoint()
 {
 	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
-	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(),
-		FColor::Green, true, 1.0F);
+
+	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Green);
 }
 
 void USlicingBladeComponent::DrawCuttingExitPoint()
