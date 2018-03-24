@@ -195,18 +195,15 @@ private:
 
 	//After this point added by Waldemar Zeitler
 public:
-	/** Sets teh rotation mode, when the tab button is pressed.
-	 * The mode ist set with the RotaitonValue variable.
-	 * RotaionValue = 0: No rotation
-	 * RotationValue = 1: Left hand object rotation
-	 * RotationValue = 2: Right hand object rotation
-	 */
-	void RotationMode();
 
-	int RotationValue;
+	bool bRotationStarted;
 
+	// Bool to chekc if the menu is active and movment should be stopped.
 	bool bMenuActivated;
 
+	// GameMode to access the menu hud.
 	AUGameModeBase* UGameMode;
+
+	void MoveToRotationPosition();
 };
 

@@ -13,8 +13,8 @@ void SGameUI::Construct(const FArguments& args)
 		[
 			SNew(SOverlay)
 			+ SOverlay::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Bottom)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
 		[
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()

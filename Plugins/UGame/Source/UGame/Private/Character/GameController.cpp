@@ -75,7 +75,7 @@ void AGameController::Tick(float DeltaTime)
 	}
 
 	// Rotate the object depending of the rotation mode by Waldemar Zeitler
-	if (PickupComponent->RotationValue != 0) {
+	if (PickupComponent->bRotationStarted) {
 		// Get mouse position on screen
 		float XMouse;
 		float YMouse;
@@ -104,12 +104,8 @@ void AGameController::Tick(float DeltaTime)
 		}
 
 		FRotator rot(angleY, angleX, 0);
-		if (PickupComponent->RotationValue == 1) {
-			PickupComponent->ItemInLeftHand->SetActorRotation(rot);
-		}
-		else if (PickupComponent->RotationValue == 2) {
-			PickupComponent->ItemInRightHand->SetActorRotation(rot);
-		}
+		PickupComponent->ItemInLeftHand->SetActorRotation(rot);
+		
 	}
 }
 
