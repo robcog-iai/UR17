@@ -20,14 +20,14 @@ void SGameUI::Construct(const FArguments& args)
 			+ SVerticalBox::Slot()
 		[
 			SNew(SButton)
-			.Text(FText::FromString("Play Game!"))
-		.OnClicked(this, &SGameUI::PlayGameClicked)
+			.Text(FText::FromString("Rotate Objekt (Left Mouse Button)"))
+		.OnClicked(this, &SGameUI::Rotation)
 		]
 	+ SVerticalBox::Slot()
 		[
 			SNew(SButton)
-			.Text(FText::FromString("Quit Game"))
-		.OnClicked(this, &SGameUI::QuitGameClicked)
+			.Text(FText::FromString("Pick Item Up (Right Mouse Button)"))
+		.OnClicked(this, &SGameUI::PickUp)
 		]
 		]
 		];
@@ -35,11 +35,11 @@ void SGameUI::Construct(const FArguments& args)
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-FReply SGameUI::PlayGameClicked()
+FReply SGameUI::Rotation()
 {
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("PlayGameClicked"));
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Rotation"));
 	}
 
 	// actually the BlueprintImplementable function of the HUD is not called; uncomment if you want to handle the OnClick via Blueprint
@@ -47,11 +47,11 @@ FReply SGameUI::PlayGameClicked()
 	return FReply::Handled();
 }
 
-FReply SGameUI::QuitGameClicked()
+FReply SGameUI::PickUp()
 {
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("QuitGameClicked"));
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("PickUp"));
 	}
 
 	// actually the BlueprintImplementable function of the HUD is not called; uncomment if you want to handle the OnClick via Blueprint

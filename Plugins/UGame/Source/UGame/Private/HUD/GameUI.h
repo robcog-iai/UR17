@@ -24,10 +24,10 @@ public:
 	void Construct(const FArguments& args);
 
 	// Click handler for the Play Game! button – Calls MenuHUD’s PlayGameClicked() event.
-	FReply PlayGameClicked();
+	FReply Rotation();
 
 	// Click handler for the Quit Game button – Calls MenuHUD’s QuitGameClicked() event.
-	FReply QuitGameClicked();
+	FReply PickUp();
 
 	// Stores a weak reference to the HUD controlling this class.
 	TWeakObjectPtr<class AGameHUD> GameHUD;
