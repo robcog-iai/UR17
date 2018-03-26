@@ -10,6 +10,7 @@
 #define logAndStop(text) UE_LOG(LogTemp, Warning, TEXT(text)); GetWorld()->GetFirstPlayerController()->SetPause(true);
 
 #include "GameController.h"
+#include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 #include "TagStatics.h"
 #include "Engine.h" // Needed for GEngine
@@ -88,8 +89,8 @@ void AGameController::Tick(float DeltaTime)
 
 		// Get mouse position relative to the Character.
 		FVector2D Result;
-		Result.X = -(YMouse - CharInScreen.Y);
-		Result.Y = XMouse - CharInScreen.X;
+		Result.X = XMouse - CharInScreen.X;
+		Result.Y = -(YMouse - CharInScreen.Y);
 
 		// Get angle rotation and rotation Character
 		float angleX = FMath::RadiansToDegrees(FMath::Acos(Result.X / Result.Size()));
@@ -102,10 +103,8 @@ void AGameController::Tick(float DeltaTime)
 		if (Result.X < 0) {
 			angleY = 360 - angleX;
 		}
-
 		FRotator rot(angleY, angleX, 0);
-		PickupComponent->ItemInLeftHand->SetActorRotation(rot);
-		
+		PickupComponent->ItemInLeftHand->SetActorRotation(rot);		
 	}
 }
 
