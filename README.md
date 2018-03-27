@@ -1,19 +1,21 @@
-# UR17 - P1
+# UR17 - P6
 
 ## Member
 * Robin Hinz
 
 ## Project description
 
-* This project contains the optimization of the objects from the YCB Benchmarks list for Unreal. That means modeling in Blender and rescanning some of the defect scans. Also some parts of the kitchen in Unreal have to be remade to fit to the original.
+* 
 
-## Milestones
+## Milestone
 
-* [Milestone1](Documentation/Milestone1.md)
+* [click here](Documentation/Milestone2.md)
 
 ## Documentation
 
-* [VXelements_Manual](Documentation/VXelements_Manual.md)
+* [click here](Documentation/Documentation.md)
 
+## Tutorial
 
+* [click here](Documentation/Tutorial.md)
 
