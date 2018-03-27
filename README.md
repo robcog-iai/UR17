@@ -1,7 +1,6 @@
 # UR17 - P1
 
-## Members
-* Judith Boeckers
+## Member
 * Robin Hinz
 
 ## Project description
