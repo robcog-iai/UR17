@@ -12,6 +12,7 @@ Under this [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEX
 
 Each particle emitter contains a Required Module that contains all the properties a particle emitter needs. This module includes the
 following:
+
 ![](Img/Required.JPG "Required")
 
 In addition, the emitter is defined by the Particle Module. The Particle Module is the base class for all modules. This means that all modules contain these properties. The properties chosen for this emitter are as follows:
