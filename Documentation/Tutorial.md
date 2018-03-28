@@ -6,7 +6,7 @@ This tutorial will show and explain the settings made to realistically visualize
 
 Flex is integrated into the Cascade Particle System so any normal UE4 Particle Emitter can be used to emit Flex Particles. All you have to do is add the Spawn Flex Fluid/Shape module to the emitter. For the simulation of the used water the following settings were selected for the Spawn Flex Fluid module: 
 (picture)
-Under this [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_Particles.html#particle- emitter) you can find more detailed definitions of the settings. In addition, the modules Initial Size and Kill Height have been added to the emitter. The settings of these modules are:
+Under this [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_Particles.html#particle-emitter) you can find more detailed definitions of the settings. In addition, the modules Initial Size and Kill Height have been added to the emitter. The settings of these modules are:
 picture
 picture
 
