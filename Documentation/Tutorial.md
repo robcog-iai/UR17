@@ -23,7 +23,7 @@ picture
 
 For detailed information on the individual settings, please refer to the following links:
 * [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_Containers.html)
-* [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_FluidSurfaceRendering.html#creating-a-flex-fluid-surface)
+* [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_FluidSurfaceRendering.html#container)
 
 ### Surface 
 
