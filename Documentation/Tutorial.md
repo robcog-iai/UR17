@@ -8,10 +8,10 @@ Flex is integrated into the Cascade Particle System so any normal UE4 Particle E
 ![](Img/SpawnFlexFluid.JPG "SpawnFlexFluid")
 
 Under this [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_Particles.html#particle-emitter) you can find more detailed definitions of the settings. In addition, the modules Initial Size and Kill Height have been added to the emitter. The settings of these modules are:
-![](Img/InitialSize.JPG "InitialSize")
-![](Img/KillHeight.JPG "KillHeight")
+![](Img/InitialSize.JPG "InitialSize") ![](Img/KillHeight.JPG "KillHeight")
 
-Each particle emitter contains a Required Module that contains all the properties a particle emitter needs. This module includes the following:
+Each particle emitter contains a Required Module that contains all the properties a particle emitter needs. This module includes the
+following:
 ![](Img/Required.JPG "Required")
 
 In addition, the emitter is defined by the Particle Module. The Particle Module is the base class for all modules. This means that all modules contain these properties. The properties chosen for this emitter are as follows:
