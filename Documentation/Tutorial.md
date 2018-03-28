@@ -20,9 +20,7 @@ In addition, the emitter is defined by the Particle Module. The Particle Module 
 ### Container
 
 The simulation properties of the flex system are determined by the container. Containers can be considered as a kind of scene. However, at certain times several containers can be active in one level. Actors such as particle systems, static nets or ropes emit particles and restrictions into the container and are stimulated when ticked. The parameters that need to be adjusted in the Flex Container to produce a good water quality are:
-
 ![](Img/Container.JPG "Container")
-
 For detailed information on the individual settings, please refer to the following links:
 * [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_Containers.html)
 * [link](http://docs.nvidia.com/gameworks/content/artisttools/Flex/FLEXUe4_FluidSurfaceRendering.html#container)
