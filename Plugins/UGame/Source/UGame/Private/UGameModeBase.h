@@ -23,5 +23,7 @@ public:
 
 	void DrawHudMenu();
 
+	void DrawPickupHudMenu();
+
 	void RemoveMenu();
 };

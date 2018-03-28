@@ -70,7 +70,7 @@ void AGameController::Tick(float DeltaTime)
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active by Wlademar Zeitler
-	if (PickupComponent->bMenuActivated && !bIsMovementLocked)
+	if (PickupComponent->bRotationMenuActivated && !bIsMovementLocked)
 	{
 		SetPlayerMovable(false);
 	}

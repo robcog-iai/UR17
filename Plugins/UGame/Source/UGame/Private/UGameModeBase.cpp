@@ -21,3 +21,8 @@ void AUGameModeBase::RemoveMenu()
 {
 	PickupHUD->RemoveMenu();
 }
+
+void AUGameModeBase::DrawPickupHudMenu()
+{
+	PickupHUD->DrawPickUpMenu();
+}

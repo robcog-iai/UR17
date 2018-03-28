@@ -18,7 +18,10 @@
 // Sets default values for this component's properties
 UGPickup::UGPickup()
 	:bRotationStarted(false)
-	,bMenuActivated(false)
+	, bRotationMenuActivated(false)
+	, bPickupnMenuActivated(false)
+	, bPickupLeft(false)
+	, bPickupRight(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -110,32 +113,44 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	bool bLockedByOtherComponent = PlayerCharacter->LockedByComponent != nullptr &&  PlayerCharacter->LockedByComponent != this;
 
+	// Handle the menu for the pickup and the rotation (Milestone 2)
 	if (bLockedByOtherComponent == false && bAllCanceled == false) {
 		ItemToHandle = PlayerCharacter->FocussedActor;
 
-		if (bRightMouseHold && !bMenuActivated) {
-			bMenuActivated = true;
+		// Pick is initiated and first it will be asked for rotation
+		if (bRightMouseHold && !bRotationMenuActivated) {
+			bRotationMenuActivated = true;
 			UGameMode->DrawHudMenu();
 		}
-		if (bLeftMouseHold && bMenuActivated)
+
+		// Player choose to rotate the object first
+		if (bLeftMouseHold && bRotationMenuActivated)
 		{
 			bRotationStarted = true;
 			UGameMode->RemoveMenu();
-			bMenuActivated = false;
+			bRotationMenuActivated = false;
 			MoveToRotationPosition();
 		}
-		else if (bRightMouseHold && bMenuActivated)
+		// Instead of rotation the player wants to directly pick the object up
+		else if (bRightMouseHold && bRotationMenuActivated)
 		{
+			bRotationStarted = false;
+			UGameMode->RemoveMenu();
+			bPickupnMenuActivated = true;
+			UGameMode->DrawPickupHudMenu();
+		}
 
+		// Pickup with either left or right hand
+		if (bLeftMouseHold && bPickupnMenuActivated && !bRotationMenuActivated)
+		{
+			UGameMode->RemoveMenu();
+			bPickupLeft = true;
 		}
-		/**
-		if (bRightMouseHold) {
-			OnInteractionKeyHold(true);
+		else if (bRightMouseHold && bPickupnMenuActivated && !bRotationMenuActivated)
+		{
+			UGameMode->RemoveMenu();
+			bPickupRight = true;
 		}
-		else if (bLeftMouseHold) {
-			OnInteractionKeyHold(false);
-		}
-		*/
 	}
 }
 
@@ -395,7 +410,6 @@ TArray<AStaticMeshActor*> UGPickup::FindAllStackableItems(AStaticMeshActor* Acto
 				}
 				else if (elem.GetActor()->GetActorLocation().Z >= ActorToPickup->GetActorLocation().Z) {
 					break; // Break at non-pickupable item which is above our base item (It's probably a shelf or something)
-
 				}
 			}
 		}
@@ -658,10 +672,11 @@ void UGPickup::MoveToRotationPosition()
 
 	DisableShadowItems();
 
+
 	FVector HandPosition;
 
 	HandPosition = BothHandActor->GetActorLocation();
-
+	
 	TArray<AActor*> ChildItemsOfBaseItem;
 	BaseItemToPick->GetAttachedActors(ChildItemsOfBaseItem);
 
@@ -753,7 +768,7 @@ void UGPickup::MoveToRotationPosition()
 
 	BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
 	ItemInRightHand = ItemInLeftHand = BaseItemToPick;
-	
+		
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
 	BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
 

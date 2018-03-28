@@ -3,6 +3,7 @@
 #include "GameHUD.h"
 #include "UGame.h"
 #include "GameUI.h"
+#include "PickupGameUI.h"
 #include "Engine.h"
 
 AGameHUD::AGameHUD()
@@ -51,4 +52,14 @@ void AGameHUD::DrawMenu()
 void AGameHUD::RemoveMenu()
 {
 	GEngine->GameViewport->RemoveAllViewportWidgets();
+}
+
+void AGameHUD::DrawPickUpMenu()
+{
+	SAssignNew(PickupGameUI, SPickupGameUI).GameHUD(this);
+
+	if (GEngine->IsValidLowLevel())
+	{
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupGameUI.ToSharedRef()));
+	}
 }

@@ -198,8 +198,16 @@ public:
 
 	bool bRotationStarted;
 
-	// Bool to chekc if the menu is active and movment should be stopped.
-	bool bMenuActivated;
+	// Bool to check if the menu is active and movment should be stopped.
+	bool bRotationMenuActivated;
+	// Bool to check if pick up menu should be started.
+	bool bPickupnMenuActivated;
+
+	// Falg to pick up into the left hand
+	bool bPickupLeft;
+
+	// Falg to pick up into the right hand
+	bool bPickupRight;
 
 	// GameMode to access the menu hud.
 	AUGameModeBase* UGameMode;

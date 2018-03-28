@@ -20,6 +20,8 @@ class UGAME_API AGameHUD : public AHUD
 	// Reference to the Main Menu Slate UI.
 	TSharedPtr<class SGameUI> GameUI;
 
+	// Reference to the Main Menu Slate UI.
+	TSharedPtr<class SPickupGameUI> PickupGameUI;
 public:
 	AGameHUD();
 
@@ -40,7 +42,12 @@ public:
 	// Primary draw call for the HUD.
 	virtual void DrawHUD() override;
 	
+	/** Draw menu to ask for rotation*/
 	void DrawMenu();
 
+	/** Remove menus on screen*/
 	void RemoveMenu();
+
+	/** Draw PickUp menu to ask for rotation*/
+	void DrawPickUpMenu();
 };
