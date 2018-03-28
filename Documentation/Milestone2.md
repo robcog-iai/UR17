@@ -9,8 +9,8 @@
 
 # Documentation
 
-* [click here](Documentation/Documentation.md)
+* [click here](Documentation.md)
   
 # Tutorial
 
-* [click here](Documentation/Tutorial.md)
+* [click here](Tutorial.md)
