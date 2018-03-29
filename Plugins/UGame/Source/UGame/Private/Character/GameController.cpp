@@ -131,7 +131,7 @@ void AGameController::SetupComponentsOnConstructor()
 		MovementComponent->RegisterComponent();
 	}
 
-	if (!(OpenCloseComponent != nullptr)) {
+	if (OpenCloseComponent == nullptr) {
 		OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
 		OpenCloseComponent->bEditableWhenInherited = true;
 		AddInstanceComponent(OpenCloseComponent);

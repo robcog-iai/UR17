@@ -796,7 +796,17 @@ void UGPickup::MoveToRotationPosition()
 }
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
 {
-	BaseItemToPick = ItemInRotaitonPosition;
+	if (BaseItemToPick == nullptr || bItemCanBePickedUp == false) {
+		SetMovementSpeed(-MassOfLastItemPickedUp);
+		if (ItemInRotaitonPosition != nullptr)
+		{
+			BaseItemToPick = ItemInRotaitonPosition;
+		}
+		else
+		{
+			return;
+		}
+	}	
 
 	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
 	TransformRules.bWeldSimulatedBodies = true;

@@ -1,21 +1,27 @@
-[![](Documentation/Img/env.jpg)](http://robcog.org/)
+# UR17 - P4
 
-# RobCoG - **Rob**ot **Co**mmonsense **G**ames 
+### Members
 
-Equipping robots with commonsense and naive physics knowledge.
+* Waldemar Zeitler
 
-# Environment branch
+### Project description
 
-No functionalities just the kitchen environment assets.
+* The previous documentation is still left, becuase the new project is still based on the prevoius work.
 
-# Map naming
+* This project is about the interaction of the character with the world. The interactions are supposed to be realistic and should be learnable by a roboter. For that the walking speed needs to be adjusted, so that the character does not start with the maximum speed. It is also necessary to be able to rotate objects in the hands, to place them for example in a drawer. The first milestone reworked this parts of the simulation, to make it more realistic.
 
-`Kitchen.umap` -> default level
+### Documentation
 
-`Kitchen-Daytime.umap` -> level with sunlight 
+* The documentation of the current branch can be found [here](Documentation/Documentation.md)
 
-`Kitchen-Nighttime.umap` -> level with interior lightning only 
+### Tutorials
 
-`Kitchen-Overcast.umap` -> level with overcast weather outside 
+* The milestone 1 tutorial of the current branch can be found [here](Documentation/TutorialM1.md)
 
-### Engine Version 4.18
+* The milestone 2 tutorial of the current branch can be found [here](Documentation/TutorialM1.md)
+
+### Milestones
+
+* Milestone 1 of the current branch can be found [here](Documentation/Milestone1.md)  
+
+* Milestone 2 of the current branch can be found [here](Documentation/Milestone2.md)  
