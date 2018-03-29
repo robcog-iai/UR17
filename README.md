@@ -22,5 +22,5 @@
 
 ## Video
 
-<video src="Documentation/Vid/Tap.mp4" width="320" height="200" controls preload></video>
+* [click here](Documentation/Vid/Tap.mp4)
 
