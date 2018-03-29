@@ -70,9 +70,13 @@ void AGameController::Tick(float DeltaTime)
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active by Wlademar Zeitler
-	if (PickupComponent->bRotationMenuActivated && !bIsMovementLocked)
+	if (PickupComponent->bPickUpStarted && !bIsMovementLocked)
 	{
 		SetPlayerMovable(false);
+	}
+	else if (!PickupComponent->bPickUpStarted &&  bIsMovementLocked)
+	{
+		SetPlayerMovable(true);
 	}
 
 	// Rotate the object depending of the rotation mode by Waldemar Zeitler
@@ -127,7 +131,7 @@ void AGameController::SetupComponentsOnConstructor()
 		MovementComponent->RegisterComponent();
 	}
 
-	if (OpenCloseComponent == nullptr) {
+	if (!(OpenCloseComponent != nullptr)) {
 		OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
 		OpenCloseComponent->bEditableWhenInherited = true;
 		AddInstanceComponent(OpenCloseComponent);

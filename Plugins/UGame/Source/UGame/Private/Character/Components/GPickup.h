@@ -188,6 +188,7 @@ private:
 
 	//After this point added by Waldemar Zeitler
 public:
+	bool bPickUpStarted;
 
 	bool bRotationStarted;
 
@@ -195,12 +196,6 @@ public:
 	bool bRotationMenuActivated;
 	// Bool to check if pick up menu should be started.
 	bool bPickupnMenuActivated;
-
-	// Falg to pick up into the left hand
-	bool bPickupLeft;
-
-	// Falg to pick up into the right hand
-	bool bPickupRight;
 
 	// GameMode to access the menu hud.
 	AUGameModeBase* UGameMode;

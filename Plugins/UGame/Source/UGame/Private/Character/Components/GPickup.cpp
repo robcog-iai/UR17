@@ -20,10 +20,9 @@ UGPickup::UGPickup()
 	:bRotationStarted(false)
 	, bRotationMenuActivated(false)
 	, bPickupnMenuActivated(false)
-	, bPickupLeft(false)
-	, bPickupRight(false)
 	, ItemInRotaitonPosition(nullptr)
 	, bButtonReleased(false)
+	, bPickUpStarted(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -120,9 +119,10 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		ItemToHandle = PlayerCharacter->FocussedActor;
 
 		// Pick is initiated and first it will be asked for rotation
-		if (bRightMouseHold && !bRotationMenuActivated) {
+		if (bRightMouseHold && !bRotationMenuActivated && !bPickupnMenuActivated) {
 			bRotationMenuActivated = true;
 			UGameMode->DrawHudMenu();
+			bPickUpStarted = true;
 		}
 		// Player choose to rotate the object first
 		else if (bLeftMouseHold && bRotationMenuActivated)
@@ -136,6 +136,7 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		else if (bRightMouseHold && bRotationMenuActivated && bButtonReleased)
 		{
 			bRotationStarted = false;
+			bRotationMenuActivated = false;
 			UGameMode->RemoveMenu();
 			bPickupnMenuActivated = true;
 			UGameMode->DrawPickupHudMenu();
@@ -143,18 +144,20 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		}
 
 		// Pickup with either left or right hand
-		if (bLeftMouseHold && bPickupnMenuActivated && !bRotationMenuActivated)
+		if (bLeftMouseHold && bPickupnMenuActivated && !bRotationMenuActivated && bPickUpStarted)
 		{
 			bRotationStarted = false;
 			UGameMode->RemoveMenu();
-			bPickupLeft = true;
 			PickUpItemAfterMenu(true);
+			bPickUpStarted = false;
 		}
-		else if (bRightMouseHold && bPickupnMenuActivated && !bRotationMenuActivated)
+		else if (bRightMouseHold && bPickupnMenuActivated && !bRotationMenuActivated && bPickUpStarted && bButtonReleased)
 		{
+			bRotationStarted = false;
 			UGameMode->RemoveMenu();
-			bPickupRight = true;
 			PickUpItemAfterMenu(false);
+			bPickUpStarted = false;
+			bButtonReleased = false;
 		}
 	}
 }
