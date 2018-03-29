@@ -132,13 +132,6 @@ private:
 	UFUNCTION()
 		void OnStackCheckIsDone(bool wasSuccessful);
 
-	// *** Dragging ***
-	FVector DeltaVectorToDrag; // The offset position between the location the player is pointing at and the items pivot point
-	void StartDrag();
-	void DragItem();
-	void EndDrag();
-	// *** *** *** ***
-
 	// *** Pickup ***
 	void StartPickup();
 	void PickupItem();
@@ -213,5 +206,11 @@ public:
 	AUGameModeBase* UGameMode;
 
 	void MoveToRotationPosition();
+
+	AStaticMeshActor* ItemInRotaitonPosition;
+
+	bool bButtonReleased;
+
+	void PickUpItemAfterMenu(bool leftHand);
 };
 

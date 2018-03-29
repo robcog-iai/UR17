@@ -104,7 +104,7 @@ void AGameController::Tick(float DeltaTime)
 			angleY = 360 - angleX;
 		}
 		FRotator rot(angleY, angleX, 0);
-		PickupComponent->ItemInLeftHand->SetActorRotation(rot);		
+		PickupComponent->ItemInRotaitonPosition->SetActorRotation(rot);
 	}
 }
 
