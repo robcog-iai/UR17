@@ -18,7 +18,7 @@
 
 * The milestone 1 tutorial of the current branch can be found [here](Documentation/TutorialM1.md)
 
-* The milestone 2 tutorial of the current branch can be found [here](Documentation/TutorialM1.md)
+* The milestone 2 tutorial of the current branch can be found [here](Documentation/TutorialM2.md)
 
 ### Milestones
 

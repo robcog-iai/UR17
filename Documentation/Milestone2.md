@@ -85,7 +85,7 @@ void AUGameModeBase::DrawPickupHudMenu()
 }
 ```
 
-The actual code for the menus is taken from the following link [Slate Tutorial] (https://wiki.unrealengine.com/Template:Slate_Introduction_%E2%80%92_Basic_Menu_Part_1) and can be found in the classes "GameUI" and "PickupGameUI".
+The actual code for the menus is taken from the following link (Slate Tutorial) [https://wiki.unrealengine.com/Template:Slate_Introduction_%E2%80%92_Basic_Menu_Part_1] and can be found in the classes "GameUI" and "PickupGameUI".
 This tutorial will also be used to later adjust the menu "buttons".
 
 * To enable the pick up and rotation with a menu the "GPickup" and "GameController" classes were adjusted. It should be noted that at there is alot of unnecessary code at the moment, which will be removed at a lter point. 
