@@ -77,7 +77,7 @@ In this example we use the **SM_Knife_Table**. Double click on it in the
 **Content Browser** to open the StaticMeshEditor for it.
 
 In the top bottom should be a tab called **Socket Manager**. Press the button
-and add three sockets named **BladeBox**, **Handle** and **CuttingExitpointBox**.
+and add three sockets named **Slicing Blade**, **Slicing Handle** and **Slicing Tip**.
 It should look like this: 
 
 ![TutorialPic1](TutorialPictures/1.PNG)
@@ -128,7 +128,6 @@ to refresh.
 ## Todos
 
 - Realistic Interactions and Physics of the Knife
-- Button to fill all Sockets of StaticMeshComponents, who fall under the Knife Category, with LogicBoxes
 
 ## Issues
 
