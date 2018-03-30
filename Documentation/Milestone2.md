@@ -70,37 +70,66 @@ These are all currently NEW implemented features that are useable in other proje
 
 ## Creating a new knife
 
-### Step 1: Creating sockets in the StaticMeshEditor
+### Step 1: Creating Sockets in the StaticMeshEditor
 
-* Same as in Milestone 1.
+For this first choose a StaticMesh on which you want the SlicingLogic to be.
+In this example we use the **SM_Knife_Table**. Double click on it in the
+**Content Browser** to open the StaticMeshEditor for it.
 
-### Step 2: Make the knife be able to cut
+In the top bottom should be a tab called **Socket Manager**. Press the button
+and add three sockets named **BladeBox**, **Handle** and **CuttingExitpointBox**.
+It should look like this: 
 
-* Go to the slicing toolbar entry and press the "Make Selected StaticMeshActors Be Able to Cut" button.
+![TutorialPic1](TutorialPictures/1.PNG)
+
+From there on you can begin to place the tokens as needed in the StaticMeshEditor, e.g.
+
+![TutorialPic2](TutorialPictures/2.PNG)
+
+With that done you can save the StaticMesh in the StaticMeshEditor and leave it.
+All the StaticMeshComponents with that StaticMesh now all have these Sockets.
+
+
+### Step 2: Spawn the boxes in the Editor
+
+Now that the knife has the boxes, we can begin to spawn them inside the editor.
+First we select the StaticMeshComponent in the Editor.
+
+Then on the top, in the same row as **Play** and **Launch**, there's the button
+called "**Slicing Options**", clicking on it reveals more options such as Debug
+Checkboxes. The important Button is "**Make Selected StaticMeshActors Be Able to Cut**".
+
+![TutorialPic6](TutorialPictures/6.PNG)
+
+After clicking it, it spawns the BoxComponents. If they don't appear at first
+simply click on something else and click on the knife again. It just needs
+to refresh.
+
+***The Knife is done. Result:***
+
+![TutorialPictures8](TutorialPictures/8.PNG)
 
 
 ## Make Object Cuttable
 
 * Step 1: Select the wanted static mesh components in the world.
-* Step 2: Go to the slicing toolbar entry and press the "Make Selected StaticMeshActors Cuttable" button.
+* Step 2: Go to the slicing toolbar entry, as above, and press the "Make Selected StaticMeshActors Cuttable" button.
+![TutorialPictures10](TutorialPictures/10.PNG)
 
 
 ## Activating Debug
 
-### Step 1: Click on Slicing Options
-
-* ...
-
-### Step 2: Check the Check Box
-
-* ...
-
+* Step 1: Click on Slicing Options as in the tutorials above.
+* Step 2: Check the desired Check Boxes in the popped up window.
+![TutorialPictures11](TutorialPictures/11.PNG)
 
 	
-# Todos
 
-* ...
+## Todos
 
-# Issues
+- Realistic Interactions and Physics of the Knife
+- Button to fill all Sockets of StaticMeshComponents, who fall under the Knife Category, with LogicBoxes
 
-* ...
+## Issues
+
+- The Debug Box showing the presumed exitpoint of the knife is only shown correctly at the first cut of the object.

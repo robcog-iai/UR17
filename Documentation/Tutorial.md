@@ -24,10 +24,7 @@ All the StaticMeshComponents with that StaticMesh now all have these Sockets.
 ### Step 2: Spawn the boxes in the Editor
 
 Now that the knife has the boxes, we can begin to spawn them inside the editor.
-First we select the StaticMeshComponent in the Editor followed by the
-StaticMeshComponent in the Detail View.
-
-![TutorialPic3](TutorialPictures/3.PNG)
+First we select the StaticMeshComponent in the Editor.
 
 Then on the top, in the same row as **Play** and **Launch**, there's the button
 called "**Slicing Options**", clicking on it reveals more options such as Debug
