@@ -4,15 +4,15 @@
 
 # Documentation
 
-* Bug Note: Objects can't be dropped at the moment and if the object was not rotated it won't be picked up in one of the hands. Because of the changes made the roation is not working correctly and needs some adjustments, so that a 360° rotaion is possible.
+* Bug Note: Objects can't be dropped at the moment and if the object was not rotated it won't be picked up in one of the hands. Because of the changes made the rotation is not working correctly and needs some adjustments, so that a 360° rotation is possible.
 
-* The first part of the milestones was to create a seperate plugin. This plugin only depends on UTags and unnecessary functions are removed.
+* The first part of the milestones was to create a separate plugin. This plugin only depends on Tags and unnecessary functions are removed.
 
-* For this milestone the HUD was reworked, it works now with code instead of blueprints. There are now two menus, one for the the question if the object should be rotated and one for the pick up in the left or right hand. 
+* For this milestone the HUD was reworked, it works now with code instead of blueprints. There are now two menus, one for the the question if the object should be rotated and one for the pickup in the left or right hand.
 
-* The testing of the functionalitys was done in a simple debug map and only with one object.
+* The testing of the functionalities was done in a simple debug map and only with one object.
 
-* The for the menus is created via a AHUD class, which manages the drawing of the menus and the corsshair. The following part of the code shows the drawing functions:
+* The for the menus is created via a AHUD class, which manages the drawing of the menus and the crosshair. The following part of the code shows the drawing functions:
 
 ```
 void AGameHUD::DrawHUD()
@@ -60,7 +60,7 @@ void AGameHUD::DrawPickUpMenu()
 }
 ```
 
-The crosshair is drawn when the object is created as a static class and the other menus will be drawn and removed when the functions for them are called. It is a stange way to draw them because two instances of the object are created bur for now it is the only found solution.
+The crosshair is drawn when the object is created as a static class and the other menus will be drawn and removed when the functions for them are called. It is a strange way to draw them because two instances of the object are created bur for now it is the only found solution.
 
 ```
 AUGameModeBase::AUGameModeBase()
@@ -88,8 +88,8 @@ void AUGameModeBase::DrawPickupHudMenu()
 The actual code for the menus is taken from the following link (Slate Tutorial) [https://wiki.unrealengine.com/Template:Slate_Introduction_%E2%80%92_Basic_Menu_Part_1] and can be found in the classes "GameUI" and "PickupGameUI".
 This tutorial will also be used to later adjust the menu "buttons".
 
-* To enable the pick up and rotation with a menu the "GPickup" and "GameController" classes were adjusted. It should be noted that at there is alot of unnecessary code at the moment, which will be removed at a lter point. 
-For the menu pick up the character has to stand still, which is solved with a boolean which shows if a menu is active.
+* To enable the pickup and rotation with a menu the "GPickup" and "GameController" classes were adjusted. It should be noted that at there is a lot of unnecessary code at the moment, which will be removed at a later point. 
+For the menu pick up the character has to stand still, which is solved with a Boolean that shows if a menu is active.
 
 ```
 // Stop movment when menu is active by Wlademar Zeitler
@@ -159,15 +159,15 @@ Most of the functionality is done in the "GPickup" "TickComponent" were the clas
 ```
 
 This solution is at the moment a bit confusing and will be resolved at a later point.
-The actual pick up is as it was before but adjusted to picking up for rotation and putting the object in the left or right hand afterwards. As mentioned above droping objects and picking them up without a rotation is not possible at the moment.
+The actual pick up is as it was before but adjusted to picking up for rotation and putting the object in the left or right hand afterwards. As mentioned above dropping objects and picking them up without a rotation is not possible at the moment.
 
 # Tutorial
 
 * To pick an object up you have to look at it and push the right mouse button and afterwards the following menu will pop up.
 ![](Img/Milestone2/FirstMenu.png "Rotation menu.")
-Now you have the choice either pick the object up (does not work at the momemnt) or rotated it. If you choose to rotated the object it will be moved to the center of the screen (an actor is used as placeholder) and it is now possible to rotate it with the mouse movment (at the moment a bit buggy).  
+Now you have the choice either pick the object up (does not work at the moment) or rotated it. If you choose to rotated the object it will be moved to the center of the screen (an actor is used as placeholder) and it is now possible to rotate it with the mouse movement (at the moment a bit buggy).  
 ![](Img/Milestone2/Rotation1.png "Rotation after menu.")
-When the you are finished with the rotation you can push the right mosue button again and menu for moving the object to the right or left hand will be called.  
+When you are finished with the rotation you can push the right mouse button again and menu for moving the object to the right or left hand will be called. 
 ![](Img/Milestone2/SecondMenu.png "Second menu after rotation.")   
 The object can now be moved to the left or right hand with just pressing a mouse button.
 ![](Img/Milestone2/PickupAfterRotation.png "Pick up after rotation.")
