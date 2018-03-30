@@ -1,10 +1,10 @@
 # Milestone 2 - deadline 30.03.18
 
-* Pickup and object rotation with menu
+* Pickup and object rotation with a menu.
 
 # Documentation
 
-* Bug Note: Objects can't be dropped at the moment and if the object was not rotated it won't be picked up in one of the hands. Because of the changes made the roation is not working correctly and needs some adjustments, so that a 360° rotaion is possible.
+* Bug Note: Objects can't be dropped at the moment and if the object was not rotated it won't be picked up in one of the hands. Because of the changes made the roation is not working correctly and needs some adjustments, so that a 360Â° rotaion is possible.
 
 * The first part of the milestones was to create a seperate plugin. This plugin only depends on UTags and unnecessary functions are removed.
 
