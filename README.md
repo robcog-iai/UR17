@@ -19,3 +19,7 @@
 
 * [click here](Documentation/Tutorial.md)
 
+## Video
+
+* [click here](Documentation/Vid/Tap.mp4)
+
