@@ -5,7 +5,7 @@ Step 1: Import your mesh into blender
 Step 2: Select your mesh in Object mode and go into Edit mode
 Step 3: Deselect the mesh
 Step 4: Point with your cursor over the hand and press L. The hand should be selected like this:
-![](./Img/HandsSelected.png)
+![](./Img/HandSelected.png)
 
 Step 5: If there are missing parts hover over these parts and press Look
 Step 6: Press P and select Selection. Now you have two seperate meshes.
@@ -16,7 +16,7 @@ You can also select the pieces of the mesh you want to delete manually using shi
 
 
 If you want to have bones for the hand you can have it like this:
-![](./Img/HandsBones.png)
+![](./Img/HandBones.png)
 
 Look at the tutorialMesh.md if you want to add bones.
 
