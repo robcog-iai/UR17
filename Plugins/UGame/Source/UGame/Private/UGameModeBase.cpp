@@ -10,8 +10,6 @@ AUGameModeBase::AUGameModeBase()
 	PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
 }
 
-
-
 void AUGameModeBase::DrawHudMenu()
 {
 	PickupHUD->DrawMenu();

@@ -20,7 +20,7 @@ void SPickupGameUI::Construct(const FArguments& args)
 			+ SVerticalBox::Slot()
 		[
 			SNew(SButton)
-			.Text(FText::FromString("Pick Up lLeft Hand (Left Mouse Button)"))
+			.Text(FText::FromString("Pick Up Left Hand (Left Mouse Button)"))
 		.OnClicked(this, &SPickupGameUI::PickUpLeft)
 		]
 	+ SVerticalBox::Slot()
