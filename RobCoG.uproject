@@ -15,13 +15,8 @@
 	],
 	"Plugins": [
 		{
-			"Name": "ClickInteraction",
+			"Name": "UGame",
 			"Enabled": true
-		},
-		{
-			"Name": "USemLog",
-			"Enabled": true,
-			"MarketplaceURL": "http://robcog.org/"
 		}
 	]
 }
