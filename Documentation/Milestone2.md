@@ -40,7 +40,7 @@ These are all currently NEW implemented features that are useable in other proje
 # Documentation
 
 * The project is still realized by a plugin with the two modules, while using a custom component that inherits from UBoxComponent. Besides the new features added in this milestone, a lot of work went into refactoring the code to have proper structur and easier readability and understandability.
-(* Side-Note: Slicing and cutting might be interchanged in the documentation, but in the source-code, it was tried to seperate the logical process needed for the slicing to happen (which is referred to as "cutting") and the slicing itself (referred to as "slicing"). Basically "cutting" would refer to the fact that the blade and another object is colliding with each other, while still waiting until the "slicing" process is started. That distinction is not needed to understand the code, but the nuance still exists.)
+* (Side-Note: Slicing and cutting might be interchanged in the documentation, but in the source-code, it was tried to seperate the logical process needed for the slicing to happen (which is referred to as "cutting") and the slicing itself (referred to as "slicing"). Basically "cutting" would refer to the fact that the blade and another object is colliding with each other, while still waiting until the "slicing" process is started. That distinction is not needed to understand the code, but the nuance still exists.)
 
 ### SlicingEditorModule:
 
