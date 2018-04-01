@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ScrewJoint",
+	"Description": "Introduces the ScrewJointActor object, that realizes the simulation of a threaded screw joint between two objects (e.g. a bottle and a lid)",
+	"Category": "Other",
+	"CreatedBy": "Kannan Thambiah",
+	"CreatedByURL": "https://github.com/pygospa",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ScrewJoint",
+			"Type": "Developer",
+			"LoadingPhase": "Default"
+		}
+	]
+}
