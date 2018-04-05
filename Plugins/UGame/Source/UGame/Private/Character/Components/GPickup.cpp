@@ -118,7 +118,7 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (bLockedByOtherComponent == false && bAllCanceled == false) {
 		ItemToHandle = PlayerCharacter->FocussedActor;
 
-		// Pick is initiated and first it will be asked for rotation
+		// Pick up is initiated and first it will be asked for rotation
 		if (bRightMouseHold && !bRotationMenuActivated && !bPickupnMenuActivated) {
 			bRotationMenuActivated = true;
 			UGameMode->DrawHudMenu();
@@ -801,10 +801,6 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 		if (ItemInRotaitonPosition != nullptr)
 		{
 			BaseItemToPick = ItemInRotaitonPosition;
-		}
-		else
-		{
-			return;
 		}
 	}	
 
