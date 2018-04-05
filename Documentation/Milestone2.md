@@ -4,7 +4,7 @@
 
 # Documentation
 
-* Bug Note: Objects can't be dropped at the moment and if the object was not rotated it won't be picked up in one of the hands. Because of the changes made the rotation is not working correctly and needs some adjustments, so that a 360° rotation is possible.
+* Bug Note: Objects can't be dropped at the moment. Because of the changes made the rotation is not working correctly and needs some adjustments, so that a 360° rotation is possible.
 
 * The first part of the milestones was to create a separate plugin. This plugin only depends on Tags and unnecessary functions are removed.
 
@@ -159,7 +159,7 @@ Most of the functionality is done in the "GPickup" "TickComponent" were the clas
 ```
 
 This solution is at the moment a bit confusing and will be resolved at a later point.
-The actual pick up is as it was before but adjusted to picking up for rotation and putting the object in the left or right hand afterwards. As mentioned above dropping objects and picking them up without a rotation is not possible at the moment.
+The actual pick up is as it was before but adjusted to picking up for rotation and putting the object in the left or right hand afterwards. As mentioned above dropping objects is not possible at the moment.
 
 # Tutorial
 
