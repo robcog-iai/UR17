@@ -136,6 +136,24 @@ public:
 	//Remembers start distance between head and arms
 	void SetMovementValues();
 
+	//Turns in multiple steps
+	void TurnInSteps();
+
+	//Counts how far mesh has been turned
+	int TurnStepCounter;
+
+	//Number of steps to turn
+	int MaxTurnSteps = 20;
+
+	//One rotation step
+	FRotator RotationStep;
+
+	//Timer for turning
+	FTimerHandle TurnTimer;
+
+	//is mesh turning
+	bool bIsTurning=false;
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

@@ -102,33 +102,32 @@ void AArmAnimPawn::Tick(float DeltaTime)
 	{
 		FVector HeadMovedDistance = HeadStartLocation - Camera->GetComponentLocation();
 		Mesh->SetWorldLocation(MeshStartLocation - HeadMovedDistance);
-		float ResultHead = FRotator(HeadYawStart - Camera->GetComponentRotation()).Yaw;
-	    float ResultLHand = FRotator(ControllerLYawStart - MotionControllerLeft->GetComponentRotation()).Yaw;
-		float ResultRHand = FRotator(ControllerRYawStart - MotionControllerRight->GetComponentRotation()).Yaw;
-		if (ResultHead < -TurnThreshold && ResultLHand < -TurnThreshold && ResultRHand < -TurnThreshold)
+		if (!bIsTurning)
 		{
-			FVector MeshForwardBefore = Mesh->GetForwardVector();
-			MeshStartLocation = MeshStartLocation -(MeshForwardBefore *ShouldersLocalX);
-			FRotator NewRotation = FRotator(0, Mesh->GetComponentRotation().Yaw + TurnThreshold,0);
-			Mesh->SetWorldRotation(NewRotation);
-			HeadYawStart += FRotator(0, TurnThreshold, 0);
-			ControllerLYawStart += FRotator(0,TurnThreshold,0);
-			ControllerRYawStart += FRotator(0, TurnThreshold, 0);
-			FVector MeshForwardAfter = Mesh->GetForwardVector();
-			MeshStartLocation = MeshStartLocation + (MeshForwardAfter *ShouldersLocalX);
-
-		}
-		if (ResultHead > TurnThreshold && ResultLHand > TurnThreshold && ResultRHand > TurnThreshold) 
-		{
-			FVector MeshForwardBefore = Mesh->GetForwardVector();
-			MeshStartLocation = MeshStartLocation - (MeshForwardBefore *ShouldersLocalX);
-			FRotator NewRotation = FRotator(0, Mesh->GetComponentRotation().Yaw - TurnThreshold, 0);
-			Mesh->SetWorldRotation(NewRotation);
-			HeadYawStart -= FRotator(0, TurnThreshold, 0);
-			ControllerLYawStart -= FRotator(0, TurnThreshold, 0);
-			ControllerRYawStart -= FRotator(0, TurnThreshold, 0);
-			FVector MeshForwardAfter = Mesh->GetForwardVector();
-			MeshStartLocation = MeshStartLocation + (MeshForwardAfter *ShouldersLocalX);
+			float ResultHead = HeadYawStart.Yaw - Camera->GetComponentRotation().Yaw;
+			float ResultLHand = ControllerLYawStart.Yaw - MotionControllerLeft->GetComponentRotation().Yaw;
+			float ResultRHand = ControllerRYawStart.Yaw - MotionControllerRight->GetComponentRotation().Yaw;
+			if (ResultHead < -TurnThreshold && ResultHead > -360 + TurnThreshold && ResultLHand < -TurnThreshold && ResultRHand < -TurnThreshold)
+			{
+				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+				if (ResultHead < -180) {
+					RotationStep = FRotator(0, -(TurnThreshold / MaxTurnSteps), 0);
+				}
+				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+				TurnStepCounter = 0;
+				bIsTurning = true;
+				GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
+			}
+			else if (ResultHead > TurnThreshold && ResultHead < 360 - TurnThreshold && ResultLHand > TurnThreshold && ResultRHand > TurnThreshold)
+			{
+				RotationStep = FRotator(0, -(TurnThreshold / MaxTurnSteps), 0);
+				if (ResultHead > 180) {
+					RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+				}
+				TurnStepCounter = 0;
+				bIsTurning = true;
+				GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
+			}
 		}
 	}
 
@@ -142,13 +141,15 @@ void AArmAnimPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 }
 
 //Reset HMD position and make mesh follow HMD
-void AArmAnimPawn::ResetHeadPosition(){
+void AArmAnimPawn::ResetHeadPosition()
+{
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition(0, EOrientPositionSelector::OrientationAndPosition);
 	FTimerHandle UnusedHandle;
 	GetWorldTimerManager().SetTimer(UnusedHandle, this, &AArmAnimPawn::SetMovementValues, 0.5, false);
 }
 
-void AArmAnimPawn::SetMovementValues(){
+void AArmAnimPawn::SetMovementValues()
+{
 	MeshStartLocation = Mesh->GetComponentLocation();
 	HeadStartLocation = Camera->GetComponentLocation();
 	HeadYawStart = Camera->GetComponentRotation();
@@ -156,4 +157,25 @@ void AArmAnimPawn::SetMovementValues(){
 	ControllerLYawStart = MotionControllerLeft->GetComponentRotation();
 	Mesh->SetRelativeRotation(MeshRotation);
 	bHeadReset = true;
+}
+
+void AArmAnimPawn::TurnInSteps()
+{
+	if (TurnStepCounter < MaxTurnSteps)
+	{
+		FVector MeshForwardBefore = Mesh->GetForwardVector();
+		MeshStartLocation = MeshStartLocation - (MeshForwardBefore *ShouldersLocalX);
+		Mesh->SetWorldRotation((Mesh->GetComponentRotation()+RotationStep));
+		HeadYawStart += RotationStep;
+		ControllerLYawStart += RotationStep;
+		ControllerRYawStart += RotationStep;
+		FVector MeshForwardAfter = Mesh->GetForwardVector();
+		MeshStartLocation = MeshStartLocation + (MeshForwardAfter *ShouldersLocalX);
+		TurnStepCounter++;
+	}
+	else 
+	{
+		GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, -1, false);
+		bIsTurning = false;
+	}
 }
