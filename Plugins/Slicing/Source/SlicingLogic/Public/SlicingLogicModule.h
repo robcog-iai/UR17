@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "ModuleManager.h"
 
+class UProceduralMeshComponent;
+
 class FSlicingLogicModule: public IModuleInterface
 {
 public:
@@ -19,4 +21,5 @@ public:
 	bool bEnableDebugShowTrajectory = false;
 
 	static void ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* StaticMeshComponent);
+	static void ConvertProceduralComponentToStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent);
 };

@@ -196,6 +196,12 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	OutputProceduralMesh->SetEnableGravity(true);
 	OutputProceduralMesh->SetSimulatePhysics(true);
 	OutputProceduralMesh->ComponentTags = CuttableComponent->ComponentTags;
+	
+	// Convert both seperated procedural meshes into static meshes for best compatibility
+	FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh);
+	FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent);
+
+	// TODO: Delete old StaticMesh parent
 }
 
 // Resets everything to the state the component was in before the cutting-process began
