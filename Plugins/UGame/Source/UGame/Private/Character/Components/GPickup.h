@@ -132,10 +132,6 @@ private:
 	UFUNCTION()
 		void OnStackCheckIsDone(bool wasSuccessful);
 
-	// *** Pickup ***
-	void StartPickup();
-	void PickupItem();
-	void ShadowPickupItem();
 	TArray<AStaticMeshActor*> FindAllStackableItems(AStaticMeshActor* ActorToPickup);
 	AStaticMeshActor* GetItemStack(AStaticMeshActor* BaseItem); // Converts all found items to children of BaseItem
 	// *** *** *** ***
