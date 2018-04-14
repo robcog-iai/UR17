@@ -751,30 +751,6 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 	ShadowBaseItem = ShadowRoot;
 }
 
-void UGPickup::OnStackCheckIsDone(bool wasSuccessful)
-{
-
-	bStackCheckSuccess = wasSuccessful;
-
-	if (bStackCheckSuccess) {
-		UE_LOG(LogTemp, Warning, TEXT("Stackcheck sucessful"));
-		BaseItemToPick = GetItemStack(ItemToHandle); // We need to reassign the whole stack
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("Stackcheck failed"));
-		if (BaseItemToPick != nullptr) {
-			SetMovementSpeed(-MassOfLastItemPickedUp);
-			UnstackItems(BaseItemToPick);
-		}
-	}
-
-	bIsStackChecking = false;
-
-	if (PlayerCharacter->MovementComponent != nullptr) {
-		PlayerCharacter->MovementComponent->SetMovable(true);
-	}
-}
-
 void UGPickup::StartDropItem()
 {
 	bIsItemDropping = true;

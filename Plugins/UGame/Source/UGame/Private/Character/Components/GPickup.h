@@ -128,10 +128,6 @@ private:
 	AActor* ItemToDrag; // The item we are currently dragging around
 	AStaticMeshActor* ShadowBaseItem; // The shadow root item fr pickup and drop actions
 
-	// The callback function after stack check is done
-	UFUNCTION()
-		void OnStackCheckIsDone(bool wasSuccessful);
-
 	TArray<AStaticMeshActor*> FindAllStackableItems(AStaticMeshActor* ActorToPickup);
 	AStaticMeshActor* GetItemStack(AStaticMeshActor* BaseItem); // Converts all found items to children of BaseItem
 	// *** *** *** ***
