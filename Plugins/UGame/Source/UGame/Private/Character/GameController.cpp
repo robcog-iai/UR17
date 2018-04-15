@@ -17,12 +17,19 @@
 
 // Sets default values
 AGameController::AGameController()
-	:PlayerController(nullptr) // Set PlayerController (by Waldemar Zeitler)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	GraspRange = 120.0f;
 	bRaytraceEnabled = true;
+
+	// Set PlayerController (by Waldemar Zeitler)
+	PlayerController = nullptr;
+
+	// Setup for the components
+	MovementComponent = nullptr;
+	PickupComponent = nullptr;
+	OpenCloseComponent = nullptr;
 
 	GetCapsuleComponent()->SetCapsuleRadius(0.01f);
 
@@ -70,13 +77,20 @@ void AGameController::Tick(float DeltaTime)
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active by Wlademar Zeitler
-	if (PickupComponent->bPickUpStarted && !bIsMovementLocked)
+	if (PickupComponent->bRightMouse && !bIsMovementLocked)
 	{
 		SetPlayerMovable(false);
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->bEnableClickEvents = true;
+		PlayerController->bEnableMouseOverEvents = true;
+
 	}
-	else if (!PickupComponent->bPickUpStarted &&  bIsMovementLocked)
+	else if (!PickupComponent->bRightMouse && bIsMovementLocked)
 	{
 		SetPlayerMovable(true);
+		PlayerController->bShowMouseCursor = false;
+		PlayerController->bEnableClickEvents = false;
+		PlayerController->bEnableMouseOverEvents = false;
 	}
 
 	// Rotate the object depending of the rotation mode by Waldemar Zeitler

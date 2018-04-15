@@ -116,11 +116,12 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// Handle the menu for the pickup and the rotation (Milestone 2)
 	if (bLockedByOtherComponent == false && bAllCanceled == false) {
 		ItemToHandle = PlayerCharacter->FocussedActor;
-
+		/**
 		// Pick up is initiated and first it will be asked for rotation
 		if (bRightMouseHold && !bRotationMenuActivated && !bPickupnMenuActivated) {
 			bRotationMenuActivated = true;
 			UGameMode->DrawHudMenu();
+			
 			bPickUpStarted = true;
 		}
 		// Player choose to rotate the object first
@@ -158,6 +159,7 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 			bPickUpStarted = false;
 			bButtonReleased = false;
 		}
+		*/
 	}
 }
 
@@ -365,96 +367,40 @@ void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
 
 void UGPickup::InputLeftHandPressed()
 {
-	if (bLeftMouseHold) return; // We already clicked that key
-	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
+	if (bLeftMouse) return; // We already clicked that key
+	if (bRightMouse) return; // Ignore this call if the other key has been pressed
 	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
-	bLeftMouseHold = true;
+	bLeftMouse = true;
 	UsedHand = EHand::Left;
-	OnInteractionKeyPressed(false);
 }
 
 void UGPickup::InputLeftHandReleased()
 {
-	if (bLeftMouseHold == false) return; // We can't release if we didn't clicked first
-	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
+	if (bLeftMouse == false) return; // We can't release if we didn't clicked first
+	if (bRightMouse) return; // Ignore this call if the other key has been pressed
 	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
-	bLeftMouseHold = false;
-	OnInteractionKeyReleased(false);
+	bLeftMouse = false;
 }
 
 void UGPickup::InputRightHandPressed()
 {
-	if (bRightMouseHold) return; // We already clicked that key
-	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
+	//if (bRightMouse) return; // We already clicked that key
+	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
 	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
-	bRightMouseHold = true;
+	bRightMouse = !bRightMouse;
 	UsedHand = EHand::Right;
-	OnInteractionKeyPressed(true);
 }
 
 void UGPickup::InputRightHandReleased()
 {
-	if (bRightMouseHold == false) return;  // We can't release if we didn't clicked first
-	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
+	if (bRightMouse == false) return;  // We can't release if we didn't clicked first
+	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
 	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
 	bButtonReleased = true;
-	bRightMouseHold = false;
-	OnInteractionKeyReleased(true);
-}
-
-void UGPickup::OnInteractionKeyPressed(bool bIsRightKey)
-{
-	if (ItemToHandle != nullptr) {
-		if (SetOfPickupItems.Contains(ItemToHandle)) {
-			if (bIsRightKey) {
-				// Right hand handling
-				if (ItemInRightHand == nullptr) {
-					//StartPickup();
-				}
-				else {
-					if (bIsItemDropping == false) StartDropItem();
-				}
-			}
-			else {
-				// Left hand handling
-				if (ItemInLeftHand == nullptr) {
-					//StartPickup();
-				}
-				else {
-					if (bIsItemDropping == false) StartDropItem();
-				}
-			}
-		}
-	}
-	else {
-		if (bIsItemDropping == false) StartDropItem();
-	}
-}
-
-void UGPickup::OnInteractionKeyHold(bool bIsRightKey)
-{
-	if (bIsItemDropping) {
-		ShadowDropItem();
-	}
-	else {
-		//ShadowPickupItem();
-	}
-}
-
-void UGPickup::OnInteractionKeyReleased(bool bIsRightKey)
-{
-	if (bIsItemDropping) {
-		DropItem();
-	}
-	else {
-		//PickupItem();
-	}
-
-	ResetComponentState();
 }
 
 void UGPickup::ResetComponentState()
@@ -923,8 +869,8 @@ void UGPickup::CancelActions()
 
 	BaseItemToPick = nullptr;
 
-	bRightMouseHold = false;
-	bLeftMouseHold = false;
+	bRightMouse = false;
+	bLeftMouse = false;
 }
 
 void UGPickup::StopCancelActions()

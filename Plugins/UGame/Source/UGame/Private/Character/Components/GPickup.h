@@ -162,19 +162,11 @@ private:
 
 	FHitResult RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector StartOffset = FVector::ZeroVector, FVector TargetOffset = FVector::ZeroVector);
 
-	// *** Input ***
-	bool bLeftMouseHold;
-	bool bRightMouseHold;
-
 	void InputLeftHandPressed();
 	void InputLeftHandReleased();
 	void InputRightHandPressed();
 	void InputRightHandReleased();
 	// *** *** *** *** ***
-
-	void OnInteractionKeyPressed(bool bIsRightKey);
-	void OnInteractionKeyHold(bool bIsRightKey);
-	void OnInteractionKeyReleased(bool bIsRightKey);
 
 	void ResetComponentState();
 
@@ -199,5 +191,9 @@ public:
 	bool bButtonReleased;
 
 	void PickUpItemAfterMenu(bool leftHand);
+
+	// *** Input ***
+	bool bLeftMouse;
+	bool bRightMouse;
 };
 
