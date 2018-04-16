@@ -1,9 +1,6 @@
 // Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 // Author: Waldemar Zeitler
 
-#define CROUCHING_HEIGHT 0.3f
-#define CROUCH_SPEED 0.2f
-
 #include "GMovement.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -37,10 +34,6 @@ void UGMovement::BeginPlay()
 	CurrentSpeed = 0;
 
 	Character = Cast<ACharacter>(GetOwner()); // Setup player
-
-	if (Character != nullptr) {
-		DefaultHeight = Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight(); // Get the capsule height
-	}
 
 	SetMovable(true);
 }
@@ -120,45 +113,6 @@ void UGMovement::AddControllerYawInput(const float Val) {
 	}
 }
 
-void UGMovement::ToggleCrouch()
-{
-	if (bIsCrouching) {
-		// We stopped crouching
-		bIsCrouching = false;
-		GetOwner()->GetWorldTimerManager().SetTimer(CrouchTimer, this, &UGMovement::SmoothStandUp, 0.001f, true);
-	}
-	else {
-		// We started crouching
-		bIsCrouching = true;
-		GetOwner()->GetWorldTimerManager().SetTimer(CrouchTimer, this, &UGMovement::SmoothCrouch, 0.001f, true);
-	}
-}
-
-void UGMovement::SmoothCrouch()
-{
-	UCapsuleComponent* Capsule = Character->GetCapsuleComponent();
-
-	const float CurrHeight = Capsule->GetScaledCapsuleHalfHeight();
-	Capsule->SetCapsuleHalfHeight(CurrHeight - CROUCHING_HEIGHT);
-
-	if (CurrHeight <= (DefaultHeight * CROUCHING_HEIGHT)) {
-		GetOwner()->GetWorldTimerManager().ClearTimer(CrouchTimer);
-	}
-}
-
-void UGMovement::SmoothStandUp()
-{
-	UCapsuleComponent* Capsule = Character->GetCapsuleComponent();
-
-	const float CurrHeight = Capsule->GetScaledCapsuleHalfHeight();
-	Capsule->SetCapsuleHalfHeight(CurrHeight + CROUCHING_HEIGHT);
-
-	if (CurrHeight >= DefaultHeight) {
-		GetOwner()->GetWorldTimerManager().ClearTimer(CrouchTimer);
-	}
-}
-
-
 // Called every frame
 void UGMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -190,10 +144,6 @@ void UGMovement::SetupKeyBindings(UInputComponent * PlayerInputComponent)
 	// Default Camera view bindings
 	PlayerInputComponent->BindAxis("CameraPitch", this, &UGMovement::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("CameraYaw", this, &UGMovement::AddControllerYawInput);
-
-	PlayerInputComponent->BindAction("ToggleCrouch", IE_Pressed, this, &UGMovement::ToggleCrouch);
-	PlayerInputComponent->BindAction("ToggleCrouch", IE_Released, this, &UGMovement::ToggleCrouch);
-
 }
 
 void UGMovement::SetMovable(bool bCanMove)

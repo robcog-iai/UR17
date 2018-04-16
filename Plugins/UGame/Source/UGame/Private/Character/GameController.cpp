@@ -77,7 +77,7 @@ void AGameController::Tick(float DeltaTime)
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active by Wlademar Zeitler
-	if (PickupComponent->bRightMouse && !bIsMovementLocked)
+	if (PickupComponent->bRightMouse && !bIsMovementLocked && CheckForVisibleObjects())
 	{
 		SetPlayerMovable(false);
 		PlayerController->bShowMouseCursor = true;
@@ -267,6 +267,23 @@ void AGameController::SetupScenario()
 		}
 		break;
 	}
+}
+
+bool AGameController::CheckForVisibleObjects()
+{
+	float MinRecentTime = 0.01;
+
+	//Iterate Over Actors
+	for (TObjectIterator<AActor> Itr; Itr; ++Itr)
+	{
+		TArray<FName> ObjectTags = Itr->Tags;
+		if (ObjectTags.Num() > 0 && ObjectTags[0].ToString().Contains("Pickup")) {
+			float Time = Itr->GetLastRenderTime();
+			if (Time > 0,1) return true;	
+		}
+	}
+
+	return false;
 }
 
 FHitResult AGameController::GetRaycastResult()

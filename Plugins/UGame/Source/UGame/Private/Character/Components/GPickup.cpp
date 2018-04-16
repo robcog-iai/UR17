@@ -102,7 +102,6 @@ void UGPickup::BeginPlay()
 	/////////////////////////////////////////////////////////
 
 	UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
-	//Character = Cast<AGameController>(GetWorld()->GetFirstPlayerController());
 }
 
 

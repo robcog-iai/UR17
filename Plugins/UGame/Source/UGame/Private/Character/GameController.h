@@ -126,4 +126,7 @@ private:
 	//After this point the code is written by Wlademar Zeitler
 public:
 	APlayerController* PlayerController;
+
+	/** Checks if there are interactable objects in the viewport. */
+	bool CheckForVisibleObjects();
 };
