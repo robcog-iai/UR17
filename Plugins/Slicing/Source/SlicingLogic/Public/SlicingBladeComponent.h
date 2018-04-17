@@ -6,6 +6,8 @@
 
 #include "ProceduralMeshComponent.h"
 
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
+
 #include "SlicingBladeComponent.generated.h"
 
 class USlicingTipComponent;
@@ -26,6 +28,9 @@ public:
 
 	//* Describes whether the cutting object is currently in the process of cutting a cuttable object
 	bool bIsCurrentlyCutting = false;
+
+	// The Constraints Component
+	UPhysicsConstraintComponent* ConstraintOne;
 
 	//* The tip component that is attached to the same SlicingComponent
 	USlicingTipComponent* TipComponent;
@@ -52,4 +57,5 @@ private:
 
 	void SliceComponent(UPrimitiveComponent* CuttableComponent);
 	void ResetState();
+	void SetUpConstrains(UPrimitiveComponent* CuttableComponent);
 };

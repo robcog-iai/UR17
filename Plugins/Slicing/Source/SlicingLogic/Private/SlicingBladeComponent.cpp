@@ -7,6 +7,8 @@
 #include "TransformCalculus.h"
 #include "KismetProceduralMeshLibrary.h"
 
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
+
 #include "Engine/StaticMesh.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -39,6 +41,11 @@ void USlicingBladeComponent::BeginPlay()
 			TipComponent = (USlicingTipComponent*)Component;
 		}
 	}
+
+
+	// Create the Physics Constraint
+	ConstraintOne = NewObject<UPhysicsConstraintComponent>();
+	ConstraintOne->AttachTo(this);
 
 	// Register the overlap events
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingBladeComponent::OnBeginOverlap);
@@ -104,6 +111,7 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	bIsCurrentlyCutting = true;
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
+	SetUpConstrains(CutComponent);
 }
 
 void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -210,4 +218,22 @@ void USlicingBladeComponent::ResetState()
 	bIsCurrentlyCutting = false;
 	FlushPersistentDebugLines(this->GetWorld());
 	CutComponent = NULL;
+}
+
+// Connects the given Component, normally the CuttableComponent, with either the Blade OR the Hand if it's welded.
+void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableComponent)
+{
+	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10.f);
+	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Locked, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 1.f);
+
+	ConstraintOne->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 1.f);
+
+	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
+	ConstraintOne->SetConstrainedComponents(CuttableComponent, FName("Object"), (UPrimitiveComponent*)GetAttachmentRoot(), FName("Blade"));
+	
+
 }
