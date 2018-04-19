@@ -49,13 +49,14 @@ public:
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-	/**** The visual-debugging functions ****/
+	/**** The slicing-logic ****/
+	void SliceComponent(UPrimitiveComponent* CuttableComponent);
+	void ResetState();
+	void SetUpConstrains(UPrimitiveComponent* CuttableComponent);
+
+	/**** The visual-debugging ****/
 	void DrawSlicingPlane();
 	void DrawCuttingEntrancePoint();
 	void DrawCuttingExitPoint();
 	void DrawCuttingTrajectory();
-
-	void SliceComponent(UPrimitiveComponent* CuttableComponent);
-	void ResetState();
-	void SetUpConstrains(UPrimitiveComponent* CuttableComponent);
 };

@@ -42,7 +42,6 @@ void USlicingBladeComponent::BeginPlay()
 		}
 	}
 
-
 	// Create the Physics Constraint
 	ConstraintOne = NewObject<UPhysicsConstraintComponent>();
 	ConstraintOne->AttachTo(this);
@@ -52,7 +51,7 @@ void USlicingBladeComponent::BeginPlay()
 	OnComponentEndOverlap.AddDynamic(this, &USlicingBladeComponent::OnEndOverlap);
 }
 
-// Called every frame
+// Called every frame (only used for the debugging-visuals)
 void USlicingBladeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -98,8 +97,7 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	RelativeRotationToCutComponent = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
 
 	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
-	if (OtherComp->GetClass() == UStaticMeshComponent::StaticClass()
-		&& ((UStaticMeshComponent*)OtherComp)->GetStaticMesh())
+	if (OtherComp->IsA(UStaticMeshComponent::StaticClass()) && ((UStaticMeshComponent*)OtherComp)->GetStaticMesh())
 	{
 		FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(OtherComp);
 
@@ -111,7 +109,8 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	bIsCurrentlyCutting = true;
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
-	SetUpConstrains(CutComponent);
+
+	//SetUpConstrains(CutComponent);
 }
 
 void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -130,7 +129,7 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 		return;
 	}
 	// Only cut if a procedural mesh is being exited
-	else if (OtherComp->GetClass() == UProceduralMeshComponent::StaticClass())
+	else if (!OtherComp->IsA(UProceduralMeshComponent::StaticClass()))
 	{
 		return;
 	}
@@ -153,43 +152,9 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	ResetState();
 }
 
-void USlicingBladeComponent::DrawSlicingPlane()
-{
-	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
-
-	// This size is actually about double the size of the component, but this is just the amount we need
-	float BladeComponentSize;
-	// Both of those variables are unused and not needed here
-	FVector BladeComponentOrigin, BladeComponentExtends;
-	UKismetSystemLibrary::GetComponentBounds(this, BladeComponentOrigin, BladeComponentExtends, BladeComponentSize);
-
-	DrawDebugSolidPlane(GetWorld(), SlicingPlane, CutComponent->GetComponentLocation(), BladeComponentSize,
-		FColor::Red, false);
-}
-
-void USlicingBladeComponent::DrawCuttingEntrancePoint()
-{
-	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
-
-	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Green);
-}
-
-void USlicingBladeComponent::DrawCuttingExitPoint()
-{
-	// Not yet implemented
-	FVector EndPosition = UKismetMathLibrary::TransformLocation(this->GetComponentTransform(), FVector(0, 1000, 0));
-	FHitResult Hits;
-	CutComponent->LineTraceComponent(Hits, EndPosition, this->GetComponentLocation(), FCollisionQueryParams::DefaultQueryParam);
-	DrawDebugBox(GetWorld(), Hits.Location, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Red, true, 1.0F);
-}
-
-void USlicingBladeComponent::DrawCuttingTrajectory()
-{
-	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
-
-	DrawDebugPoint(GetWorld(), SlicingObject->GetSocketLocation(SocketBladeName),
-		2, FColor::Purple, true, -1.0f, (uint8)'\100');
-}
+// #################                       ################# //
+// ###                   SLICING-LOGIC                   ### //
+// #################                       ################# //
 
 void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableComponent)
 {
@@ -239,6 +204,46 @@ void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableCompon
 
 	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
 	ConstraintOne->SetConstrainedComponents(CuttableComponent, FName("Object"), (UPrimitiveComponent*)GetAttachmentRoot(), FName("Blade"));
-	
+}
 
+// #################                       ################# //
+// ###                   DEBUG-VISUALS                   ### //
+// #################                       ################# //
+
+void USlicingBladeComponent::DrawSlicingPlane()
+{
+	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
+
+	// This size is actually about double the size of the component, but this is just the amount we need
+	float BladeComponentSize;
+	// Both of those variables are unused and not needed here
+	FVector BladeComponentOrigin, BladeComponentExtends;
+	UKismetSystemLibrary::GetComponentBounds(this, BladeComponentOrigin, BladeComponentExtends, BladeComponentSize);
+
+	DrawDebugSolidPlane(GetWorld(), SlicingPlane, CutComponent->GetComponentLocation(), BladeComponentSize,
+		FColor::Red, false);
+}
+
+void USlicingBladeComponent::DrawCuttingEntrancePoint()
+{
+	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
+
+	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Green);
+}
+
+void USlicingBladeComponent::DrawCuttingExitPoint()
+{
+	// Not yet implemented
+	FVector EndPosition = UKismetMathLibrary::TransformLocation(this->GetComponentTransform(), FVector(0, 1000, 0));
+	FHitResult Hits;
+	CutComponent->LineTraceComponent(Hits, EndPosition, this->GetComponentLocation(), FCollisionQueryParams::DefaultQueryParam);
+	DrawDebugBox(GetWorld(), Hits.Location, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Red, true, 1.0F);
+}
+
+void USlicingBladeComponent::DrawCuttingTrajectory()
+{
+	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
+
+	DrawDebugPoint(GetWorld(), SlicingObject->GetSocketLocation(SocketBladeName),
+		2, FColor::Purple, true, -1.0f, (uint8)'\100');
 }
