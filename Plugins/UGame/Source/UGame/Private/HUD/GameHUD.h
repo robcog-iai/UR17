@@ -18,10 +18,10 @@ class UGAME_API AGameHUD : public AHUD
 	virtual void PostInitializeComponents() override;
 
 	// Reference to the Main Menu Slate UI.
-	TSharedPtr<class SGameUI> GameUI;
+	TSharedPtr<class SRotationUI> RotationUI;
 
 	// Reference to the Main Menu Slate UI.
-	TSharedPtr<class SPickupGameUI> PickupGameUI;
+	TSharedPtr<class SPickupUI> PickupUI;
 public:
 	AGameHUD();
 
@@ -33,10 +33,21 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Menus|Game Menu")
 		void QuitGameClicked();
 
+	/** Set the selected Acotr for whom the menu should be drawn.
+	*   @param Selected actor
+	*/
+	void SetActionGridActor(AActor* InSelectedActor);
+
+	/** gets player controller */
+	class AGameController* GetPlayerController() const;
+
 protected:
 	// This will be drawn at the center of the screen.
 	UPROPERTY(EditDefaultsOnly)
 		UTexture2D* CrosshairTexture;
+
+	/** Actor for whom the menu should be displayed*/
+	TWeakObjectPtr<AActor> SelectedActor;
 
 public:
 	// Primary draw call for the HUD.
@@ -50,4 +61,7 @@ public:
 
 	/** Draw PickUp menu to ask for rotation*/
 	void DrawPickUpMenu();
+
+	/** Position on screen */
+	FVector2D MenuPosition;
 };

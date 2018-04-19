@@ -1,41 +1,40 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
-#include "PickupGameUI.h"
+#include "PickupUI.h"
 #include "UGame.h"
 #include "Engine.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
-void SPickupGameUI::Construct(const FArguments& args)
+void SPickupUI::Construct(const FArguments& args)
 {
 	GameHUD = args._GameHUD;
 
 	ChildSlot
-		[
-			SNew(SOverlay)
-			+ SOverlay::Slot()
+	[
+		SNew(SOverlay)
+		+ SOverlay::Slot()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
 		[
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Pick Up Left Hand (Left Mouse Button)"))
-		.OnClicked(this, &SPickupGameUI::PickUpLeft)
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Pick Up Left Hand (Left Mouse Button)"))
+				.OnClicked(this, &SPickupUI::PickUpLeft)
+			]
+			+ SVerticalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Pick Up Reft Hand (Right Mouse Button)"))
+				.OnClicked(this, &SPickupUI::PickUpRight)
+			]
 		]
-	+ SVerticalBox::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Pick Up Reft Hand (Right Mouse Button)"))
-		.OnClicked(this, &SPickupGameUI::PickUpRight)
-		]
-		]
-		];
-
+	];
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-FReply SPickupGameUI::PickUpLeft()
+FReply SPickupUI::PickUpLeft()
 {
 	if (GEngine)
 	{
@@ -47,7 +46,7 @@ FReply SPickupGameUI::PickUpLeft()
 	return FReply::Handled();
 }
 
-FReply SPickupGameUI::PickUpRight()
+FReply SPickupUI::PickUpRight()
 {
 	if (GEngine)
 	{

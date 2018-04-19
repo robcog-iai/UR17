@@ -1,41 +1,40 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
-#include "GameUI.h"
+#include "RotationUI.h"
 #include "UGame.h"
 #include "Engine.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
-void SGameUI::Construct(const FArguments& args)
+void SRotationUI::Construct(const FArguments& args)
 {
 	GameHUD = args._GameHUD;
 
 	ChildSlot
-		[
-			SNew(SOverlay)
-			+ SOverlay::Slot()
+	[
+		SNew(SOverlay)
+		+ SOverlay::Slot()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
 		[
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Rotate Objekt (Left Mouse Button)"))
-		.OnClicked(this, &SGameUI::Rotation)
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Rotate Objekt (Left Mouse Button)"))
+				.OnClicked(this, &SRotationUI::Rotation)
+			]
+			+ SVerticalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Pick Item Up (Right Mouse Button)"))
+				.OnClicked(this, &SRotationUI::PickUp)
+			]
 		]
-	+ SVerticalBox::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Pick Item Up (Right Mouse Button)"))
-		.OnClicked(this, &SGameUI::PickUp)
-		]
-		]
-		];
-
+	];
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-FReply SGameUI::Rotation()
+FReply SRotationUI::Rotation()
 {
 	if (GEngine)
 	{
@@ -47,7 +46,7 @@ FReply SGameUI::Rotation()
 	return FReply::Handled();
 }
 
-FReply SGameUI::PickUp()
+FReply SRotationUI::PickUp()
 {
 	if (GEngine)
 	{

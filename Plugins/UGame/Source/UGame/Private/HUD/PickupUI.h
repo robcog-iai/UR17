@@ -10,11 +10,11 @@
 #include "GameHUD.h"
 
 // Lays out and controls the Main Menu UI for our tutorial.
-class UGAME_API SPickupGameUI : public SCompoundWidget
+class UGAME_API SPickupUI : public SCompoundWidget
 {
 
 public:
-	SLATE_BEGIN_ARGS(SPickupGameUI)
+	SLATE_BEGIN_ARGS(SPickupUI)
 	{}
 	SLATE_ARGUMENT(TWeakObjectPtr<class AGameHUD>, GameHUD)
 	SLATE_END_ARGS()

@@ -2,8 +2,9 @@
 
 #include "GameHUD.h"
 #include "UGame.h"
-#include "GameUI.h"
-#include "PickupGameUI.h"
+#include "../Character/GameController.h"
+#include "RotationUI.h"
+#include "PickupUI.h"
 #include "Engine.h"
 
 AGameHUD::AGameHUD()
@@ -41,11 +42,11 @@ void AGameHUD::DrawHUD()
 
 void AGameHUD::DrawMenu()
 {
-	SAssignNew(GameUI, SGameUI).GameHUD(this);
+	SAssignNew(RotationUI, SRotationUI).GameHUD(this);
 
 	if (GEngine->IsValidLowLevel())
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameUI.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(RotationUI.ToSharedRef()));
 	}
 }
 
@@ -56,10 +57,21 @@ void AGameHUD::RemoveMenu()
 
 void AGameHUD::DrawPickUpMenu()
 {
-	SAssignNew(PickupGameUI, SPickupGameUI).GameHUD(this);
+	SAssignNew(PickupUI, SPickupUI).GameHUD(this);
 
 	if (GEngine->IsValidLowLevel())
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupGameUI.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupUI.ToSharedRef()));
 	}
+}
+
+void AGameHUD::SetActionGridActor(AActor* InSelectedActor)
+{
+	SelectedActor.Reset();
+	SelectedActor = MakeWeakObjectPtr(InSelectedActor);
+}
+
+AGameController * AGameHUD::GetPlayerController() const
+{
+	return Cast<AGameController>(PlayerOwner);
 }
