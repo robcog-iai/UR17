@@ -129,6 +129,11 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 		bIsCurrentlyCutting = false;
 		return;
 	}
+	// Only cut if a procedural mesh is being exited
+	else if (OtherComp->GetClass() == UProceduralMeshComponent::StaticClass())
+	{
+		return;
+	}
 
 	// Abort the cutting if you stop cutting at the same point you started at
 	FVector CutComponentPosition =
