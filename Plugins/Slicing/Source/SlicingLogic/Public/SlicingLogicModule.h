@@ -6,6 +6,7 @@
 #include "ModuleManager.h"
 
 class UProceduralMeshComponent;
+class UStaticMeshComponent;
 
 class FSlicingLogicModule: public IModuleInterface
 {
@@ -22,4 +23,6 @@ public:
 
 	static void ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* StaticMeshComponent);
 	static void ConvertProceduralComponentToStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent);
+	template<class ComponentType>
+		static FORCEINLINE ComponentType* GetSlicingComponent(UStaticMeshComponent* SlicingObject);
 };

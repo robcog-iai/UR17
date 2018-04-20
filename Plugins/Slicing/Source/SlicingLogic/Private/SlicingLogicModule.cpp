@@ -148,6 +148,7 @@ void FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(UProcedura
 
 	// Get the correct (simple) collision from the procedural mesh
 	StaticMesh->BodySetup->AddCollisionFrom(ProceduralMeshComponent->GetBodySetup()->AggGeom);
+	// TODO: CHECK FOR NULL
 	StaticMesh->Build();
 	StaticMesh->PostEditChange();
 
@@ -173,6 +174,23 @@ void FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(UProcedura
 
 	// Remove the old component
 	ProceduralMeshComponent->DestroyComponent();
+}
+
+template<class ComponentType>
+ComponentType* FSlicingLogicModule::GetSlicingComponent(UStaticMeshComponent* SlicingObject)
+{
+	TArray<USceneComponent*> SlicingComponents;
+	SlicingObject->GetChildrenComponents(true, SlicingComponents);
+
+	for (USceneComponent* Component : SlicingComponents)
+	{
+		if (ComponentType* TypedComponent = Cast<ComponentType>(Component))
+		{
+			// Only one slicing component of each type should exist
+			return TypedComponent;
+		}
+	}
+	return nullptr;
 }
 
 #undef LOCTEXT_NAMESPACE

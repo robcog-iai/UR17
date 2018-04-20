@@ -11,16 +11,7 @@ void USlicingTipComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Check for the blade component to know which object is being cut
-	TArray<USceneComponent*> BladeComponents;
-	SlicingObject->GetChildrenComponents(true, BladeComponents);
-	for (USceneComponent* Component : BladeComponents)
-	{
-		if (Component->GetClass()->IsChildOf(USlicingBladeComponent::StaticClass()))
-		{
-			// Only one blade should exist
-			BladeComponent = (USlicingBladeComponent*)Component;
-		}
-	}
+	BladeComponent = FSlicingLogicModule::GetSlicingComponent<USlicingBladeComponent>(SlicingObject);
 
 	// Register the overlap events
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingTipComponent::OnBeginOverlap);

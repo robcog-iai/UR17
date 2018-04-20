@@ -31,16 +31,7 @@ void USlicingBladeComponent::BeginPlay()
 	}
 
 	// Check for the tip component to possibly abort the cutting
-	TArray<USceneComponent*> TipComponents;
-	SlicingObject->GetChildrenComponents(true, TipComponents);
-	for (USceneComponent* Component : TipComponents)
-	{
-		if (Component->GetClass()->IsChildOf(USlicingTipComponent::StaticClass()))
-		{
-			// Only one tip should exist
-			TipComponent = (USlicingTipComponent*)Component;
-		}
-	}
+	TipComponent = FSlicingLogicModule::GetSlicingComponent<USlicingTipComponent>(SlicingObject);
 
 	// Create the Physics Constraint
 	ConstraintOne = NewObject<UPhysicsConstraintComponent>();
