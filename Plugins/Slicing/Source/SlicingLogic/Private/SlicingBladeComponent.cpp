@@ -44,7 +44,7 @@ void USlicingBladeComponent::BeginPlay()
 
 	// Create the Physics Constraint
 	ConstraintOne = NewObject<UPhysicsConstraintComponent>();
-	ConstraintOne->AttachTo(this);
+	ConstraintOne->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
 	// Register the overlap events
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingBladeComponent::OnBeginOverlap);
