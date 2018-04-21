@@ -31,4 +31,7 @@ public:
 
 	// Stores a weak reference to the HUD controlling this class.
 	TWeakObjectPtr<class AGameHUD> GameHUD;
+
+	// Get the position where to draw the menu
+	FVector2D GetActionsWidgetPos() const;
 };

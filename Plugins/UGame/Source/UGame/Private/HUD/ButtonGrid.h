@@ -3,6 +3,7 @@
 #pragma once
 
 #include "SlateBasics.h"
+#include "PickupUI.h"
 #include "SlateExtras.h"
 
 class AGameHUD;
@@ -24,6 +25,13 @@ public:
 	/** 3 x 3 grid of action buttons */
 	//TArray< TSharedPtr<FActionButtonInfo> > ActionButtons;
 
+	/** Shared pointer to action grid panel */
+	TSharedPtr<SGridPanel> ActionGrid;
+
+	TSharedPtr<SPickupUI> Pickup;
+
 	// Stores a weak reference to the HUD controlling this class.
 	TWeakObjectPtr<class AGameHUD> GameHUD;
+
+	FVector2D GetActionsWidgetPos() const;
 };

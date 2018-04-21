@@ -16,18 +16,30 @@ void SPickupUI::Construct(const FArguments& args)
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
+			SNew(SCanvas)
+			+ SCanvas::Slot()
+			.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
+			.Size(FVector2D(600, 800))
 			[
-				SNew(SButton)
-				.Text(FText::FromString("Pick Up Left Hand (Left Mouse Button)"))
-				.OnClicked(this, &SPickupUI::PickUpLeft)
-			]
-			+ SVerticalBox::Slot()
-			[
-				SNew(SButton)
-				.Text(FText::FromString("Pick Up Reft Hand (Right Mouse Button)"))
-				.OnClicked(this, &SPickupUI::PickUpRight)
+				SNew(SOverlay)
+				+ SOverlay::Slot()
+				.HAlign(HAlign_Center)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					[
+						SNew(SButton)
+						.Text(FText::FromString("Pickup In Left Hand"))
+						.OnClicked(this, &SPickupUI::PickUpLeft)
+					]
+					+ SVerticalBox::Slot()
+					[
+						SNew(SButton)
+						.Text(FText::FromString("Pickup In Right Hand"))
+						.OnClicked(this, &SPickupUI::PickUpRight)
+					]
+				]
 			]
 		]
 	];
@@ -56,4 +68,9 @@ FReply SPickupUI::PickUpRight()
 	// actually the BlueprintImplementable function of the HUD is not called; uncomment if you want to handle the OnClick via Blueprint
 	//MainMenuHUD->QuitGameClicked();
 	return FReply::Handled();
+}
+
+FVector2D SPickupUI::GetActionsWidgetPos() const
+{
+	return FVector2D(100, 100);
 }

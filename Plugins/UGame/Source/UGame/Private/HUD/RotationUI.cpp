@@ -16,18 +16,30 @@ void SRotationUI::Construct(const FArguments& args)
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
+			SNew(SCanvas)
+			+ SCanvas::Slot()
+			.Position(TAttribute<FVector2D>(this, &SRotationUI::GetActionsWidgetPos))
+			.Size(FVector2D(600, 800))
 			[
-				SNew(SButton)
-				.Text(FText::FromString("Rotate Objekt (Left Mouse Button)"))
-				.OnClicked(this, &SRotationUI::Rotation)
-			]
-			+ SVerticalBox::Slot()
-			[
-				SNew(SButton)
-				.Text(FText::FromString("Pick Item Up (Right Mouse Button)"))
-				.OnClicked(this, &SRotationUI::PickUp)
+				SNew(SOverlay)
+				+ SOverlay::Slot()
+				.HAlign(HAlign_Center)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					[
+						SNew(SButton)
+						.Text(FText::FromString("Rotate Object"))
+						.OnClicked(this, &SRotationUI::Rotation)
+					]
+					+ SVerticalBox::Slot()
+					[
+						SNew(SButton)
+						.Text(FText::FromString("Pick Object Up"))
+						.OnClicked(this, &SRotationUI::PickUp)
+					]
+				]
 			]
 		]
 	];
@@ -56,4 +68,9 @@ FReply SRotationUI::PickUp()
 	// actually the BlueprintImplementable function of the HUD is not called; uncomment if you want to handle the OnClick via Blueprint
 	//MainMenuHUD->QuitGameClicked();
 	return FReply::Handled();
+}
+
+FVector2D SRotationUI::GetActionsWidgetPos() const
+{
+	return FVector2D(100, 100);
 }

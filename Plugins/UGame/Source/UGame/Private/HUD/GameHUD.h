@@ -25,14 +25,6 @@ class UGAME_API AGameHUD : public AHUD
 public:
 	AGameHUD();
 
-	// Called by SMainMenu whenever the Play Game! button has been clicked.
-	UFUNCTION(BlueprintImplementableEvent, Category = "Menus|Game Menu")
-		void PlayGameClicked();
-
-	// Called by SMainMenu whenever the Quit Game button has been clicked.
-	UFUNCTION(BlueprintImplementableEvent, Category = "Menus|Game Menu")
-		void QuitGameClicked();
-
 	/** Set the selected Acotr for whom the menu should be drawn.
 	*   @param Selected actor
 	*/
@@ -50,9 +42,6 @@ protected:
 	TWeakObjectPtr<AActor> SelectedActor;
 
 public:
-	// Primary draw call for the HUD.
-	virtual void DrawHUD() override;
-	
 	/** Draw menu to ask for rotation*/
 	void DrawMenu();
 

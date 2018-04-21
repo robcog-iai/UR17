@@ -6,7 +6,6 @@
 
 AUGameModeBase::AUGameModeBase()
 {
-	HUDClass = AGameHUD::StaticClass();
 	PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
 }
 

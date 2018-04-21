@@ -399,6 +399,8 @@ void UGPickup::InputRightHandReleased()
 	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
 	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
+	UGameMode->DrawHudMenu();
+
 	bButtonReleased = true;
 }
 
