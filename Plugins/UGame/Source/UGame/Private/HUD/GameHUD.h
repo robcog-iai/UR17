@@ -34,10 +34,6 @@ public:
 	class AGameController* GetPlayerController() const;
 
 protected:
-	// This will be drawn at the center of the screen.
-	UPROPERTY(EditDefaultsOnly)
-		UTexture2D* CrosshairTexture;
-
 	/** Actor for whom the menu should be displayed*/
 	TWeakObjectPtr<AActor> SelectedActor;
 

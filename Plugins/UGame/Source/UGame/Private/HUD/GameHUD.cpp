@@ -9,11 +9,6 @@
 
 AGameHUD::AGameHUD()
 {
-	static ConstructorHelpers::FObjectFinder<UTexture2D> FoundTexture(TEXT("Texture2D'/Game/Images/crosshair.crosshair'"));
-	if (FoundTexture.Succeeded())
-	{
-		CrosshairTexture = FoundTexture.Object;
-	}
 }
 
 void AGameHUD::PostInitializeComponents()
@@ -24,7 +19,7 @@ void AGameHUD::PostInitializeComponents()
 void AGameHUD::DrawMenu()
 {
 	SAssignNew(RotationUI, SRotationUI).GameHUD(this);
-
+	
 	if (GEngine->IsValidLowLevel())
 	{
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(RotationUI.ToSharedRef()));
@@ -39,7 +34,7 @@ void AGameHUD::RemoveMenu()
 void AGameHUD::DrawPickUpMenu()
 {
 	SAssignNew(PickupUI, SPickupUI).GameHUD(this);
-
+	PickupUI->WidgetPosition = FVector2D(0, 0);
 	if (GEngine->IsValidLowLevel())
 	{
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupUI.ToSharedRef()));

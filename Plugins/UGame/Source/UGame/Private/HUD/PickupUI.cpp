@@ -21,28 +21,47 @@ void SPickupUI::Construct(const FArguments& args)
 			.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
 			.Size(FVector2D(600, 800))
 			[
-				SNew(SOverlay)
-				+ SOverlay::Slot()
-				.HAlign(HAlign_Center)
-				.VAlign(VAlign_Center)
-				[
-					SNew(SVerticalBox)
-					+ SVerticalBox::Slot()
-					[
-						SNew(SButton)
-						.Text(FText::FromString("Pickup In Left Hand"))
-						.OnClicked(this, &SPickupUI::PickUpLeft)
-					]
-					+ SVerticalBox::Slot()
-					[
-						SNew(SButton)
-						.Text(FText::FromString("Pickup In Right Hand"))
-						.OnClicked(this, &SPickupUI::PickUpRight)
-					]
-				]
+				SAssignNew(ActionGrid, SGridPanel)
 			]
 		]
 	];
+
+	if (true) {
+		ActionGrid->AddSlot(1,1)
+		[
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Rotate Object"))
+				.OnClicked(this, &SPickupUI::PickUpLeft)
+			]
+		+ SVerticalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Pick Object Up"))
+				.OnClicked(this, &SPickupUI::PickUpRight)
+			]
+		];
+	}
+	else {
+		ActionGrid->AddSlot(1, 1)
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Rotate Object"))
+				//.OnClicked(this, &SRotationUI::Rotation)
+			]
+			+ SVerticalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Pick Object Up"))
+				//.OnClicked(this, &SRotationUI::PickUp)
+			]
+		];
+	}
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
@@ -72,5 +91,6 @@ FReply SPickupUI::PickUpRight()
 
 FVector2D SPickupUI::GetActionsWidgetPos() const
 {
-	return FVector2D(100, 100);
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Mouseposition returned."));
+	return WidgetPosition;
 }
