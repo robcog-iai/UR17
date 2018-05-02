@@ -24,7 +24,6 @@ public:
 	/**** The implementation of standard component functions ****/
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//* Describes whether the cutting object is currently in the process of cutting a cuttable object
 	bool bIsCurrentlyCutting = false;
@@ -53,10 +52,4 @@ private:
 	void SliceComponent(UPrimitiveComponent* CuttableComponent);
 	void ResetState();
 	void SetUpConstrains(UPrimitiveComponent* CuttableComponent);
-
-	/**** The visual-debugging ****/
-	void DrawSlicingPlane();
-	void DrawCuttingEntrancePoint();
-	void DrawCuttingExitPoint();
-	void DrawCuttingTrajectory();
 };

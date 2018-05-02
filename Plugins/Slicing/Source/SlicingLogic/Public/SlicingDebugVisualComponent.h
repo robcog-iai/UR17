@@ -2,26 +2,39 @@
 
 #pragma once
 
+#include "SlicingLogicModule.h"
+
 #include "Engine.h"
+
+#include "Components/StaticMeshComponent.h"
 
 #include "SlicingDebugVisualComponent.generated.h"
 
 class USlicingBladeComponent;
 class USlicingTipComponent;
+class USlicingComponent;
 
 UCLASS()
-class SLICINGLOGIC_API USlicingDebugVisualComponent : public UActorComponent
+class SLICINGLOGIC_API USlicingDebugVisualComponent: public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+	// Sets default values. Called when generated, even in the editor.
+	USlicingDebugVisualComponent();
+
 	/**** The implementation of standard component functions ****/
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//* The blade component that is attached to the same SlicingComponent
+	//* Needed for the debug option booleans
+	FSlicingLogicModule* SlicingLogicModule;
+
+	//* The static mesh actor this component is attached to
+	AStaticMeshActor* SlicingObject;
+	//* The blade component that is attached to the same SlicingObject
 	USlicingBladeComponent* BladeComponent;
-	//* The tip component that is attached to the same SlicingComponent
+	//* The tip component that is attached to the same SlicingObject
 	USlicingTipComponent* TipComponent;
 
 private:
@@ -29,4 +42,6 @@ private:
 	void DrawCuttingEntrancePoint();
 	void DrawCuttingExitPoint();
 	void DrawCuttingTrajectory();
+	void DrawComponents();
+	void DrawComponent(USlicingComponent* SlicingComponent);
 };

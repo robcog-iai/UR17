@@ -30,15 +30,9 @@ public:
 
 	/**** The implementation of standard component functions ****/
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	//* Needed for the debug option booleans
-	FSlicingLogicModule* SlicingLogicModule;
 	//* The component of the object, the SlicingComponent is attached to
 	UStaticMeshComponent* SlicingObject;
 	//* The object that is currently being cut, but did not go through the slicing process yet
 	UPrimitiveComponent* CutComponent;
-
-private:
-	void DrawComponent();
 };

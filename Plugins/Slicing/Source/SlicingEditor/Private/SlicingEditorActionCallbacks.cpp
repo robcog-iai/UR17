@@ -4,6 +4,7 @@
 #include "SlicingComponent.h"
 #include "SlicingBladeComponent.h"
 #include "SlicingTipComponent.h"
+#include "SlicingDebugVisualComponent.h"
 
 #include "Core.h"
 #include "Editor.h"
@@ -81,6 +82,7 @@ void FSlicingEditorActionCallbacks::MakeCuttingObjects()
 		FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
 		FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
 		FSlicingEditorActionCallbacks::AddTipComponent(StaticMesh);
+		FSlicingEditorActionCallbacks::AddDebugVisualComponent(StaticMeshActor);
 	}
 }
 
@@ -186,6 +188,14 @@ void FSlicingEditorActionCallbacks::AddTipComponent(UStaticMeshComponent* Static
 		USlicingComponent::SocketTipName,
 		FName("OverlapAll"),
 		true);
+}
+
+void FSlicingEditorActionCallbacks::AddDebugVisualComponent(AStaticMeshActor* StaticMesh)
+{
+	USlicingDebugVisualComponent* DebugComponent = NewObject<USlicingDebugVisualComponent>(StaticMesh);
+	StaticMesh->AddInstanceComponent(DebugComponent);
+
+	DebugComponent->RegisterComponent();
 }
 
 #undef LOCTEXT_NAMESPACE

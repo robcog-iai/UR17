@@ -23,24 +23,5 @@ void USlicingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SlicingLogicModule = &FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
 	SlicingObject = (UStaticMeshComponent*)(this->GetAttachmentRoot());
-}
-
-// Called every frame
-void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (SlicingLogicModule->bEnableDebugShowComponents)
-	{
-		USlicingComponent::DrawComponent();
-	}
-}
-
-// Draws the SlicingComponent box
-void USlicingComponent::DrawComponent()
-{
-	DrawDebugBox(GetWorld(), GetComponentLocation(), GetScaledBoxExtent(), GetComponentRotation().Quaternion(),
-		FColor::Green, false, 0.01f);
 }
