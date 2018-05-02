@@ -136,7 +136,8 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh);
 	FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent);
 
-	// TODO: Delete old StaticMesh parent
+	// Delete old original static mesh
+	CutComponent->GetOwner()->Destroy();
 }
 
 // Resets everything to the state the component was in before the cutting-process began
