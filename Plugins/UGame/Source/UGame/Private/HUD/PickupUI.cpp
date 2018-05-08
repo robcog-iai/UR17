@@ -10,16 +10,18 @@ void SPickupUI::Construct(const FArguments& args)
 	GameHUD = args._GameHUD;
 
 	ChildSlot
+ .VAlign(VAlign_Fill)
+ .HAlign(HAlign_Fill)
 	[
 		SNew(SOverlay)
-		+ SOverlay::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
+		+ SOverlay::Slot()	
+  .VAlign(VAlign_Fill)
+  .HAlign(HAlign_Fill)
 		[
 			SNew(SCanvas)
 			+ SCanvas::Slot()
 			.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
-			.Size(FVector2D(600, 800))
+			.Size(FVector2D(1080, 1920))
 			[
 				SAssignNew(ActionGrid, SGridPanel)
 			]
@@ -92,5 +94,5 @@ FReply SPickupUI::PickUpRight()
 FVector2D SPickupUI::GetActionsWidgetPos() const
 {
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Mouseposition returned."));
-	return WidgetPosition;
+	return WidgetPosition.Get();
 }

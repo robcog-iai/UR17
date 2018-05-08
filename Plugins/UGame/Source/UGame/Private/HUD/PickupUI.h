@@ -34,7 +34,9 @@ public:
 
 	TSharedPtr<SGridPanel> ActionGrid;
 
-	FVector2D WidgetPosition;
+ // Position on screen
+ TAttribute<FVector2D> WidgetPosition;
+
 private:
 
 	// Get the position where to draw the menu

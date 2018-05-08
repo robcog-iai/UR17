@@ -20,7 +20,8 @@ AGameController::AGameController()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	GraspRange = 120.0f;
+ // Chagned to 300 (from 120) for testing
+	GraspRange = 300.0f;
 	bRaytraceEnabled = true;
 
 	// Set PlayerController (by Waldemar Zeitler)
@@ -34,6 +35,9 @@ AGameController::AGameController()
 	GetCapsuleComponent()->SetCapsuleRadius(0.01f);
 
 	SetupComponentsOnConstructor();
+
+ // Setup HUD
+ //PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
 }
 
 // Called when the game starts or when spawned
@@ -48,10 +52,19 @@ void AGameController::BeginPlay()
 		Character->PlayerState->bIsSpectator = true;
 	}
 
+ // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
+ PlayerController = Cast<APlayerController>(GetController());
+ PlayerController->bEnableMouseOverEvents = true;
+
 	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
 
-	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
-	PlayerController = Cast<APlayerController>(GetController());
+ // Dosen't work for some reason, unknown at the moment 
+ for (AActor* InteractableItem : SetOfInteractableItems) 
+ {
+  InteractableItem->OnBeginCursorOver.AddDynamic(this, &AGameController::CustomOnBeginMouseOver);
+ }
+ 
+	
 	if (!PlayerController) {
 		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
 	}
@@ -59,6 +72,9 @@ void AGameController::BeginPlay()
 	//LeftHandPosition = SpawnActor<AActor>(FVector(0, 0, 0), FRotator(0, 0, 0));
 
 	SetupScenario();
+
+ // Setup Game Mode
+ UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
 }
 
 // Called every frame
@@ -66,7 +82,6 @@ void AGameController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	StartRaytrace();
 	CheckIntractability();
 
 	if (bIsDebugMode && FocussedActor != nullptr)
@@ -77,7 +92,7 @@ void AGameController::Tick(float DeltaTime)
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active by Wlademar Zeitler
-	if (PickupComponent->bRightMouse && !bIsMovementLocked && CheckForVisibleObjects())
+	if (PickupComponent->bFreeMouse && !bIsMovementLocked && CheckForVisibleObjects())
 	{
 		SetPlayerMovable(false);
 		PlayerController->bShowMouseCursor = true;
@@ -85,7 +100,7 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bEnableMouseOverEvents = true;
 
 	}
-	else if (!PickupComponent->bRightMouse && bIsMovementLocked)
+	else if (!PickupComponent->bFreeMouse && bIsMovementLocked)
 	{
 		SetPlayerMovable(true);
 		PlayerController->bShowMouseCursor = false;
@@ -164,18 +179,24 @@ void AGameController::SetupComponentsOnConstructor()
 	}
 }
 
-void AGameController::StartRaytrace()
+void AGameController::StartRaytrace(FVector Start, FVector DirectionIn)
 {
 	if (bRaytraceEnabled == false) return;
 	FVector CamLoc;
 	FRotator CamRot;
 
-	Character->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-	const FVector StartTrace = CamLoc; // trace start is the camera location
-	const FVector Direction = CamRot.Vector();
-	const FVector EndTrace = StartTrace + Direction * GraspRange; // and trace end is the camera location + an offset in the direction
+ FVector StartTrace = Start;
+ FVector Direction = DirectionIn;
+ FVector EndTrace = StartTrace + Direction * GraspRange;
 
-	FCollisionQueryParams TraceParams;
+ if (Start == FVector::ZeroVector) {
+  Character->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
+  StartTrace = CamLoc; // trace start is the camera location
+  Direction = CamRot.Vector();
+  EndTrace = StartTrace + Direction * GraspRange; // and trace end is the camera location + an offset in the direction
+ }
+
+		FCollisionQueryParams TraceParams;
 
 	TraceParams.AddIgnoredActor(this); // We don't want to hit ourself
 
@@ -291,7 +312,10 @@ FHitResult AGameController::GetRaycastResult()
 	return RaycastResult;
 }
 
-
-
-
-
+void AGameController::CustomOnBeginMouseOver(AActor* TouchedComponent)
+{
+ if (GEngine)
+ {
+  GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over"));
+ }
+}

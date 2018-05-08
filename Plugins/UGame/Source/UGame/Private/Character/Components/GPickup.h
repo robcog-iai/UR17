@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "../../UGameModeBase.h"
 #include "GameFramework/Actor.h"
 #include "CoreMinimal.h"
@@ -160,7 +161,7 @@ private:
 
 	FVector GetPositionOnSurface(AActor* Item, FVector PointOnSurface); // Calculates the final position of an item on a surface
 
-	FHitResult RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector StartOffset = FVector::ZeroVector, FVector TargetOffset = FVector::ZeroVector);
+	FHitResult RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector MousePosition = FVector::ZeroVector, FVector MouseDirection = FVector::ZeroVector);
 
 	void InputLeftHandPressed();
 	void InputLeftHandReleased();
@@ -181,6 +182,9 @@ public:
 	// Bool to check if pick up menu should be started.
 	bool bPickupnMenuActivated;
 
+ // Bool for free mouse mode
+ bool bFreeMouse;
+
 	// GameMode to access the menu hud.
 	AUGameModeBase* UGameMode;
 
@@ -195,5 +199,8 @@ public:
 	// *** Input ***
 	bool bLeftMouse;
 	bool bRightMouse;
+
+ APlayerController* PlayerController;
+
 };
 

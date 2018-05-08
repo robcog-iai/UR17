@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "HUD/GameHUD.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "GameFramework/GameModeBase.h"
 #include "UGameModeBase.generated.h"
 
@@ -23,7 +24,9 @@ public:
 
 	void DrawHudMenu();
 
-	void DrawPickupHudMenu();
+	void DrawPickupHudMenu(float MouseX = 0, float MouseY = 0);
 
 	void RemoveMenu();
+
+ AGameController* PlayerController;
 };

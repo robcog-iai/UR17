@@ -7,6 +7,9 @@
 #include "../Private/Character/Components/GOpenClose.h"
 #include "../Private/Character/Components/GPickup.h"
 
+//#include "HUD/GameHUD.h"
+#include "../UGameModeBase.h"
+
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 
 #include "Engine/StaticMeshActor.h"
@@ -115,7 +118,7 @@ private:
 	// Creates all actor components.
 	void SetupComponentsOnConstructor();
 
-	void StartRaytrace();
+	void StartRaytrace(FVector Start = FVector::ZeroVector, FVector DirectionIn = FVector::ZeroVector);
 
 	void CheckIntractability();
 
@@ -129,4 +132,14 @@ public:
 
 	/** Checks if there are interactable objects in the viewport. */
 	bool CheckForVisibleObjects();
+
+ /** Game HUD. */
+ //AGameHUD* PickupHUD;
+
+ // GameMode to access the menu hud.
+ AUGameModeBase* UGameMode;
+
+ //Function to handle the interaction
+ UFUNCTION()
+  void CustomOnBeginMouseOver(AActor* TouchedComponent);
 };

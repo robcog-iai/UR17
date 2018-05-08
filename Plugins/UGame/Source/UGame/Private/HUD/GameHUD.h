@@ -45,7 +45,7 @@ public:
 	void RemoveMenu();
 
 	/** Draw PickUp menu to ask for rotation*/
-	void DrawPickUpMenu();
+	void DrawPickUpMenu(float MouseX = 0, float MouseY = 0);
 
 	/** Position on screen */
 	FVector2D MenuPosition;

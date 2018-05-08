@@ -9,7 +9,6 @@
 #include "GPickup.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
-#include "GameFramework/PlayerController.h"
 #include "../Private/Character/GameController.h"
 #include "../../HUD/GameHUD.h"
 #include "TagStatics.h"
@@ -23,6 +22,7 @@ UGPickup::UGPickup()
 	, ItemInRotaitonPosition(nullptr)
 	, bButtonReleased(false)
 	, bPickUpStarted(false)
+ , bFreeMouse(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -102,6 +102,10 @@ void UGPickup::BeginPlay()
 	/////////////////////////////////////////////////////////
 
 	UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
+
+ // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
+ PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+ PlayerController->bEnableMouseOverEvents = true;
 }
 
 
@@ -115,50 +119,30 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// Handle the menu for the pickup and the rotation (Milestone 2)
 	if (bLockedByOtherComponent == false && bAllCanceled == false) {
 		ItemToHandle = PlayerCharacter->FocussedActor;
-		/**
-		// Pick up is initiated and first it will be asked for rotation
-		if (bRightMouseHold && !bRotationMenuActivated && !bPickupnMenuActivated) {
-			bRotationMenuActivated = true;
-			UGameMode->DrawHudMenu();
-			
-			bPickUpStarted = true;
-		}
-		// Player choose to rotate the object first
-		else if (bLeftMouseHold && bRotationMenuActivated)
-		{
-			bRotationStarted = true;
-			UGameMode->RemoveMenu();
-			bRotationMenuActivated = false;
-			MoveToRotationPosition();
-		}
-		// Instead of rotation the player wants to directly pick the object up
-		else if (bRightMouseHold && bRotationMenuActivated && bButtonReleased)
-		{
-			bRotationStarted = false;
-			bRotationMenuActivated = false;
-			UGameMode->RemoveMenu();
-			bPickupnMenuActivated = true;
-			UGameMode->DrawPickupHudMenu();
-			bButtonReleased = false;
-		}
+  // Mouse is free and right mouse button was pressed again
+  if (bFreeMouse && !bRightMouse && !bPickupnMenuActivated)
+  {
+   FVector MouseWorld;
+   FVector MouseDirection;
+   PlayerController->DeprojectMousePositionToWorld(MouseWorld, MouseDirection);
 
-		// Pickup with either left or right hand
-		if (bLeftMouseHold && bPickupnMenuActivated && !bRotationMenuActivated && bPickUpStarted)
-		{
-			bRotationStarted = false;
-			UGameMode->RemoveMenu();
-			PickUpItemAfterMenu(true);
-			bPickUpStarted = false;
-		}
-		else if (bRightMouseHold && bPickupnMenuActivated && !bRotationMenuActivated && bPickUpStarted && bButtonReleased)
-		{
-			bRotationStarted = false;
-			UGameMode->RemoveMenu();
-			PickUpItemAfterMenu(false);
-			bPickUpStarted = false;
-			bButtonReleased = false;
-		}
-		*/
+   AActor* HitActor = RaytraceWithIgnoredActors(SetOfPickupItems.Array(), MouseWorld, MouseDirection).GetActor();
+
+   if (HitActor != nullptr) 
+   {
+    float XMouse;
+    float YMouse;
+
+    bPickupnMenuActivated = true;
+
+    PlayerController->GetMousePosition(XMouse, YMouse);
+    UGameMode->DrawPickupHudMenu(XMouse, YMouse);
+   }
+   else 
+   {
+    bFreeMouse = false;
+   }
+  }
 	}
 }
 
@@ -325,21 +309,14 @@ FVector UGPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
 	return FVector(PointOnSurface.X, PointOnSurface.Y, PointOnSurface.Z + ItemBoundExtend.Z) - DeltaOfPivotToCenter;
 }
 
-FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector StartOffset, FVector TargetOffset)
+FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector MousePosition, FVector MouseDirection)
 {
 	FHitResult RaycastResult;
 
-	FVector CamLoc;
-	FRotator CamRot;
-
-	PlayerCharacter->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-	const FVector StartTrace = CamLoc + StartOffset; // trace start is the camera location
-	const FVector Direction = CamRot.Vector();
-	const FVector EndTrace = StartTrace + Direction * RaycastRange + TargetOffset; // and trace end is the camera location + an offset in the direction
+	const FVector EndTrace = MousePosition + MouseDirection * RaycastRange; // and trace end is the camera location + an offset in the direction
 
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(IgnoredActors);
-
 
 	TArray<AActor*> ShadowActors;
 	for (auto& shadow : ShadowItems) {
@@ -350,7 +327,7 @@ FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FV
 	if (ShadowBaseItem != nullptr) TraceParams.AddIgnoredActor(ShadowBaseItem); // Always ignore shadow item
 	TraceParams.AddIgnoredActor(GetOwner()); // Always ignore player
 
-	GetWorld()->LineTraceSingleByChannel(RaycastResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
+	GetWorld()->LineTraceSingleByChannel(RaycastResult, MousePosition, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
 
 	return RaycastResult;
 }
@@ -368,17 +345,15 @@ void UGPickup::InputLeftHandPressed()
 {
 	if (bLeftMouse) return; // We already clicked that key
 	if (bRightMouse) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
 	bLeftMouse = true;
-	UsedHand = EHand::Left;
+	//UsedHand = EHand::Left;
 }
 
 void UGPickup::InputLeftHandReleased()
 {
 	if (bLeftMouse == false) return; // We can't release if we didn't clicked first
 	if (bRightMouse) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
 	bLeftMouse = false;
 }
@@ -387,19 +362,19 @@ void UGPickup::InputRightHandPressed()
 {
 	//if (bRightMouse) return; // We already clicked that key
 	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
 
 	bRightMouse = !bRightMouse;
-	UsedHand = EHand::Right;
+
+ if (bRightMouse) {
+  bFreeMouse = true;
+ }
+	//UsedHand = EHand::Right;
 }
 
 void UGPickup::InputRightHandReleased()
 {
 	if (bRightMouse == false) return;  // We can't release if we didn't clicked first
 	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
-
-	UGameMode->DrawPickupHudMenu();
 
 	bButtonReleased = true;
 }
@@ -957,4 +932,3 @@ void UGPickup::SetMovementSpeed(float Weight)
 		PlayerCharacter->MovementComponent->CurrentSpeed = NewSpeed;
 	}
 }
-
