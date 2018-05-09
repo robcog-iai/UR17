@@ -23,6 +23,8 @@ UGPickup::UGPickup()
 	, bButtonReleased(false)
 	, bPickUpStarted(false)
  , bFreeMouse(false)
+	, bOverItem(false)
+	, ItemToInteract(nullptr)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -54,6 +56,13 @@ void UGPickup::BeginPlay()
 	Super::BeginPlay();
 
 	SetOfPickupItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), PLUGIN_TAG, TAG_KEY_PICKUP, "True");
+
+	// Go through the pickup items and give them mouse over events
+	for (AActor* InteractableItem : SetOfPickupItems)
+	{
+			InteractableItem->OnBeginCursorOver.AddDynamic(this, &UGPickup::CustomOnBeginMouseOver);
+			InteractableItem->OnEndCursorOver.AddDynamic(this, &UGPickup::CustomOnEndMouseOver);
+	}
 
 	if (PlayerCharacter == nullptr) UE_LOG(LogTemp, Fatal, TEXT("UCPickup::BeginPlay: The PlayerCharacter was not assigned. Restarting the editor might fix this."));
 
@@ -122,6 +131,7 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
   // Mouse is free and right mouse button was pressed again
   if (bFreeMouse && !bRightMouse && !bPickupnMenuActivated)
   {
+				/** Choosing object by raytracing with the mouse position
    FVector MouseWorld;
    FVector MouseDirection;
    PlayerController->DeprojectMousePositionToWorld(MouseWorld, MouseDirection);
@@ -137,13 +147,13 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
     PlayerController->GetMousePosition(XMouse, YMouse);
     UGameMode->DrawPickupHudMenu(XMouse, YMouse);
-   }
+				*/
+   }			
    else 
    {
     bFreeMouse = false;
    }
   }
-	}
 }
 
 TArray<AStaticMeshActor*> UGPickup::FindAllStackableItems(AStaticMeshActor* ActorToPickup)
@@ -931,4 +941,26 @@ void UGPickup::SetMovementSpeed(float Weight)
 
 		PlayerCharacter->MovementComponent->CurrentSpeed = NewSpeed;
 	}
+}
+
+void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)
+{
+		if (GEngine)
+		{
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over"));
+		}
+
+		bOverItem = true;
+		ItemToInteract = TouchedComponent;
+}
+
+void UGPickup::CustomOnEndMouseOver(AActor* TouchedComponent)
+{
+		if (GEngine)
+		{
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over End"));
+		}
+
+		bOverItem = false;
+		ItemToInteract = nullptr;
 }

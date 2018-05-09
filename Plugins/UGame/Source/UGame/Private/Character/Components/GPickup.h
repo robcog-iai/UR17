@@ -202,5 +202,18 @@ public:
 
  APlayerController* PlayerController;
 
+	// True if we are above an item
+	bool bOverItem;
+
+	// The item the mouse is over
+	AActor* ItemToInteract;
+
+	//Function to handle the interaction if the mouse is over the item
+	UFUNCTION()
+			void CustomOnBeginMouseOver(AActor* TouchedComponent);
+
+	//Function to handle the interaction if the mouse is not over the item
+	UFUNCTION()
+			void CustomOnEndMouseOver(AActor* TouchedComponent);
 };
 

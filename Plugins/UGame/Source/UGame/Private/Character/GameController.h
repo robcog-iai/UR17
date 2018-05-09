@@ -138,8 +138,4 @@ public:
 
  // GameMode to access the menu hud.
  AUGameModeBase* UGameMode;
-
- //Function to handle the interaction
- UFUNCTION()
-  void CustomOnBeginMouseOver(AActor* TouchedComponent);
 };

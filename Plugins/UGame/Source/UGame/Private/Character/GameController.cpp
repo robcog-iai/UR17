@@ -58,11 +58,7 @@ void AGameController::BeginPlay()
 
 	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
 
- // Dosen't work for some reason, unknown at the moment 
- for (AActor* InteractableItem : SetOfInteractableItems) 
- {
-  InteractableItem->OnBeginCursorOver.AddDynamic(this, &AGameController::CustomOnBeginMouseOver);
- }
+
  
 	
 	if (!PlayerController) {
@@ -310,12 +306,4 @@ bool AGameController::CheckForVisibleObjects()
 FHitResult AGameController::GetRaycastResult()
 {
 	return RaycastResult;
-}
-
-void AGameController::CustomOnBeginMouseOver(AActor* TouchedComponent)
-{
- if (GEngine)
- {
-  GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over"));
- }
 }
