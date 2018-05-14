@@ -123,8 +123,8 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 		SlicingObject->GetUpVector(),
 		true,
 		OutputProceduralMesh,
-		EProcMeshSliceCapOption::NoCap,
-		CuttableComponent->GetMaterial(0)
+		EProcMeshSliceCapOption::CreateNewSectionForCap,
+		CuttableComponent->GetMaterial(CuttableComponent->GetNumMaterials())
 	);
 
 	OutputProceduralMesh->bGenerateOverlapEvents = true;

@@ -24,27 +24,29 @@ void FSlicingLogicModule::ShutdownModule()
 	// Empty as of right now
 }
 
-void FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* StaticMeshComponent)
+void FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* PrimitiveStaticMeshComponent)
 {
-	// Needed so that the component can be cut/changed in runtime
-	((UStaticMeshComponent*)StaticMeshComponent)->GetStaticMesh()->bAllowCPUAccess = true;
+	UStaticMeshComponent* StaticMeshComponent = (UStaticMeshComponent*)PrimitiveStaticMeshComponent;
 
-	UProceduralMeshComponent* ProceduralMeshComponent = NewObject<UProceduralMeshComponent>(StaticMeshComponent);
-	ProceduralMeshComponent->SetRelativeTransform(StaticMeshComponent->GetRelativeTransform());
+	// Needed so that the component can be cut/changed in runtime
+	StaticMeshComponent->GetStaticMesh()->bAllowCPUAccess = true;
+
+	UProceduralMeshComponent* ProceduralMeshComponent = NewObject<UProceduralMeshComponent>(PrimitiveStaticMeshComponent);
+	ProceduralMeshComponent->SetRelativeTransform(PrimitiveStaticMeshComponent->GetRelativeTransform());
 	ProceduralMeshComponent->RegisterComponent();
 	ProceduralMeshComponent->SetCollisionProfileName(FName("PhysicsActor"));
 	ProceduralMeshComponent->bUseComplexAsSimpleCollision = false;
 	ProceduralMeshComponent->SetEnableGravity(true);
 	ProceduralMeshComponent->SetSimulatePhysics(true);
 	ProceduralMeshComponent->bGenerateOverlapEvents = true;
-	ProceduralMeshComponent->ComponentTags = StaticMeshComponent->ComponentTags;
+	ProceduralMeshComponent->ComponentTags = PrimitiveStaticMeshComponent->ComponentTags;
 
-	// Copies the mesh, collision and materials from the StaticMeshComponent
+	// Copies the mesh, collision and currently used materials from the StaticMeshComponent
 	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
-		((UStaticMeshComponent*)StaticMeshComponent), 0, ProceduralMeshComponent, true);
+		StaticMeshComponent, 0, ProceduralMeshComponent, true);
 
 	// Remove the old static mesh
-	StaticMeshComponent->DestroyComponent();
+	PrimitiveStaticMeshComponent->DestroyComponent();
 }
 
 void FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent)
