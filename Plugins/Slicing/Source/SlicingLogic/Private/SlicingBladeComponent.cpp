@@ -71,7 +71,7 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
 
-	//SetUpConstrains(CutComponent);
+	SetUpConstrains(CutComponent);
 }
 
 void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -152,7 +152,7 @@ void USlicingBladeComponent::ResetState()
 void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableComponent)
 {
 	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10.f);
-	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Locked, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 1.f);
 
@@ -161,5 +161,5 @@ void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableCompon
 	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 1.f);
 
 	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
-	ConstraintOne->SetConstrainedComponents(CuttableComponent, FName("Object"), (UPrimitiveComponent*)GetAttachmentRoot(), FName("Blade"));
+	ConstraintOne->SetConstrainedComponents(CuttableComponent, FName("Object"), (UPrimitiveComponent*) GetAttachParent(), FName("Blade"));
 }
