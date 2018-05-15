@@ -24,7 +24,7 @@ void FSlicingLogicModule::ShutdownModule()
 	// Empty as of right now
 }
 
-void FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* PrimitiveStaticMeshComponent)
+UProceduralMeshComponent* FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* PrimitiveStaticMeshComponent)
 {
 	UStaticMeshComponent* StaticMeshComponent = (UStaticMeshComponent*)PrimitiveStaticMeshComponent;
 
@@ -47,6 +47,8 @@ void FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(UPrimitiveCompo
 
 	// Remove the old static mesh
 	PrimitiveStaticMeshComponent->DestroyComponent();
+
+	return ProceduralMeshComponent;
 }
 
 void FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent)

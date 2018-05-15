@@ -57,16 +57,6 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	RelativeLocationToCutComponent = OtherComp->GetComponentTransform().InverseTransformPosition(OverlappedComp->GetComponentLocation());
 	RelativeRotationToCutComponent = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
 
-	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
-	if (OtherComp->IsA(UStaticMeshComponent::StaticClass()) && ((UStaticMeshComponent*)OtherComp)->GetStaticMesh())
-	{
-		FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(OtherComp);
-
-		// Retry the event with the new ProceduralMeshComponent
-		return;
-	}
-
-	// The other object is a ProceduralMeshComponent and the cutting can now be continued
 	bIsCurrentlyCutting = true;
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
@@ -87,11 +77,6 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	else if (TipComponent != NULL && OtherComp == TipComponent->CutComponent)
 	{
 		bIsCurrentlyCutting = false;
-		return;
-	}
-	// Only cut if a procedural mesh is being exited
-	else if (!OtherComp->IsA(UProceduralMeshComponent::StaticClass()))
-	{
 		return;
 	}
 
@@ -115,8 +100,13 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 
 void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableComponent)
 {
+	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
+	if (CuttableComponent->IsA(UStaticMeshComponent::StaticClass()))
+	{
+		CuttableComponent = FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(CuttableComponent);
+	}
+	
 	UProceduralMeshComponent* OutputProceduralMesh;
-
 	UKismetProceduralMeshLibrary::SliceProceduralMesh(
 		(UProceduralMeshComponent*)CuttableComponent,
 		SlicingObject->GetSocketLocation(SocketBladeName),
@@ -144,8 +134,9 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 void USlicingBladeComponent::ResetState()
 {
 	bIsCurrentlyCutting = false;
-	FlushPersistentDebugLines(this->GetWorld());
 	CutComponent = NULL;
+
+	FlushPersistentDebugLines(this->GetWorld());
 }
 
 // Connects the given Component, normally the CuttableComponent, with either the Blade OR the Hand if it's welded.

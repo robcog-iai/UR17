@@ -21,7 +21,7 @@ public:
 	bool bEnableDebugShowPlane = false;
 	bool bEnableDebugShowTrajectory = false;
 
-	static void ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* StaticMeshComponent);
+	static UProceduralMeshComponent* ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* PrimitiveStaticMeshComponent);
 	static void ConvertProceduralComponentToStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent);
 	template<class ComponentType>
 		static FORCEINLINE ComponentType* GetSlicingComponent(UStaticMeshComponent* SlicingObject);
