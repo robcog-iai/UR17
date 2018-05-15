@@ -110,11 +110,10 @@ void UGPickup::BeginPlay()
 
 	/////////////////////////////////////////////////////////
 
-	UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
-
  // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
  PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
  PlayerController->bEnableMouseOverEvents = true;
+
 }
 
 
@@ -126,34 +125,22 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	bool bLockedByOtherComponent = PlayerCharacter->LockedByComponent != nullptr &&  PlayerCharacter->LockedByComponent != this;
 
 	// Handle the menu for the pickup and the rotation (Milestone 2)
-	if (bLockedByOtherComponent == false && bAllCanceled == false) {
+	if (bLockedByOtherComponent == false && bAllCanceled == false) 
+ {
 		ItemToHandle = PlayerCharacter->FocussedActor;
   // Mouse is free and right mouse button was pressed again
-  if (bFreeMouse && !bRightMouse && !bPickupnMenuActivated)
+  if (bFreeMouse && !bRightMouse && !bPickupnMenuActivated && bOverItem)
   {
-				/** Choosing object by raytracing with the mouse position
-   FVector MouseWorld;
-   FVector MouseDirection;
-   PlayerController->DeprojectMousePositionToWorld(MouseWorld, MouseDirection);
-
-   AActor* HitActor = RaytraceWithIgnoredActors(SetOfPickupItems.Array(), MouseWorld, MouseDirection).GetActor();
-
-   if (HitActor != nullptr) 
+   if (ItemToInteract != nullptr) 
    {
-    float XMouse;
-    float YMouse;
-
     bPickupnMenuActivated = true;
-
-    PlayerController->GetMousePosition(XMouse, YMouse);
-    UGameMode->DrawPickupHudMenu(XMouse, YMouse);
-				*/
-   }			
-   else 
-   {
-    bFreeMouse = false;
-   }
+   }  
+  }			
+  else 
+  {
+   bPickupnMenuActivated = false;
   }
+ }
 }
 
 TArray<AStaticMeshActor*> UGPickup::FindAllStackableItems(AStaticMeshActor* ActorToPickup)

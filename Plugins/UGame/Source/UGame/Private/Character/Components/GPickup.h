@@ -7,7 +7,6 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
-#include "../../UGameModeBase.h"
 #include "GameFramework/Actor.h"
 #include "CoreMinimal.h"
 #include "GPickup.generated.h"
@@ -184,9 +183,6 @@ public:
 
  // Bool for free mouse mode
  bool bFreeMouse;
-
-	// GameMode to access the menu hud.
-	AUGameModeBase* UGameMode;
 
 	void MoveToRotationPosition();
 

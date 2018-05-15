@@ -7,7 +7,7 @@
 #include "../Private/Character/Components/GOpenClose.h"
 #include "../Private/Character/Components/GPickup.h"
 
-//#include "HUD/GameHUD.h"
+#include "../HUD/GameHUD.h"
 #include "../UGameModeBase.h"
 
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
@@ -101,7 +101,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FHitResult GetRaycastResult();
 
 private:
 	ACharacter* Character;
@@ -118,10 +117,6 @@ private:
 	// Creates all actor components.
 	void SetupComponentsOnConstructor();
 
-	void StartRaytrace(FVector Start = FVector::ZeroVector, FVector DirectionIn = FVector::ZeroVector);
-
-	void CheckIntractability();
-
 	void SetPlayerMovable(bool bIsMovable);
 
 	void SetupScenario();
@@ -134,7 +129,7 @@ public:
 	bool CheckForVisibleObjects();
 
  /** Game HUD. */
- //AGameHUD* PickupHUD;
+ AGameHUD* PickupHUD;
 
  // GameMode to access the menu hud.
  AUGameModeBase* UGameMode;

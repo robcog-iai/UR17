@@ -37,7 +37,7 @@ AGameController::AGameController()
 	SetupComponentsOnConstructor();
 
  // Setup HUD
- //PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
+ PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
 }
 
 // Called when the game starts or when spawned
@@ -57,9 +57,6 @@ void AGameController::BeginPlay()
  PlayerController->bEnableMouseOverEvents = true;
 
 	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
-
-
- 
 	
 	if (!PlayerController) {
 		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
@@ -78,13 +75,6 @@ void AGameController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CheckIntractability();
-
-	if (bIsDebugMode && FocussedActor != nullptr)
-	{
-		DrawDebugLine(GetWorld(), RaycastResult.ImpactPoint, RaycastResult.ImpactPoint + 20 * RaycastResult.ImpactNormal, FColor::Blue, false, 0, 0, .5f);
-	}
-
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active by Wlademar Zeitler
@@ -96,6 +86,14 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bEnableMouseOverEvents = true;
 
 	}
+ if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupnMenuActivated && PickupComponent->bOverItem)
+ {
+  float XMouse;
+  float YMouse;
+  PlayerController->GetMousePosition(XMouse, YMouse);
+  PickupHUD->DrawPickUpMenu(XMouse, YMouse);
+ }
+
 	else if (!PickupComponent->bFreeMouse && bIsMovementLocked)
 	{
 		SetPlayerMovable(true);
@@ -175,83 +173,6 @@ void AGameController::SetupComponentsOnConstructor()
 	}
 }
 
-void AGameController::StartRaytrace(FVector Start, FVector DirectionIn)
-{
-	if (bRaytraceEnabled == false) return;
-	FVector CamLoc;
-	FRotator CamRot;
-
- FVector StartTrace = Start;
- FVector Direction = DirectionIn;
- FVector EndTrace = StartTrace + Direction * GraspRange;
-
- if (Start == FVector::ZeroVector) {
-  Character->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-  StartTrace = CamLoc; // trace start is the camera location
-  Direction = CamRot.Vector();
-  EndTrace = StartTrace + Direction * GraspRange; // and trace end is the camera location + an offset in the direction
- }
-
-		FCollisionQueryParams TraceParams;
-
-	TraceParams.AddIgnoredActor(this); // We don't want to hit ourself
-
-	TArray<AActor*> IgnoredActors;
-	if (PickupComponent != nullptr) {
-		if (PickupComponent->ItemInRightHand != nullptr) {
-			IgnoredActors.Add(PickupComponent->ItemInRightHand);
-
-			TArray<AActor*> ChildrenOfItem;
-			PickupComponent->ItemInRightHand->GetAttachedActors(ChildrenOfItem);
-			IgnoredActors.Append(ChildrenOfItem);
-		}
-
-		if (PickupComponent->ItemInLeftHand != nullptr) {
-			IgnoredActors.Add(PickupComponent->ItemInLeftHand);
-
-			TArray<AActor*> ChildrenOfItem;
-			PickupComponent->ItemInLeftHand->GetAttachedActors(ChildrenOfItem);
-			IgnoredActors.Append(ChildrenOfItem);
-		}
-	}
-
-	TraceParams.AddIgnoredActors(IgnoredActors);
-
-	GetWorld()->LineTraceSingleByChannel(RaycastResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
-}
-
-void AGameController::CheckIntractability()
-{
-	AActor* Actor = RaycastResult.GetActor();
-
-	if (Actor != nullptr)
-	{
-		if (SetOfInteractableItems.Contains(Actor))
-		{
-			// Deactivate outline of previous object
-			if (FocussedActor != nullptr && FocussedActor != Actor)
-			{
-				FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(false);
-			}
-
-			FocussedActor = Cast<AStaticMeshActor>(Actor);
-			FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(true);
-		}
-		else if (FocussedActor != nullptr && bComponentsLocked == false)
-		{
-			FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(false);
-			FocussedActor = nullptr;
-		}
-	}
-	else
-	{
-		if (FocussedActor != nullptr)
-		{
-			FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(false);
-			FocussedActor = nullptr;
-		}
-	}
-}
 
 void AGameController::SetPlayerMovable(bool bIsMovable)
 {
@@ -301,9 +222,4 @@ bool AGameController::CheckForVisibleObjects()
 	}
 
 	return false;
-}
-
-FHitResult AGameController::GetRaycastResult()
-{
-	return RaycastResult;
 }

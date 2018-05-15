@@ -20,13 +20,4 @@ class UGAME_API AUGameModeBase : public AGameModeBase
 public:
 	AUGameModeBase();
 
-	AGameHUD* PickupHUD;
-
-	void DrawHudMenu();
-
-	void DrawPickupHudMenu(float MouseX = 0, float MouseY = 0);
-
-	void RemoveMenu();
-
- AGameController* PlayerController;
 };

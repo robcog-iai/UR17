@@ -15,13 +15,12 @@ void SPickupUI::Construct(const FArguments& args)
 	[
 		SNew(SOverlay)
 		+ SOverlay::Slot()	
-  .VAlign(VAlign_Fill)
-  .HAlign(HAlign_Fill)
+  .VAlign(VAlign_Top)
+  .HAlign(HAlign_Center)
 		[
 			SNew(SCanvas)
 			+ SCanvas::Slot()
 			.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
-			.Size(FVector2D(1080, 1920))
 			[
 				SAssignNew(ActionGrid, SGridPanel)
 			]
@@ -33,6 +32,7 @@ void SPickupUI::Construct(const FArguments& args)
 		[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
+   .AutoHeight()
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Rotate Object"))

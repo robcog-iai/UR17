@@ -7,6 +7,7 @@
 #pragma once
 
 #include "SlateBasics.h"
+#include "../Character/Components/GPickup.h"
 #include "GameHUD.h"
 
 // Lays out and controls the Main Menu UI for our tutorial.
@@ -36,6 +37,8 @@ public:
 
  // Position on screen
  TAttribute<FVector2D> WidgetPosition;
+
+ UGPickup GPickup;
 
 private:
 

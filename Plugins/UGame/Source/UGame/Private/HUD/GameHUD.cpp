@@ -31,10 +31,11 @@ void AGameHUD::RemoveMenu()
 	GEngine->GameViewport->RemoveAllViewportWidgets();
 }
 
-void AGameHUD::DrawPickUpMenu(float MouseX, float MouseY)
+void AGameHUD::DrawPickUpMenu( float MouseX, float MouseY)
 {
 	SAssignNew(PickupUI, SPickupUI).GameHUD(this);
-	PickupUI->WidgetPosition = FVector2D(-MouseX, -MouseY);
+	PickupUI->WidgetPosition = FVector2D(MouseX, MouseY);
+
 
 	if (GEngine->IsValidLowLevel())
 	{

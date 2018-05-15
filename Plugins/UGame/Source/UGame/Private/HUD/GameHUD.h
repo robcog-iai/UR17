@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/HUD.h"
+#include "../Character/Components/GPickup.h"
 #include "GameHUD.generated.h"
 
 /**
