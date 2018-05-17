@@ -50,4 +50,7 @@ public:
 
 	/** Position on screen */
 	FVector2D MenuPosition;
+
+ /** Referenz to GPickup*/
+ UGPickup* GPickup;
 };

@@ -143,8 +143,6 @@ private:
 
 	void UnstackItems(AStaticMeshActor* BaseItem); // De-stacks a stack of items
 
-	void CancelActions(); // Cancels all actions
-	void StopCancelActions();
 	void CancelDetachItems(); // Simple detaches all children of the base item
 
 	void SetLockedByComponent(bool bIsLocked); // Tells the PLayerCharacter that this component has exclusive control

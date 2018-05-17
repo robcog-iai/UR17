@@ -36,8 +36,6 @@ AGameController::AGameController()
 
 	SetupComponentsOnConstructor();
 
- // Setup HUD
- PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
 }
 
 // Called when the game starts or when spawned
@@ -54,20 +52,24 @@ void AGameController::BeginPlay()
 
  // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
  PlayerController = Cast<APlayerController>(GetController());
+
+ if (!PlayerController) {
+  UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
+ }
+
  PlayerController->bEnableMouseOverEvents = true;
 
 	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
 	
-	if (!PlayerController) {
-		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
-	}
 	// *** *** *** *** *** ***
 	//LeftHandPosition = SpawnActor<AActor>(FVector(0, 0, 0), FRotator(0, 0, 0));
 
+ // Setup HUD
+ PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
+
 	SetupScenario();
 
- // Setup Game Mode
- UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
+ PickupHUD->GPickup = PickupComponent;
 }
 
 // Called every frame
@@ -147,30 +149,24 @@ void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AGameController::SetupComponentsOnConstructor()
 {
-	if (MovementComponent == nullptr) {
-		MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
-		MovementComponent->bEditableWhenInherited = true;
-		AddInstanceComponent(MovementComponent);
-		MovementComponent->RegisterComponent();
-	}
+	MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
+	MovementComponent->bEditableWhenInherited = true;
+	AddInstanceComponent(MovementComponent);
+	MovementComponent->RegisterComponent();
 
-	if (OpenCloseComponent == nullptr) {
-		OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
-		OpenCloseComponent->bEditableWhenInherited = true;
-		AddInstanceComponent(OpenCloseComponent);
-		OpenCloseComponent->RegisterComponent();
+	OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
+	OpenCloseComponent->bEditableWhenInherited = true;
+	AddInstanceComponent(OpenCloseComponent);
+	OpenCloseComponent->RegisterComponent();
+	OpenCloseComponent->PlayerCharacter = this;
+	
 
-		OpenCloseComponent->PlayerCharacter = this;
-	}
+	PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
+	PickupComponent->bEditableWhenInherited = true;
+	AddInstanceComponent(PickupComponent);
+	PickupComponent->RegisterComponent();
 
-	if (PickupComponent == nullptr) {
-		PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
-		PickupComponent->bEditableWhenInherited = true;
-		AddInstanceComponent(PickupComponent);
-		PickupComponent->RegisterComponent();
-
-		PickupComponent->PlayerCharacter = this;
-	}
+	PickupComponent->PlayerCharacter = this;
 }
 
 

@@ -2,6 +2,8 @@
 
 #include "PickupUI.h"
 #include "UGame.h"
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
+#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
 #include "Engine.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -16,7 +18,7 @@ void SPickupUI::Construct(const FArguments& args)
 		SNew(SOverlay)
 		+ SOverlay::Slot()	
   .VAlign(VAlign_Top)
-  .HAlign(HAlign_Center)
+  .HAlign(HAlign_Left)
 		[
 			SNew(SCanvas)
 			+ SCanvas::Slot()
@@ -28,26 +30,30 @@ void SPickupUI::Construct(const FArguments& args)
 	];
 
 	if (true) {
-		ActionGrid->AddSlot(1,1)
+		ActionGrid->AddSlot(0,0)
 		[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
+   .VAlign(VAlign_Top)
+   .HAlign(HAlign_Center)
    .AutoHeight()
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Rotate Object"))
-				.OnClicked(this, &SPickupUI::PickUpLeft)
+				.OnClicked(this, &SPickupUI::PickUp)
 			]
 		+ SVerticalBox::Slot()
+   .VAlign(VAlign_Top)
+   .HAlign(HAlign_Center)
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Pick Object Up"))
-				.OnClicked(this, &SPickupUI::PickUpRight)
+				.OnClicked(this, &SPickupUI::PickUp)
 			]
 		];
 	}
 	else {
-		ActionGrid->AddSlot(1, 1)
+		ActionGrid->AddSlot(0, 0)
 		[
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
@@ -67,32 +73,37 @@ void SPickupUI::Construct(const FArguments& args)
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-FReply SPickupUI::PickUpLeft()
-{
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Rotation"));
-	}
-
-	// actually the BlueprintImplementable function of the HUD is not called; uncomment if you want to handle the OnClick via Blueprint
-	//MainMenuHUD->PlayGameClicked();
-	return FReply::Handled();
-}
-
-FReply SPickupUI::PickUpRight()
+FReply SPickupUI::PickUp()
 {
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("PickUp"));
 	}
 
-	// actually the BlueprintImplementable function of the HUD is not called; uncomment if you want to handle the OnClick via Blueprint
-	//MainMenuHUD->QuitGameClicked();
+ // To check if the mouse is one the right or left side
+ FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+ FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+
+ // Pickup in right or left hand
+ if (ViewportCenter < WidgetPosition.Get())
+ {
+  GameHUD->GPickup->PickUpItemAfterMenu(false);
+ } 
+ else
+ {
+  GameHUD->GPickup->PickUpItemAfterMenu(true);
+ }
+
 	return FReply::Handled();
 }
 
 FVector2D SPickupUI::GetActionsWidgetPos() const
 {
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Mouseposition returned."));
-	return WidgetPosition.Get();
+
+ // The viewport is necessary to get the excat mouseposition on the screen
+ FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+ float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
+
+	return WidgetPosition.Get() / ViewportScale;
 }

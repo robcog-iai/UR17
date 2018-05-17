@@ -70,9 +70,6 @@ void UGPickup::BeginPlay()
 
 	UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
 
-	PlayerInputComponent->BindAction("CancelAction", IE_Pressed, this, &UGPickup::CancelActions);
-	PlayerInputComponent->BindAction("CancelAction", IE_Released, this, &UGPickup::StopCancelActions);
-
 	// Create Static mesh actors for hands to weld items we pickup into this position
 	if (PlayerCharacter->LeftHandPosition == nullptr || PlayerCharacter->RightHandPosition == nullptr || PlayerCharacter->BothHandPosition == nullptr) {
 		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Red, "No hand actors found. Game paused", false);
@@ -127,12 +124,12 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// Handle the menu for the pickup and the rotation (Milestone 2)
 	if (bLockedByOtherComponent == false && bAllCanceled == false) 
  {
-		ItemToHandle = PlayerCharacter->FocussedActor;
   // Mouse is free and right mouse button was pressed again
   if (bFreeMouse && !bRightMouse && !bPickupnMenuActivated && bOverItem)
   {
    if (ItemToInteract != nullptr) 
    {
+    ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
     bPickupnMenuActivated = true;
    }  
   }			
@@ -825,30 +822,6 @@ void UGPickup::ShadowDropItem()
 	else {
 		ShadowBaseItem = nullptr; // We didn't hit any surface
 	}
-}
-
-void UGPickup::CancelActions()
-{
-	bAllCanceled = true;
-	ResetComponentState();
-
-
-	if (bIsItemDropping == false) {
-		// Pick up event canceled
-		if (BaseItemToPick != nullptr) {
-			SetMovementSpeed(-MassOfLastItemPickedUp);
-		}
-	}
-
-	BaseItemToPick = nullptr;
-
-	bRightMouse = false;
-	bLeftMouse = false;
-}
-
-void UGPickup::StopCancelActions()
-{
-	bAllCanceled = false;
 }
 
 void UGPickup::CancelDetachItems()

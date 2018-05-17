@@ -9,6 +9,7 @@
 
 AGameHUD::AGameHUD()
 {
+ GPickup = nullptr;
 }
 
 void AGameHUD::PostInitializeComponents()
@@ -35,7 +36,6 @@ void AGameHUD::DrawPickUpMenu( float MouseX, float MouseY)
 {
 	SAssignNew(PickupUI, SPickupUI).GameHUD(this);
 	PickupUI->WidgetPosition = FVector2D(MouseX, MouseY);
-
 
 	if (GEngine->IsValidLowLevel())
 	{
