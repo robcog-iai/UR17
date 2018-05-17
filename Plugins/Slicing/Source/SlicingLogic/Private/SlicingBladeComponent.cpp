@@ -120,8 +120,6 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	{
 		FStaticMaterial Material = ComponentMaterials[index];
 
-		UE_LOG(LogTemp, Warning, TEXT("Material Slot Name: %s"), *Material.MaterialSlotName.ToString());
-		
 		if (Material.MaterialSlotName == FName("InsideCutMaterial"))
 		{
 			// Found the needed material, do not need to search further

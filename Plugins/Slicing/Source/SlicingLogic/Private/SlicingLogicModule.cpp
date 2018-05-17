@@ -25,7 +25,7 @@ void FSlicingLogicModule::ShutdownModule()
 }
 
 UProceduralMeshComponent* FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(
-	UStaticMeshComponent* StaticMeshComponent, TArray<FStaticMaterial> StaticMaterials)
+	UStaticMeshComponent* StaticMeshComponent, TArray<FStaticMaterial> &StaticMaterials)
 {
 	// Needed so that the component can be cut/changed in runtime
 	StaticMeshComponent->GetStaticMesh()->bAllowCPUAccess = true;

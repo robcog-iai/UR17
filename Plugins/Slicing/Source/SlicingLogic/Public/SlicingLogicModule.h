@@ -23,7 +23,7 @@ public:
 	bool bEnableDebugShowTrajectory = false;
 
 	static UProceduralMeshComponent* ConvertStaticToProceduralMeshComponent(
-		UStaticMeshComponent* StaticMeshComponent, TArray<FStaticMaterial> StaticMaterials
+		UStaticMeshComponent* StaticMeshComponent, TArray<FStaticMaterial> &StaticMaterials
 	);
 	static void ConvertProceduralComponentToStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent);
 	
