@@ -147,17 +147,16 @@ void FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(UProcedura
 		// Build mesh from source
 		StaticMesh->Build();
 		StaticMesh->PostEditChange();
+
+		// Get the correct (simple) collision from the procedural mesh
+		StaticMesh->BodySetup->AddCollisionFrom(ProceduralMeshComponent->GetBodySetup()->AggGeom);
+		StaticMesh->Build();
+		StaticMesh->PostEditChange();
 	}
 
 	///
 	/// END OF COPY
 	///
-
-	// Get the correct (simple) collision from the procedural mesh
-	StaticMesh->BodySetup->AddCollisionFrom(ProceduralMeshComponent->GetBodySetup()->AggGeom);
-	// TODO: CHECK FOR NULL
-	StaticMesh->Build();
-	StaticMesh->PostEditChange();
 
 	// Spawn the StaticMeshActor
 	FVector Location = ProceduralMeshComponent->GetAttachmentRootActor()->GetActorLocation();
