@@ -72,12 +72,14 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	// that is being cut
 	if (!bIsCurrentlyCutting || OtherComp != CutComponent)
 	{
+		ResetState();
 		return;
 	}
 	// If the SlicingObject is pulled out, the cutting should not be continued
 	else if (TipComponent != NULL && OtherComp == TipComponent->CutComponent)
 	{
 		bIsCurrentlyCutting = false;
+		ResetState();
 		return;
 	}
 
@@ -90,6 +92,7 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 		bIsCurrentlyCutting = false;
 
+		ResetState();
 		return;
 	}
 
@@ -158,6 +161,11 @@ void USlicingBladeComponent::ResetState()
 	CutComponent = NULL;
 
 	FlushPersistentDebugLines(this->GetWorld());
+
+	// Resets the Constrains
+	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Free, 1.f);
 }
 
 // Connects the given Component, normally the CuttableComponent, with either the Blade OR the Hand if it's welded.
@@ -166,12 +174,12 @@ void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableCompon
 	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10.f);
 	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 500.f);
+	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 1.f);
 
 	ConstraintOne->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 1.f);
-	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Limited, 45.f);
+	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 45.f);
 
 	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
-	ConstraintOne->SetConstrainedComponents(CuttableComponent, FName("Object"), (UPrimitiveComponent*) GetAttachParent(), FName("Blade"));
+	ConstraintOne->SetConstrainedComponents((UPrimitiveComponent*) GetAttachParent(), FName("Blade"), CuttableComponent, FName("Object"));
 }
