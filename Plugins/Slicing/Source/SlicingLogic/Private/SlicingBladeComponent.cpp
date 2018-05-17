@@ -12,6 +12,7 @@
 #include "Engine/StaticMesh.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Materials/MaterialInterface.h"
 
 // Called before BeginPlay()
 void USlicingBladeComponent::InitializeComponent()
@@ -100,10 +101,30 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 
 void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableComponent)
 {
+	TArray<FStaticMaterial> ComponentMaterials;
+	UMaterialInterface* InsideCutMaterialInterface = nullptr;
+	
 	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
 	if (CuttableComponent->IsA(UStaticMeshComponent::StaticClass()))
 	{
-		CuttableComponent = FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(CuttableComponent);
+		CuttableComponent =	FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(
+			(UStaticMeshComponent*)CuttableComponent, ComponentMaterials
+		);
+	}
+
+	// Check the Materials for the cut material
+	for (int index = 0; index < ComponentMaterials.Num(); index++)
+	{
+		FStaticMaterial Material = ComponentMaterials[index];
+
+		UE_LOG(LogTemp, Warning, TEXT("Material Slot Name: %s"), *Material.MaterialSlotName.ToString());
+		
+		if (Material.MaterialSlotName == FName("InsideCutMaterial"))
+		{
+			// Found the needed material, do not need to search further
+			InsideCutMaterialInterface = Material.MaterialInterface;
+			break;
+		}
 	}
 	
 	UProceduralMeshComponent* OutputProceduralMesh;
@@ -114,7 +135,7 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 		true,
 		OutputProceduralMesh,
 		EProcMeshSliceCapOption::CreateNewSectionForCap,
-		CuttableComponent->GetMaterial(CuttableComponent->GetNumMaterials())
+		InsideCutMaterialInterface
 	);
 
 	OutputProceduralMesh->bGenerateOverlapEvents = true;
@@ -145,7 +166,7 @@ void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableCompon
 	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10.f);
 	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 500.f);
 
 	ConstraintOne->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 1.f);

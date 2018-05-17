@@ -7,6 +7,7 @@
 
 class UProceduralMeshComponent;
 class UStaticMeshComponent;
+class FStaticMesh;
 
 class FSlicingLogicModule: public IModuleInterface
 {
@@ -21,8 +22,11 @@ public:
 	bool bEnableDebugShowPlane = false;
 	bool bEnableDebugShowTrajectory = false;
 
-	static UProceduralMeshComponent* ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* PrimitiveStaticMeshComponent);
+	static UProceduralMeshComponent* ConvertStaticToProceduralMeshComponent(
+		UStaticMeshComponent* StaticMeshComponent, TArray<FStaticMaterial> StaticMaterials
+	);
 	static void ConvertProceduralComponentToStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent);
+	
 	template<class ComponentType>
-		static FORCEINLINE ComponentType* GetSlicingComponent(UStaticMeshComponent* SlicingObject);
+	static FORCEINLINE ComponentType* GetSlicingComponent(UStaticMeshComponent* SlicingObject);
 };

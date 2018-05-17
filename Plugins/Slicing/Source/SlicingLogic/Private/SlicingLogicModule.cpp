@@ -24,29 +24,32 @@ void FSlicingLogicModule::ShutdownModule()
 	// Empty as of right now
 }
 
-UProceduralMeshComponent* FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* PrimitiveStaticMeshComponent)
+UProceduralMeshComponent* FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(
+	UStaticMeshComponent* StaticMeshComponent, TArray<FStaticMaterial> StaticMaterials)
 {
-	UStaticMeshComponent* StaticMeshComponent = (UStaticMeshComponent*)PrimitiveStaticMeshComponent;
-
 	// Needed so that the component can be cut/changed in runtime
 	StaticMeshComponent->GetStaticMesh()->bAllowCPUAccess = true;
 
-	UProceduralMeshComponent* ProceduralMeshComponent = NewObject<UProceduralMeshComponent>(PrimitiveStaticMeshComponent);
-	ProceduralMeshComponent->SetRelativeTransform(PrimitiveStaticMeshComponent->GetRelativeTransform());
+	UProceduralMeshComponent* ProceduralMeshComponent = NewObject<UProceduralMeshComponent>(StaticMeshComponent);
+	ProceduralMeshComponent->SetRelativeTransform(StaticMeshComponent->GetRelativeTransform());
 	ProceduralMeshComponent->RegisterComponent();
 	ProceduralMeshComponent->SetCollisionProfileName(FName("PhysicsActor"));
 	ProceduralMeshComponent->bUseComplexAsSimpleCollision = false;
 	ProceduralMeshComponent->SetEnableGravity(true);
 	ProceduralMeshComponent->SetSimulatePhysics(true);
 	ProceduralMeshComponent->bGenerateOverlapEvents = true;
-	ProceduralMeshComponent->ComponentTags = PrimitiveStaticMeshComponent->ComponentTags;
+	ProceduralMeshComponent->ComponentTags = StaticMeshComponent->ComponentTags;
 
 	// Copies the mesh, collision and currently used materials from the StaticMeshComponent
 	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
 		StaticMeshComponent, 0, ProceduralMeshComponent, true);
 
+	// Give out a copy of the static material from the original component, as procedural meshes do not have one
+	// and therefore lose out on information about the materials
+	StaticMaterials = StaticMeshComponent->GetStaticMesh()->StaticMaterials;
+
 	// Remove the old static mesh
-	PrimitiveStaticMeshComponent->DestroyComponent();
+	StaticMeshComponent->DestroyComponent();
 
 	return ProceduralMeshComponent;
 }
