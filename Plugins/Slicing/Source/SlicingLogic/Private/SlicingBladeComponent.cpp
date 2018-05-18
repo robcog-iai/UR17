@@ -62,6 +62,10 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
 
+	// For test purposes
+	CutComponent->SetLinearDamping(100.f);
+	CutComponent->SetAngularDamping(100.f);
+
 	SetUpConstrains(CutComponent);
 }
 
@@ -159,25 +163,34 @@ void USlicingBladeComponent::ResetState()
 	CutComponent = NULL;
 
 	FlushPersistentDebugLines(this->GetWorld());
-
-	// Resets the Constrains
-	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Free, 1.f);
+	ConstraintOne->BreakConstraint();
 }
 
 // Connects the given Component, normally the CuttableComponent, with either the Blade OR the Hand if it's welded.
 void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableComponent)
 {
-	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10.f);
-	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 1.f);
-
-	ConstraintOne->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 1.f);
-	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Limited, 45.f);
-	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 45.f);
+	// Linear Damping setting
 
 	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
-	ConstraintOne->SetConstrainedComponents((UPrimitiveComponent*) GetAttachParent(), FName("Blade"), CuttableComponent, FName("Object"));
+	ConstraintOne->SetConstrainedComponents(this, FName("Blade"), CuttableComponent, FName("Object"));
+	ConstraintOne->ConstraintInstance.SetAngularBreakable(false, 10000.f);
+	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10000.f);
+
+	ConstraintOne->ConstraintInstance.SetLinearDriveParams(1000.f, 1000.f, 1000.f);
+
+	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Limited, 0.1f);
+
+	ConstraintOne->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Limited, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 1.f);
+
+	ConstraintOne->SetLinearPositionDrive(false, false, true);
+	ConstraintOne->SetAngularVelocityDrive(true, true);
+
+	// Deactivates that the parent isn't affected by the constraint, which in our case is the knife
+	ConstraintOne->ConstraintInstance.DisableParentDominates();
+
+	ConstraintOne->UpdateConstraintFrames();
 }
