@@ -26,6 +26,9 @@ public:
 	// Click handler for the Quit Game button – Calls MenuHUD’s QuitGameClicked() event.
 	FReply PickUp();
 
+ // Click handler for the Quit Game button – Calls MenuHUD’s QuitGameClicked() event.
+ FReply Rotate();
+
 	// Stores a weak reference to the HUD controlling this class.
 	TWeakObjectPtr<class AGameHUD> GameHUD;
 

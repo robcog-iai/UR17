@@ -185,19 +185,16 @@ void AGameController::SetupScenario()
 	case EInteractionMode::OneHandMode:
 		if (PickupComponent != nullptr) {
 			PickupComponent->bTwoHandMode = false;
-			PickupComponent->bStackModeEnabled = false;
 		}
 		break;
 	case EInteractionMode::TwoHandMode:
 		if (PickupComponent != nullptr) {
 			PickupComponent->bTwoHandMode = true;
-			PickupComponent->bStackModeEnabled = false;
 		}
 		break;
 	case EInteractionMode::TwoHandStackingMode:
 		if (PickupComponent != nullptr) {
 			PickupComponent->bTwoHandMode = true;
-			PickupComponent->bStackModeEnabled = true;
 		}
 		break;
 	}

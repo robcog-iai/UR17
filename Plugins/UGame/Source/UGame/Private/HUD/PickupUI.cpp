@@ -22,7 +22,8 @@ void SPickupUI::Construct(const FArguments& args)
 		[
 			SNew(SCanvas)
 			+ SCanvas::Slot()
-			.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
+		.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
+  .Size(FVector2D(200,200))
 			[
 				SAssignNew(ActionGrid, SGridPanel)
 			]
@@ -40,7 +41,7 @@ void SPickupUI::Construct(const FArguments& args)
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Rotate Object"))
-				.OnClicked(this, &SPickupUI::PickUp)
+				.OnClicked(this, &SPickupUI::Rotate)
 			]
 		+ SVerticalBox::Slot()
    .VAlign(VAlign_Top)
@@ -93,8 +94,26 @@ FReply SPickupUI::PickUp()
  {
   GameHUD->GPickup->PickUpItemAfterMenu(true);
  }
+ GameHUD->GPickup->bPickupnMenuActivated = false;
+ GameHUD->GPickup->bFreeMouse = false;
+ GameHUD->RemoveMenu();
 
 	return FReply::Handled();
+}
+
+FReply SPickupUI::Rotate()
+{
+ if (GEngine)
+ {
+  GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Rotate"));
+ }
+
+ GameHUD->GPickup->MoveToRotationPosition();
+ GameHUD->GPickup->bPickupnMenuActivated = false;
+ 
+ GameHUD->RemoveMenu();
+
+ return FReply::Handled();
 }
 
 FVector2D SPickupUI::GetActionsWidgetPos() const

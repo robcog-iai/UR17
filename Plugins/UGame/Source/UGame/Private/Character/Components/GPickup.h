@@ -37,33 +37,9 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "CI - General")
 		UMaterial* TransparentMaterial;
 
-	// Whether or nor the player can use both hands
-	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
-		bool bTwoHandMode;
-
-	// Whether or not the player can create stacks
-	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
-		bool bStackModeEnabled;
-
-	// Wether or not both hands needed for certain items (heavy or large items)
-	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
-		bool bNeedBothHands;
-
-	// Whether or not mass in taking into account if both hands are needed
-	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
-		bool bBothHandsDependOnMass;
-
-	// Maximum mass of an object to pickup
-	UPROPERTY(EditAnywhere, Category = "CI - Hand Setup")
-		float MassThresholdBothHands;
-
-	// Whether or not mass in taking into account if both hands are needed
-	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
-		bool bBothHandsDependOnVolume;
-
-	// Maximum mass of an object to pickup
-	UPROPERTY(EditAnywhere, Category = "CI - Hand Setup")
-		float VolumeThresholdBothHands;
+ // Whether or nor the player can use both hands
+ UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
+  bool bTwoHandMode;
 
 	// Whether or not the player's movement speed depends on the weight the player carries
 	UPROPERTY(EditAnywhere, Category = "CI - Physics")
@@ -85,15 +61,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CI - Collision")
 		bool bCheckForCollisionsOnDrop;
 
-	// Whether or not to check for collisions while holding items in hands
-	UPROPERTY(EditAnywhere, Category = "CI - Collision")
-		bool bEnableCollisionOfItemsInHand;
-
 	AGameController * PlayerCharacter; // The player character instance
 
 	TArray<AStaticMeshActor*> ShadowItems; // The array that holds all the current shadow items
-
-	bool bIsStackChecking;
 
 protected:
 	// Called when the game starts
@@ -118,18 +88,9 @@ private:
 
 	EHand UsedHand; // The hand we currently use for our interaction
 
-	bool bIsDragging;
-	bool bAllCanceled;
-
-	bool bStackCheckSuccess;
-	bool bItemCanBePickedUp;
-
 	AStaticMeshActor* ItemToHandle; // The item which is currently focused by the player
-	AActor* ItemToDrag; // The item we are currently dragging around
 	AStaticMeshActor* ShadowBaseItem; // The shadow root item fr pickup and drop actions
 
-	TArray<AStaticMeshActor*> FindAllStackableItems(AStaticMeshActor* ActorToPickup);
-	AStaticMeshActor* GetItemStack(AStaticMeshActor* BaseItem); // Converts all found items to children of BaseItem
 	// *** *** *** ***
 
 	AStaticMeshActor* GetNewShadowItem(AStaticMeshActor* FromActor);
@@ -147,7 +108,6 @@ private:
 
 	void SetLockedByComponent(bool bIsLocked); // Tells the PLayerCharacter that this component has exclusive control
 
-	bool CalculateIfBothHandsNeeded(); // Check if both hands are needed to pick up the item
 	float MassToCarry; // The current mass the player carries
 	float MassOfLastItemPickedUp; // The mass of the item we try to pick up
 
