@@ -147,6 +147,9 @@ void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 		StaticMesh->PostEditChange();
 	}
 
+	// Get the static materials from the old static mesh
+	StaticMesh->StaticMaterials = StaticMaterials;
+
 	// Spawn the StaticMeshActor
 	FVector Location = ProceduralMeshComponent->GetAttachmentRootActor()->GetActorLocation();
 	FRotator Rotation = ProceduralMeshComponent->GetAttachmentRootActor()->GetActorRotation();

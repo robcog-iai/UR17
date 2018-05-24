@@ -27,7 +27,7 @@ public:
 	* Convert a procedural mesh component to a static mesh component
 	* 
 	* @param ProceduralMeshComponent - The procedural mesh component that will be used to create the static mesh
-	* @param StaticMaterials - The static materials used to properly recreate the static mesh
+	* @param StaticMaterials - The old static materials used to properly recreate the static mesh
 	*/
 	static void ConvertProceduralComponentToStaticMeshActor(
 		UProceduralMeshComponent* ProceduralMeshComponent, TArray<FStaticMaterial> &StaticMaterials
