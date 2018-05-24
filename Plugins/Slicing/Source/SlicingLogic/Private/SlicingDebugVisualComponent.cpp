@@ -4,6 +4,7 @@
 #include "SlicingBladeComponent.h"
 #include "SlicingTipComponent.h"
 #include "SlicingComponent.h"
+#include "SlicingHelper.h"
 
 #include "DrawDebugHelpers.h"
 #include "TransformCalculus.h"
@@ -30,9 +31,9 @@ void USlicingDebugVisualComponent::BeginPlay()
 	// Get all the relevant instances of the slicing object
 	SlicingObject = (AStaticMeshActor*)GetOwner();
 	BladeComponent =
-		FSlicingLogicModule::GetSlicingComponent<USlicingBladeComponent>(SlicingObject->GetStaticMeshComponent());
+		FSlicingHelper::GetSlicingComponent<USlicingBladeComponent>(SlicingObject->GetStaticMeshComponent());
 	TipComponent =
-		FSlicingLogicModule::GetSlicingComponent<USlicingTipComponent>(SlicingObject->GetStaticMeshComponent());
+		FSlicingHelper::GetSlicingComponent<USlicingTipComponent>(SlicingObject->GetStaticMeshComponent());
 
 	if (SlicingLogicModule->bEnableDebugConsoleOutput)
 	{

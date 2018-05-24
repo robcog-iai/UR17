@@ -2,6 +2,7 @@
 
 #include "SlicingBladeComponent.h"
 #include "SlicingTipComponent.h"
+#include "SlicingHelper.h"
 
 #include "DrawDebugHelpers.h"
 #include "TransformCalculus.h"
@@ -26,7 +27,7 @@ void USlicingBladeComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Check for the tip component to possibly abort the cutting
-	TipComponent = FSlicingLogicModule::GetSlicingComponent<USlicingTipComponent>(SlicingObject);
+	TipComponent = FSlicingHelper::GetSlicingComponent<USlicingTipComponent>(SlicingObject);
 
 	// Create the Physics Constraint
 	ConstraintOne = NewObject<UPhysicsConstraintComponent>();
@@ -114,7 +115,7 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
 	if (CuttableComponent->IsA(UStaticMeshComponent::StaticClass()))
 	{
-		CuttableComponent =	FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(
+		CuttableComponent =	FSlicingHelper::ConvertStaticToProceduralMeshComponent(
 			(UStaticMeshComponent*)CuttableComponent, ComponentMaterials
 		);
 	}
@@ -149,8 +150,9 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	OutputProceduralMesh->ComponentTags = CuttableComponent->ComponentTags;
 	
 	// Convert both seperated procedural meshes into static meshes for best compatibility
-	FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh);
-	FSlicingLogicModule::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent);
+	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh, ComponentMaterials);
+	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent,
+		ComponentMaterials);
 
 	// Delete old original static mesh
 	CutComponent->GetOwner()->Destroy();

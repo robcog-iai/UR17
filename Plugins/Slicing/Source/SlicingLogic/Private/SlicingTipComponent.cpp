@@ -2,6 +2,7 @@
 
 #include "SlicingTipComponent.h"
 #include "SlicingBladeComponent.h"
+#include "SlicingHelper.h"
 
 #include "DrawDebugHelpers.h"
 
@@ -11,7 +12,7 @@ void USlicingTipComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Check for the blade component to know which object is being cut
-	BladeComponent = FSlicingLogicModule::GetSlicingComponent<USlicingBladeComponent>(SlicingObject);
+	BladeComponent = FSlicingHelper::GetSlicingComponent<USlicingBladeComponent>(SlicingObject);
 
 	// Register the overlap events
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingTipComponent::OnBeginOverlap);
