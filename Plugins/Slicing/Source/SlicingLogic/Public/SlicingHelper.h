@@ -6,7 +6,7 @@
 
 class UProceduralMeshComponent;
 class UStaticMeshComponent;
-class FStaticMesh;
+class UStaticMesh;
 struct FStaticMaterial;
 
 class FSlicingHelper
@@ -41,4 +41,9 @@ public:
 	 */
 	template<class ComponentType>
 	static FORCEINLINE ComponentType* GetSlicingComponent(UStaticMeshComponent* SlicingObject);
+
+private:
+	static void CorrectProperties(UPrimitiveComponent* NewComponent, UPrimitiveComponent* OldComponent);
+	static UStaticMesh* GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent);
+	static AStaticMeshActor* SpawnStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent);
 };

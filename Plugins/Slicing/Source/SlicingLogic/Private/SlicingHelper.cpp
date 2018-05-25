@@ -6,6 +6,7 @@
 #include "ProceduralMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "RawMesh.h"
+
 #include "PhysicsEngine/BodySetup.h"
 #include "PhysicsEngine/ConvexElem.h"
 
@@ -19,14 +20,8 @@ UProceduralMeshComponent* FSlicingHelper::ConvertStaticToProceduralMeshComponent
 	StaticMeshComponent->GetStaticMesh()->bAllowCPUAccess = true;
 
 	UProceduralMeshComponent* ProceduralMeshComponent = NewObject<UProceduralMeshComponent>(StaticMeshComponent);
-	ProceduralMeshComponent->SetRelativeTransform(StaticMeshComponent->GetRelativeTransform());
-	ProceduralMeshComponent->RegisterComponent();
-	ProceduralMeshComponent->SetCollisionProfileName(FName("PhysicsActor"));
 	ProceduralMeshComponent->bUseComplexAsSimpleCollision = false;
-	ProceduralMeshComponent->SetEnableGravity(true);
-	ProceduralMeshComponent->SetSimulatePhysics(true);
-	ProceduralMeshComponent->bGenerateOverlapEvents = true;
-	ProceduralMeshComponent->ComponentTags = StaticMeshComponent->ComponentTags;
+	CorrectProperties(ProceduralMeshComponent, StaticMeshComponent);
 
 	// Copies the mesh, collision and currently used materials from the StaticMeshComponent
 	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
@@ -44,6 +39,53 @@ UProceduralMeshComponent* FSlicingHelper::ConvertStaticToProceduralMeshComponent
 
 void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 	UProceduralMeshComponent* ProceduralMeshComponent, TArray<FStaticMaterial> &StaticMaterials)
+{
+	// Generate the static mesh from the data scanned from the procedural mesh
+	UStaticMesh* StaticMesh = GenerateStaticMesh(ProceduralMeshComponent);
+	// Set the static materials gotten from the old static mesh
+	StaticMesh->StaticMaterials = StaticMaterials;
+
+	AStaticMeshActor* StaticMeshActor = SpawnStaticMeshActor(ProceduralMeshComponent);
+
+	// Edit the StaticMeshComponent to have the same properties as the old ProceduralMeshComponent
+	UStaticMeshComponent* NewStaticMeshComponent = StaticMeshActor->GetStaticMeshComponent();
+	NewStaticMeshComponent->SetStaticMesh(StaticMesh);
+	CorrectProperties(NewStaticMeshComponent, ProceduralMeshComponent);
+
+	// Remove the old component
+	ProceduralMeshComponent->DestroyComponent();
+}
+
+template<class ComponentType>
+ComponentType* FSlicingHelper::GetSlicingComponent(UStaticMeshComponent* SlicingObject)
+{
+	TArray<USceneComponent*> SlicingComponents;
+	SlicingObject->GetChildrenComponents(true, SlicingComponents);
+
+	for (USceneComponent* Component : SlicingComponents)
+	{
+		if (ComponentType* TypedComponent = Cast<ComponentType>(Component))
+		{
+			// Only one slicing component of each type should exist
+			return TypedComponent;
+		}
+	}
+	return nullptr;
+}
+
+//* Sets the correct properties for the newly created component with the help of the old component
+void FSlicingHelper::CorrectProperties(UPrimitiveComponent* NewComponent, UPrimitiveComponent* OldComponent)
+{
+	NewComponent->SetRelativeTransform(OldComponent->GetRelativeTransform());
+	NewComponent->RegisterComponent();
+	NewComponent->SetCollisionProfileName(FName("PhysicsActor"));
+	NewComponent->SetEnableGravity(true);
+	NewComponent->SetSimulatePhysics(true);
+	NewComponent->bGenerateOverlapEvents = true;
+	NewComponent->ComponentTags = OldComponent->ComponentTags;
+}
+
+UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent)
 {
 	///																   ///
 	/// COPIED OVER FROM "ProceduralMeshComponentDetails.cpp l.118-212 ///
@@ -147,10 +189,11 @@ void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 		StaticMesh->PostEditChange();
 	}
 
-	// Get the static materials from the old static mesh
-	StaticMesh->StaticMaterials = StaticMaterials;
+	return StaticMesh;
+}
 
-	// Spawn the StaticMeshActor
+AStaticMeshActor* FSlicingHelper::SpawnStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent)
+{
 	FVector Location = ProceduralMeshComponent->GetAttachmentRootActor()->GetActorLocation();
 	FRotator Rotation = ProceduralMeshComponent->GetAttachmentRootActor()->GetActorRotation();
 	FActorSpawnParameters SpawnInfo;
@@ -158,35 +201,5 @@ void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 	AStaticMeshActor* StaticMeshActor =
 		ProceduralMeshComponent->GetWorld()->SpawnActor<AStaticMeshActor>(Location, Rotation, SpawnInfo);
 
-	// Edit the StaticMeshComponent to have the same properties as the old ProceduralMeshComponent
-	UStaticMeshComponent* NewStaticMeshComponent = StaticMeshActor->GetStaticMeshComponent();
-	NewStaticMeshComponent->SetStaticMesh(StaticMesh);
-
-	NewStaticMeshComponent->SetRelativeTransform(ProceduralMeshComponent->GetRelativeTransform());
-	NewStaticMeshComponent->RegisterComponent();
-	NewStaticMeshComponent->SetCollisionProfileName(FName("PhysicsActor"));
-	NewStaticMeshComponent->SetEnableGravity(true);
-	NewStaticMeshComponent->SetSimulatePhysics(true);
-	NewStaticMeshComponent->bGenerateOverlapEvents = true;
-	NewStaticMeshComponent->ComponentTags = ProceduralMeshComponent->ComponentTags;
-
-	// Remove the old component
-	ProceduralMeshComponent->DestroyComponent();
-}
-
-template<class ComponentType>
-ComponentType* FSlicingHelper::GetSlicingComponent(UStaticMeshComponent* SlicingObject)
-{
-	TArray<USceneComponent*> SlicingComponents;
-	SlicingObject->GetChildrenComponents(true, SlicingComponents);
-
-	for (USceneComponent* Component : SlicingComponents)
-	{
-		if (ComponentType* TypedComponent = Cast<ComponentType>(Component))
-		{
-			// Only one slicing component of each type should exist
-			return TypedComponent;
-		}
-	}
-	return nullptr;
+	return StaticMeshActor;
 }
