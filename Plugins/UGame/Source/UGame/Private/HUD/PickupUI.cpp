@@ -109,8 +109,8 @@ FReply SPickupUI::Rotate()
  }
 
  GameHUD->GPickup->MoveToRotationPosition();
- GameHUD->GPickup->bPickupnMenuActivated = false;
- 
+ GameHUD->GPickup->bFreeMouse = false;
+
  GameHUD->RemoveMenu();
 
  return FReply::Handled();

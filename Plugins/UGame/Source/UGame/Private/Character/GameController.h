@@ -133,4 +133,7 @@ public:
 
  // GameMode to access the menu hud.
  AUGameModeBase* UGameMode;
+
+ // Rotation of the object.
+ FRotator ControlRotation;
 };

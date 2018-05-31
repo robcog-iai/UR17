@@ -24,6 +24,9 @@ AGameController::AGameController()
 	GraspRange = 300.0f;
 	bRaytraceEnabled = true;
 
+ // Initiate empty rotator
+ ControlRotation = FRotator::ZeroRotator;
+
 	// Set PlayerController (by Waldemar Zeitler)
 	PlayerController = nullptr;
 
@@ -86,8 +89,9 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bShowMouseCursor = true;
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
-
+  PickupComponent->bRotationStarted = false;
 	}
+
  if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupnMenuActivated && PickupComponent->bOverItem)
  {
   float XMouse;
@@ -95,7 +99,6 @@ void AGameController::Tick(float DeltaTime)
   PlayerController->GetMousePosition(XMouse, YMouse);
   PickupHUD->DrawPickUpMenu(XMouse, YMouse);
  }
-
 	else if (!PickupComponent->bFreeMouse && bIsMovementLocked)
 	{
 		SetPlayerMovable(true);
@@ -105,35 +108,27 @@ void AGameController::Tick(float DeltaTime)
 	}
 
 	// Rotate the object depending of the rotation mode by Waldemar Zeitler
-	if (PickupComponent->bRotationStarted) {
-		// Get mouse position on screen
-		float XMouse;
-		float YMouse;
-		PlayerController->GetMousePosition(XMouse, YMouse);
-		
-		// Get Character position on screen
-		FVector CharLoc = Character->GetActorLocation();
-		FVector2D CharInScreen;
-		PlayerController->ProjectWorldLocationToScreen(CharLoc, CharInScreen);
+	if (PickupComponent->bRotationStarted) 
+ {
+  float XMouse;
+  float YMouse;
+  PlayerController->GetMousePosition(XMouse, YMouse);
 
-		// Get mouse position relative to the Character.
-		FVector2D Result;
-		Result.X = XMouse - CharInScreen.X;
-		Result.Y = -(YMouse - CharInScreen.Y);
+  if (ControlRotation.IsZero())
+  {
+   ControlRotation = FRotator(XMouse, 0, YMouse);
+  }
+  else 
+  {
+   ControlRotation -= FRotator(XMouse, 0, YMouse);
+   
+   PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
 
-		// Get angle rotation and rotation Character
-		float angleX = FMath::RadiansToDegrees(FMath::Acos(Result.X / Result.Size()));
-		float angleY = FMath::RadiansToDegrees(FMath::Acos(Result.Y / Result.Size()));
+  }
 
-		if (Result.Y < 0) {
-			angleX = 360 - angleX;
-		}
+  ControlRotation = FRotator(XMouse, 0, YMouse);
 
-		if (Result.X < 0) {
-			angleY = 360 - angleX;
-		}
-		FRotator rot(angleY, angleX, 0);
-		PickupComponent->ItemInRotaitonPosition->SetActorRotation(rot);
+  UE_LOG(LogTemp, Warning, TEXT("Rotation %s"), *ControlRotation.ToString());
 	}
 }
 
@@ -159,7 +154,6 @@ void AGameController::SetupComponentsOnConstructor()
 	AddInstanceComponent(OpenCloseComponent);
 	OpenCloseComponent->RegisterComponent();
 	OpenCloseComponent->PlayerCharacter = this;
-	
 
 	PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
 	PickupComponent->bEditableWhenInherited = true;

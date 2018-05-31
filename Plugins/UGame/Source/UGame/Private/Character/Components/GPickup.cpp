@@ -106,7 +106,6 @@ void UGPickup::BeginPlay()
 
 }
 
-
 // Called every frame
 void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -310,6 +309,8 @@ void UGPickup::MoveToRotationPosition()
  //BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
 
  BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
+
+ bRotationStarted = true;
 }
 
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
@@ -325,24 +326,34 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 		}
 	}	
 
-	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+ FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
 	TransformRules.bWeldSimulatedBodies = true;
 
-	if (!leftHand) {
-		if (ItemInRightHand != nullptr) return; // We already carry something 
+	if (!leftHand && ItemInRightHand == nullptr) {
 		BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
 		ItemInRightHand = BaseItemToPick;
-	}
-	else if (leftHand) {
-		if (ItemInLeftHand != nullptr) return; // We already carry something 
-		BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
-		ItemInLeftHand = BaseItemToPick;
-	}
+ }
+ else if (!leftHand && ItemInLeftHand == nullptr)
+ {
+  BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
+  ItemInLeftHand = BaseItemToPick;
+ }
+ else if (leftHand && ItemInLeftHand == nullptr) 
+ {
+  BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
+  ItemInLeftHand = BaseItemToPick;
+ }
+ else 
+ {
+  BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
+  ItemInRightHand = BaseItemToPick;
+ }
 
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
 	//BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
 
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
+ BaseItemToPick = nullptr;
 }
 
 void UGPickup::StartDropItem()
