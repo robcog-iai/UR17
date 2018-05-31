@@ -28,23 +28,21 @@ AArmAnimPawn::AArmAnimPawn()
 	//Create the mesh component 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
-	Mesh->SetRelativeRotation(FRotator(0.0f,0.0f,0.0f));
+	Mesh->SetRelativeRotation(MeshRotation);
 	Mesh->SetRelativeLocation(FVector(0.0f,0.0f,0.0f));
-	FString Path = "SkeletalMesh'/VRArmsTracking/ArmMesh/SK_ArmsMesh.SK_ArmsMesh'";
-	Mesh->SetSkeletalMesh(LoadObject<USkeletalMesh>(Mesh, *Path));
+	Mesh->SetSkeletalMesh(LoadObject<USkeletalMesh>(Mesh, *SkeletalPath));
 
 	//Setup the physical animation for this mesh
-	//Mesh->SetAllBodiesSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Mesh->bMultiBodyOverlap = true;
 	Mesh->bGenerateOverlapEvents = 1;
-	Mesh->SetNotifyRigidBodyCollision(true);
 	Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	Mesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	Mesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	Mesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Ignore);
+	Mesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	Mesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	//static ConstructorHelpers::FObjectFinder<UAnimBlueprintGeneratedClass> MeshAnimClass(TEXT("AnimBlueprint'/VRArmsTracking/ABP_Arms.ABP_Arms'"));//AnimBlueprint'/VRArmsTracking/ABP_Arms.ABP_Arms'
-	//Mesh->SetAnimInstanceClass(MeshAnimClass.Object);
 
 	//Create default motion controllers
 	MotionControllerLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionControllerLeft"));
@@ -57,7 +55,6 @@ AArmAnimPawn::AArmAnimPawn()
 	//Set default values
 	RightArmBoneName = FName("upperarm_r");
 	LeftArmBoneName = FName("upperarm_l");
-	ConstraintsProfileName = FName("ArmsMovement");
 	BlendWeight = 1.0f;
 
 	//player one will use this
@@ -79,27 +76,20 @@ void AArmAnimPawn::BeginPlay()
 	AnimationData.PositionStrength = 1000;
 	AnimationData.VelocityStrength = 100;
 
-	//Applay this to all bowns below the left and the right hand bone name variabels
-	AnimationComponent->ApplyPhysicalAnimationSettingsBelow(LeftArmBoneName,AnimationData,false);
-	AnimationComponent->ApplyPhysicalAnimationSettingsBelow(RightArmBoneName, AnimationData, false);
-	Mesh->SetAllBodiesBelowSimulatePhysics(LeftArmBoneName,true,false);
-	Mesh->SetAllBodiesBelowSimulatePhysics(RightArmBoneName, true, false);
-	Mesh->SetAllBodiesBelowPhysicsBlendWeight(LeftArmBoneName, BlendWeight,false,false);
-	Mesh->SetAllBodiesBelowPhysicsBlendWeight(RightArmBoneName, BlendWeight, false, false);
-	//Set the constraints profile
-	Mesh->SetConstraintProfileForAll(ConstraintsProfileName,true);
 	HMDName = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName().ToString();
+
 	//adjust relative position of camera and mesh to fit HMD
 	if (HMDName == "OculusHMD") {
 		Camera->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
-		Mesh->SetRelativeLocation(FVector(0.0f, 0.0f, -UserHeight));
+		Mesh->SetRelativeLocation(FVector(ShouldersLocalX, 0, -UserHeight));
 		SetActorLocation(GetActorLocation() + FVector(0.0f, 0.0f, UserHeight));
 	}
 	else if (HMDName == "SteamVR") {
 		Camera->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
-		Mesh->SetRelativeLocation(FVector(0.0f, 0.0f, -UserHeight));
+		Mesh->SetRelativeLocation(FVector(ShouldersLocalX, 0, -UserHeight));
 		SetActorLocation(GetActorLocation() + FVector(0.0f, 0.0f, UserHeight));
 	}
+
 }
 
 // Called every frame
@@ -107,8 +97,39 @@ void AArmAnimPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//mesh will follow the HMD
-	//Mesh->SetWorldLocation(FVector(Camera->GetComponentLocation().X, Camera->GetComponentLocation().Y, 0.0f), true);
+	//Mesh follows HMD
+	if (bHeadReset == true) 
+	{
+		FVector HeadMovedDistance = HeadStartLocation - Camera->GetComponentLocation();
+		Mesh->SetWorldLocation(MeshStartLocation - HeadMovedDistance);
+		if (!bIsTurning)
+		{
+			float ResultHead = HeadYawStart.Yaw - Camera->GetComponentRotation().Yaw;
+			float ResultLHand = ControllerLYawStart.Yaw - MotionControllerLeft->GetComponentRotation().Yaw;
+			float ResultRHand = ControllerRYawStart.Yaw - MotionControllerRight->GetComponentRotation().Yaw;
+			if (ResultHead < -TurnThreshold && ResultHead > -360 + TurnThreshold && ResultLHand < -TurnThreshold && ResultRHand < -TurnThreshold)
+			{
+				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+				if (ResultHead < -180) {
+					RotationStep = FRotator(0, -(TurnThreshold / MaxTurnSteps), 0);
+				}
+				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+				TurnStepCounter = 0;
+				bIsTurning = true;
+				GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
+			}
+			else if (ResultHead > TurnThreshold && ResultHead < 360 - TurnThreshold && ResultLHand > TurnThreshold && ResultRHand > TurnThreshold)
+			{
+				RotationStep = FRotator(0, -(TurnThreshold / MaxTurnSteps), 0);
+				if (ResultHead > 180) {
+					RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+				}
+				TurnStepCounter = 0;
+				bIsTurning = true;
+				GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
+			}
+		}
+	}
 
 }
 
@@ -116,6 +137,45 @@ void AArmAnimPawn::Tick(float DeltaTime)
 void AArmAnimPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	PlayerInputComponent->BindAction("resetPosition", IE_Pressed, this, &AArmAnimPawn::ResetHeadPosition);
 }
 
+//Reset HMD position and make mesh follow HMD
+void AArmAnimPawn::ResetHeadPosition()
+{
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition(0, EOrientPositionSelector::OrientationAndPosition);
+	FTimerHandle UnusedHandle;
+	GetWorldTimerManager().SetTimer(UnusedHandle, this, &AArmAnimPawn::SetMovementValues, 0.5, false);
+}
+
+void AArmAnimPawn::SetMovementValues()
+{
+	MeshStartLocation = Mesh->GetComponentLocation();
+	HeadStartLocation = Camera->GetComponentLocation();
+	HeadYawStart = Camera->GetComponentRotation();
+	ControllerRYawStart = MotionControllerRight->GetComponentRotation();
+	ControllerLYawStart = MotionControllerLeft->GetComponentRotation();
+	Mesh->SetRelativeRotation(MeshRotation);
+	bHeadReset = true;
+}
+
+void AArmAnimPawn::TurnInSteps()
+{
+	if (TurnStepCounter < MaxTurnSteps)
+	{
+		FVector MeshForwardBefore = Mesh->GetForwardVector();
+		MeshStartLocation = MeshStartLocation - (MeshForwardBefore *ShouldersLocalX);
+		Mesh->SetWorldRotation((Mesh->GetComponentRotation()+RotationStep));
+		HeadYawStart += RotationStep;
+		ControllerLYawStart += RotationStep;
+		ControllerRYawStart += RotationStep;
+		FVector MeshForwardAfter = Mesh->GetForwardVector();
+		MeshStartLocation = MeshStartLocation + (MeshForwardAfter *ShouldersLocalX);
+		TurnStepCounter++;
+	}
+	else 
+	{
+		GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, -1, false);
+		bIsTurning = false;
+	}
+}

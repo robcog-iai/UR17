@@ -12,8 +12,14 @@ simulated using inverse kinematics.
 
 # Milestones
  ![Milestone 1](./Documentation/Milestone1.md)
-
+ ![Milestone 2](./Documentation/Milestone2.md)
+ 
 # Documentation
 
+ ![Milestone 2](./Documentation/Milestone2.md)
+
 # Tutorial
+
+ ![Hands](./Documentation/tutorialHand.md)
+ ![Mesh](./Documentation/tutorialMesh.md)
 
