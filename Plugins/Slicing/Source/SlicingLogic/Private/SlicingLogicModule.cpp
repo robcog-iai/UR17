@@ -2,16 +2,6 @@
 
 #include "SlicingLogicModule.h"
 
-#include "StaticMeshResources.h"
-#include "ProceduralMeshComponent.h"
-#include "KismetProceduralMeshLibrary.h"
-#include "RawMesh.h"
-#include "PhysicsEngine/BodySetup.h"
-#include "PhysicsEngine/ConvexElem.h"
-
-#include "Engine/StaticMesh.h"
-#include "Engine/StaticMeshActor.h"
-
 #define LOCTEXT_NAMESPACE "FSlicingLogicModule"
 
 void FSlicingLogicModule::StartupModule()

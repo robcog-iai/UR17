@@ -5,10 +5,6 @@
 #include "CoreMinimal.h"
 #include "ModuleManager.h"
 
-class UProceduralMeshComponent;
-class UStaticMeshComponent;
-class FStaticMesh;
-
 class FSlicingLogicModule: public IModuleInterface
 {
 public:

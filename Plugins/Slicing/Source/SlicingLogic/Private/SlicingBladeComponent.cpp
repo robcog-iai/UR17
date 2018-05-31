@@ -4,16 +4,12 @@
 #include "SlicingTipComponent.h"
 #include "SlicingHelper.h"
 
-#include "DrawDebugHelpers.h"
-#include "TransformCalculus.h"
 #include "KismetProceduralMeshLibrary.h"
-
-#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
+#include "ProceduralMeshComponent.h"
 
 #include "Engine/StaticMesh.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Materials/MaterialInterface.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
 
 // Called before BeginPlay()
 void USlicingBladeComponent::InitializeComponent()
@@ -63,9 +59,18 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
 
-	// For test purposes
+	// Makes the Cutting with Constraints possible, by somwehat disabling Gravity and Physics in a sense without actually deactivating them.
 	CutComponent->SetLinearDamping(100.f);
 	CutComponent->SetAngularDamping(100.f);
+
+	// Called incase the CutComponent has a tag !!! TODO: Build in Security !!!
+	if (CutComponent->ComponentHasTag(FName("Resistance")))
+	{
+		// A value in between 0 and 100.
+		int32 resistancePercentage = FCString::Atoi( *CutComponent->ComponentTags[(CutComponent->ComponentTags.IndexOfByKey("Resistance") + 1)].ToString());
+		((UStaticMeshComponent*)this->GetAttachParent())->SetLinearDamping(100000000000.f * ((resistancePercentage) / 100));
+		((UStaticMeshComponent*)this->GetAttachParent())->SetAngularDamping(100000000000.f * ((resistancePercentage) / 100));
+	}
 
 	SetUpConstrains(CutComponent);
 }
@@ -148,6 +153,11 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	OutputProceduralMesh->SetEnableGravity(true);
 	OutputProceduralMesh->SetSimulatePhysics(true);
 	OutputProceduralMesh->ComponentTags = CuttableComponent->ComponentTags;
+	OutputProceduralMesh->SetLinearDamping(0.f);
+	OutputProceduralMesh->SetAngularDamping(0.f);
+
+	CuttableComponent->SetLinearDamping(0.f);
+	CuttableComponent->SetAngularDamping(0.f);
 	
 	// Convert both seperated procedural meshes into static meshes for best compatibility
 	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh, ComponentMaterials);
@@ -162,9 +172,15 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 void USlicingBladeComponent::ResetState()
 {
 	bIsCurrentlyCutting = false;
+	if (CutComponent)
+	{
+		CutComponent->SetLinearDamping(0.f);
+		CutComponent->SetAngularDamping(0.f);
+	}
+	SlicingObject->SetLinearDamping(0.f);
+	SlicingObject->SetAngularDamping(0.f);
 	CutComponent = NULL;
 
-	FlushPersistentDebugLines(this->GetWorld());
 	ConstraintOne->BreakConstraint();
 }
 
@@ -175,19 +191,23 @@ void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableCompon
 
 	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
 	ConstraintOne->SetConstrainedComponents(this, FName("Blade"), CuttableComponent, FName("Object"));
+	// High number may not be needed. Adjust
 	ConstraintOne->ConstraintInstance.SetAngularBreakable(false, 10000.f);
 	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10000.f);
 
 	ConstraintOne->ConstraintInstance.SetLinearDriveParams(1000.f, 1000.f, 1000.f);
-
+	
+	// It's enough here to set Limited
 	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Limited, 0.1f);
 
+	// IT's enough here to just set Swing2 and Twist
 	ConstraintOne->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Limited, 1.f);
 	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 1.f);
 
+	// May not be needed
 	ConstraintOne->SetLinearPositionDrive(false, false, true);
 	ConstraintOne->SetAngularVelocityDrive(true, true);
 

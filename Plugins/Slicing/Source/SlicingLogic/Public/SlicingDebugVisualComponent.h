@@ -4,12 +4,13 @@
 
 #include "SlicingLogicModule.h"
 
-#include "Engine.h"
+#include "CoreMinimal.h"
 
-#include "Components/StaticMeshComponent.h"
+#include "Components/ActorComponent.h"
 
 #include "SlicingDebugVisualComponent.generated.h"
 
+class AStaticMeshActor;
 class USlicingBladeComponent;
 class USlicingTipComponent;
 class USlicingComponent;

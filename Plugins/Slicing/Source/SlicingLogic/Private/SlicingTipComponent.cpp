@@ -4,8 +4,6 @@
 #include "SlicingBladeComponent.h"
 #include "SlicingHelper.h"
 
-#include "DrawDebugHelpers.h"
-
 // Called when the game starts
 void USlicingTipComponent::BeginPlay()
 {

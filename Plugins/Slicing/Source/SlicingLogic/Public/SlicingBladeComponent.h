@@ -4,13 +4,10 @@
 
 #include "SlicingComponent.h"
 
-#include "ProceduralMeshComponent.h"
-
-#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
-
 #include "SlicingBladeComponent.generated.h"
 
 class USlicingTipComponent;
+class UPhysicsConstraintComponent;
 
 UCLASS()
 class SLICINGLOGIC_API USlicingBladeComponent: public USlicingComponent

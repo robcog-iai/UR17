@@ -2,14 +2,13 @@
 
 #pragma once
 
-#include "SlicingLogicModule.h"
-
 #include "CoreMinimal.h"
 
 #include "Components/BoxComponent.h"
-#include "Components/StaticMeshComponent.h"
 
 #include "SlicingComponent.generated.h"
+
+class UStaticMeshComponent;
 
 UCLASS()
 class SLICINGLOGIC_API USlicingComponent: public UBoxComponent

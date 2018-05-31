@@ -1,18 +1,13 @@
 // Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #include "SlicingDebugVisualComponent.h"
-#include "SlicingBladeComponent.h"
 #include "SlicingTipComponent.h"
 #include "SlicingComponent.h"
 #include "SlicingHelper.h"
 
 #include "DrawDebugHelpers.h"
-#include "TransformCalculus.h"
-#include "KismetProceduralMeshLibrary.h"
 
-#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
-
-#include "Engine/StaticMesh.h"
+#include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
