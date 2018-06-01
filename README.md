@@ -1,8 +1,7 @@
-# UR17 - P2
+﻿# UR17 - P2
 
 ### Members
 
-* Arian Mehrfard
 * Patrick Groß
 * Peter Tschubij
 
@@ -15,6 +14,7 @@
 ### Milestones
 
 * [Milestone1](Documentation/Milestone1.md)
+* [Milestone2](Documentation/Milestone2.md)
 
 ### Documentation
 

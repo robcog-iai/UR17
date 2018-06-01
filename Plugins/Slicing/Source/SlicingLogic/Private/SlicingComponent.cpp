@@ -1,131 +1,46 @@
-// Copyright 2017, Institute for Artificial Intelligence - University of Bremen
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #include "SlicingComponent.h"
-#include "SlicingLogicModule.h"
 
 #include "DrawDebugHelpers.h"
 
-#include "Engine/StaticMesh.h"
-#include "Components/BoxComponent.h"
-#include "ProceduralMeshComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "KismetProceduralMeshLibrary.h"
+// Setting the text for the static names used in the editor
+const FName USlicingComponent::SocketHandleName = "SlicingHandle";
+const FName USlicingComponent::SocketBladeName = "SlicingBlade";
+const FName USlicingComponent::SocketTipName = "SlicingTip";
+const FName USlicingComponent::TagCuttable = "Cuttable";
 
 USlicingComponent::USlicingComponent()
 {
-	// Needed if one wants to use the TickComponent function
+	// Enables the usage of the TickComponent function
 	PrimaryComponentTick.bCanEverTick = true;
-	// Needed if one wants to use the InitializeComponent function
+	// Enables the usage of the InitializeComponent function
 	bWantsInitializeComponent = true;
-
-	bGenerateOverlapEvents = true;
-
-	// Register the logic functions
-	OnComponentBeginOverlap.AddDynamic(this, &USlicingComponent::OnBladeBeginOverlap);
-	OnComponentEndOverlap.AddDynamic(this, &USlicingComponent::OnBladeEndOverlap);
 }
 
-void USlicingComponent::InitializeComponent()
-{
-	Super::InitializeComponent();
-}
-
+// Called when the game starts
 void USlicingComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SlicingLogicModule = &FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
+	SlicingObject = (UStaticMeshComponent*)(this->GetAttachmentRoot());
 }
 
+// Called every frame
 void USlicingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//* Needed for the debug option booleans
-	FSlicingLogicModule& SlicingLogicModule =
-		FModuleManager::Get().LoadModuleChecked<FSlicingLogicModule>("SlicingLogic");
-
-	if (SlicingLogicModule.bEnableDebugShowPlane)
+	if (SlicingLogicModule->bEnableDebugShowComponents)
 	{
-		DrawDebugBox(this->GetWorld(), this->GetComponentLocation(), this->GetScaledBoxExtent(), this->GetComponentRotation().Quaternion(), FColor::Green);
-
-		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Red, false, 0.01f);
-	}
-
-	if (SlicingLogicModule.bEnableDebugConsoleOutput)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Test"));
-	}
-
-	if (SlicingLogicModule.bEnableDebugShowTrajectory)
-	{
-		DrawDebugSolidPlane(this->GetWorld(), FPlane(this->GetAttachmentRoot()->GetComponentLocation(), this->GetUpVector()),
-			this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")), FVector2D(5, 5), FColor::Blue, false, 1.0f);
+		USlicingComponent::DrawComponent();
 	}
 }
 
-void USlicingComponent::OnBladeBeginOverlap(
-	UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+// Draws the SlicingComponent box
+void USlicingComponent::DrawComponent()
 {
-	if (!OtherComp->ComponentHasTag(FName("Cuttable")))
-	{
-		return;
-	}
-	/*
-	Converting the given Component to Procedural Mesh Component
-	*/
-	UPrimitiveComponent* ReferencedComponent = OtherComp;
-	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
-	Parent->SetCollisionProfileName(FName("OverlapAll"));
-	if (ReferencedComponent != nullptr  && ReferencedComponent != NULL)
-	{
-		// In case the Component is a StaticMeshComponent, uses following to make a ProceduralMeshComponent
-		if (ReferencedComponent->GetClass() == UStaticMeshComponent::StaticClass()
-			&& ((UStaticMeshComponent*)ReferencedComponent)->GetStaticMesh())
-		{
-			((UStaticMeshComponent*)ReferencedComponent)->GetStaticMesh()->bAllowCPUAccess = true;
-
-			UProceduralMeshComponent* NewComponent = NewObject<UProceduralMeshComponent>(ReferencedComponent);
-			NewComponent->SetRelativeTransform(ReferencedComponent->GetRelativeTransform());
-			NewComponent->RegisterComponent();
-			NewComponent->SetCollisionProfileName(FName("PhysicsActor"));
-			NewComponent->bUseComplexAsSimpleCollision = false;
-			NewComponent->SetEnableGravity(true);
-			NewComponent->SetSimulatePhysics(true);
-			NewComponent->bGenerateOverlapEvents = true;
-			NewComponent->ComponentTags = ReferencedComponent->ComponentTags;
-
-			UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
-				((UStaticMeshComponent*)ReferencedComponent), 0, NewComponent, true);
-
-			ReferencedComponent->DestroyComponent();
-		}
-	}
-}
-
-void USlicingComponent::OnBladeEndOverlap(
-	UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (!OtherComp->ComponentHasTag(FName("Cuttable")) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
-	{
-		return;
-	}
-	UProceduralMeshComponent* OutputProceduralMesh;
-
-	UKismetProceduralMeshLibrary::SliceProceduralMesh(
-		(UProceduralMeshComponent*)OtherComp,
-		this->GetAttachmentRoot()->GetSocketLocation(FName("BladeBox")),
-		this->GetAttachmentRoot()->GetUpVector(),
-		true,
-		OutputProceduralMesh,
-		EProcMeshSliceCapOption::NoCap,
-		OtherComp->GetMaterial(0)
-	);
-
-	OutputProceduralMesh->bGenerateOverlapEvents = true;
-	OutputProceduralMesh->ComponentTags = OtherComp->ComponentTags;
-
-	UStaticMeshComponent* Parent = (UStaticMeshComponent*)(this->GetAttachmentRoot());
-	Parent->SetCollisionProfileName(FName("PhysicsActor"));
+	DrawDebugBox(GetWorld(), GetComponentLocation(), GetScaledBoxExtent(), GetComponentRotation().Quaternion(),
+		FColor::Green, false, 0.01f);
 }

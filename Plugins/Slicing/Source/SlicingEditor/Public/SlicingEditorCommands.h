@@ -20,8 +20,9 @@ public:
 
 	TSharedPtr<FUICommandInfo> ShowInstructions;
 	TSharedPtr<FUICommandInfo> EnableDebugConsoleOutput;
+	TSharedPtr<FUICommandInfo> EnableDebugShowComponents;
 	TSharedPtr<FUICommandInfo> EnableDebugShowPlane;
 	TSharedPtr<FUICommandInfo> EnableDebugShowTrajectory;
-	TSharedPtr<FUICommandInfo> ReplaceSelectedSockets;
-	TSharedPtr<FUICommandInfo> ReplaceAllSockets;
+	TSharedPtr<FUICommandInfo> MakeCuttingObjects;
+	TSharedPtr<FUICommandInfo> MakeCuttableObjects;
 };

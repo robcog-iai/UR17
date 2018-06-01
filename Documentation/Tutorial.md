@@ -18,33 +18,13 @@ From there on you can begin to place the tokens as needed in the StaticMeshEdito
 
 ![TutorialPic2](TutorialPictures/2.PNG)
 
-***Note:*** **Currently you can only give the sockets relative scales value from 0 to 1.**
-
 With that done you can save the StaticMesh in the StaticMeshEditor and leave it.
 All the StaticMeshComponents with that StaticMesh now all have these Sockets.
 
-### Step 2: Tag a StaticMeshComponent to a Knife
+### Step 2: Spawn the boxes in the Editor
 
-Since we don't want all **SM_Knife_Table** to be Cuttable we give the the Components, who
-are supposed to be, a Tag names ***Knife***.
-
-For this click on your desired Knife in the Viewport and click on the StaticMeshComponent
-in the Details Tab on the right.
-
-![TutorialPic3](TutorialPictures/3.PNG)
-
-Then scroll down towards the section called Tags. Click on ![TutorialPic4](TutorialPictures/4.PNG)
-and name the new Tag ***Knife***.
-
-![TutorialPic5](TutorialPictures/5.PNG)
-
-### Step 3: Spawn the boxes in the Editor
-
-Now that the knife has it's Tag, we can begin to spawn the LogicBoxes.
-First we select the StaticMeshComponent in the Editor followed by the
-StaticMeshComponent in the Detail View.
-
-![TutorialPic3](TutorialPictures/3.PNG)
+Now that the knife has the boxes, we can begin to spawn them inside the editor.
+First we select the StaticMeshComponent in the Editor.
 
 Then on the top, in the same row as **Play** and **Launch**, there's the button
 called "**Slicing Options**", clicking on it reveals more options such as Debug

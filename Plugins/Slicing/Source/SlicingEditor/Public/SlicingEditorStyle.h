@@ -11,7 +11,7 @@ public:
 	static void Initialize();
 	static void Shutdown();
 
-	// reloads textures used by slate renderer
+	//* Reloads textures used by slate renderer
 	static void ReloadTextures();
 
 	// @return The Slate style set for the Shooter game

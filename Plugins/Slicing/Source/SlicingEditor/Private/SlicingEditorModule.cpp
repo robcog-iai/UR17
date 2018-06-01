@@ -59,6 +59,12 @@ void FSlicingEditorModule::InitializeUIButtons()
 		FIsActionChecked::CreateStatic(&FSlicingEditorActionCallbacks::OnIsEnableDebugConsoleOutputEnabled, &SlicingLogicModule.bEnableDebugConsoleOutput)
 	);
 	PluginCommandList->MapAction(
+		Commands.EnableDebugShowComponents,
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::OnEnableDebugShowComponents, &SlicingLogicModule.bEnableDebugShowComponents),
+		FCanExecuteAction(),
+		FIsActionChecked::CreateStatic(&FSlicingEditorActionCallbacks::OnIsEnableDebugShowComponentsEnabled, &SlicingLogicModule.bEnableDebugShowComponents)
+	);
+	PluginCommandList->MapAction(
 		Commands.EnableDebugShowPlane,
 		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::OnEnableDebugShowPlane, &SlicingLogicModule.bEnableDebugShowPlane),
 		FCanExecuteAction(),
@@ -71,12 +77,12 @@ void FSlicingEditorModule::InitializeUIButtons()
 		FIsActionChecked::CreateStatic(&FSlicingEditorActionCallbacks::OnIsEnableDebugShowTrajectoryEnabled, &SlicingLogicModule.bEnableDebugShowTrajectory)
 	);
 	PluginCommandList->MapAction(
-		Commands.ReplaceSelectedSockets,
-		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents)
+		Commands.MakeCuttingObjects,
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::MakeCuttingObjects)
 	);
 	PluginCommandList->MapAction(
-		Commands.ReplaceAllSockets,
-		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::ReplaceSocketsWithComponents)
+		Commands.MakeCuttableObjects,
+		FExecuteAction::CreateStatic(&FSlicingEditorActionCallbacks::MakeCuttableObjects)
 	);
 }
 
@@ -122,10 +128,11 @@ TSharedRef<SWidget> FSlicingEditorModule::CreateDebugOptionMenu()
 	Builder.BeginSection("SlicingDebugOptions");
 	{
 		Builder.AddMenuEntry(Commands.EnableDebugConsoleOutput);
+		Builder.AddMenuEntry(Commands.EnableDebugShowComponents);
 		Builder.AddMenuEntry(Commands.EnableDebugShowPlane);
 		Builder.AddMenuEntry(Commands.EnableDebugShowTrajectory);
-		Builder.AddMenuEntry(Commands.ReplaceSelectedSockets);
-		Builder.AddMenuEntry(Commands.ReplaceAllSockets);
+		Builder.AddMenuEntry(Commands.MakeCuttingObjects);
+		Builder.AddMenuEntry(Commands.MakeCuttableObjects);
 	}
 	Builder.EndSection();
 
