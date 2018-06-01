@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/HUD.h"
+#include "../Character/Components/GPickup.h"
 #include "GameHUD.generated.h"
 
 /**
@@ -18,30 +19,26 @@ class UGAME_API AGameHUD : public AHUD
 	virtual void PostInitializeComponents() override;
 
 	// Reference to the Main Menu Slate UI.
-	TSharedPtr<class SGameUI> GameUI;
+	TSharedPtr<class SRotationUI> RotationUI;
 
 	// Reference to the Main Menu Slate UI.
-	TSharedPtr<class SPickupGameUI> PickupGameUI;
+	TSharedPtr<class SPickupUI> PickupUI;
 public:
 	AGameHUD();
 
-	// Called by SMainMenu whenever the Play Game! button has been clicked.
-	UFUNCTION(BlueprintImplementableEvent, Category = "Menus|Game Menu")
-		void PlayGameClicked();
+	/** Set the selected Acotr for whom the menu should be drawn.
+	*   @param Selected actor
+	*/
+	void SetActionGridActor(AActor* InSelectedActor);
 
-	// Called by SMainMenu whenever the Quit Game button has been clicked.
-	UFUNCTION(BlueprintImplementableEvent, Category = "Menus|Game Menu")
-		void QuitGameClicked();
+	/** gets player controller */
+	class AGameController* GetPlayerController() const;
 
 protected:
-	// This will be drawn at the center of the screen.
-	UPROPERTY(EditDefaultsOnly)
-		UTexture2D* CrosshairTexture;
+	/** Actor for whom the menu should be displayed*/
+	TWeakObjectPtr<AActor> SelectedActor;
 
 public:
-	// Primary draw call for the HUD.
-	virtual void DrawHUD() override;
-	
 	/** Draw menu to ask for rotation*/
 	void DrawMenu();
 
@@ -49,5 +46,11 @@ public:
 	void RemoveMenu();
 
 	/** Draw PickUp menu to ask for rotation*/
-	void DrawPickUpMenu();
+	void DrawPickUpMenu(float MouseX = 0, float MouseY = 0);
+
+	/** Position on screen */
+	FVector2D MenuPosition;
+
+ /** Referenz to GPickup*/
+ UGPickup* GPickup;
 };

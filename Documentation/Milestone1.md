@@ -7,7 +7,7 @@
 * The walking speed is handled in the CMovment.h and CMovement.cpp, in the Plugins/Source/Private/Character/Components folder. The class UCMovment, which contains the walking simulation, handles the overall movment of the character. 
 
 * To calculate a realistic speed up the "Sprungantwort" function form PT1-Glied is used. It creates a rising curvature until it nrealy reaches the maximum value. The function curve looks like the following picture. ![](Img/Milestone1/Step_PT1.png "Sprungantwort")  
-[Link to the picture and PT1-Glied documentation.](https://de.wikipedia.org/wiki/PT1-Glied)
+(Link to the picture and PT1-Glied documentation.)[https://de.wikipedia.org/wiki/PT1-Glied]
 
 * To realise the speed up the function VelocitySPeed is called, which takes a TimeStep parameter, which determins how fast the speed up incresses. The TimeStep variable is held in the SpeedUpTime varibale which rises by a SpeedUpvalue which can be incressed or decressed to speed up or speed down the speed increasse.  
 

@@ -17,16 +17,28 @@
 
 // Sets default values
 AGameController::AGameController()
-	:PlayerController(nullptr) // Set PlayerController (by Waldemar Zeitler)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	GraspRange = 120.0f;
+ // Chagned to 300 (from 120) for testing
+	GraspRange = 300.0f;
 	bRaytraceEnabled = true;
+
+ // Initiate empty rotator
+ ControlRotation = FRotator::ZeroRotator;
+
+	// Set PlayerController (by Waldemar Zeitler)
+	PlayerController = nullptr;
+
+	// Setup for the components
+	MovementComponent = nullptr;
+	PickupComponent = nullptr;
+	OpenCloseComponent = nullptr;
 
 	GetCapsuleComponent()->SetCapsuleRadius(0.01f);
 
 	SetupComponentsOnConstructor();
+
 }
 
 // Called when the game starts or when spawned
@@ -41,17 +53,26 @@ void AGameController::BeginPlay()
 		Character->PlayerState->bIsSpectator = true;
 	}
 
-	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
+ // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
+ PlayerController = Cast<APlayerController>(GetController());
 
-	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
-	PlayerController = Cast<APlayerController>(GetController());
-	if (!PlayerController) {
-		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
-	}
+ if (!PlayerController) {
+  UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
+ }
+
+ PlayerController->bEnableMouseOverEvents = true;
+
+	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
+	
 	// *** *** *** *** *** ***
 	//LeftHandPosition = SpawnActor<AActor>(FVector(0, 0, 0), FRotator(0, 0, 0));
 
+ // Setup HUD
+ PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
+
 	SetupScenario();
+
+ PickupHUD->GPickup = PickupComponent;
 }
 
 // Called every frame
@@ -59,56 +80,55 @@ void AGameController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	StartRaytrace();
-	CheckIntractability();
-
-	if (bIsDebugMode && FocussedActor != nullptr)
-	{
-		DrawDebugLine(GetWorld(), RaycastResult.ImpactPoint, RaycastResult.ImpactPoint + 20 * RaycastResult.ImpactNormal, FColor::Blue, false, 0, 0, .5f);
-	}
-
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active by Wlademar Zeitler
-	if (PickupComponent->bPickUpStarted && !bIsMovementLocked)
+	if (PickupComponent->bFreeMouse && !bIsMovementLocked && CheckForVisibleObjects())
 	{
 		SetPlayerMovable(false);
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->bEnableClickEvents = true;
+		PlayerController->bEnableMouseOverEvents = true;
+  PickupComponent->bRotationStarted = false;
 	}
-	else if (!PickupComponent->bPickUpStarted &&  bIsMovementLocked)
+
+ if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupnMenuActivated && PickupComponent->bOverItem)
+ {
+  float XMouse;
+  float YMouse;
+  PlayerController->GetMousePosition(XMouse, YMouse);
+  PickupHUD->DrawPickUpMenu(XMouse, YMouse);
+ }
+	else if (!PickupComponent->bFreeMouse && bIsMovementLocked)
 	{
 		SetPlayerMovable(true);
+		PlayerController->bShowMouseCursor = false;
+		PlayerController->bEnableClickEvents = false;
+		PlayerController->bEnableMouseOverEvents = false;
 	}
 
 	// Rotate the object depending of the rotation mode by Waldemar Zeitler
-	if (PickupComponent->bRotationStarted) {
-		// Get mouse position on screen
-		float XMouse;
-		float YMouse;
-		PlayerController->GetMousePosition(XMouse, YMouse);
-		
-		// Get Character position on screen
-		FVector CharLoc = Character->GetActorLocation();
-		FVector2D CharInScreen;
-		PlayerController->ProjectWorldLocationToScreen(CharLoc, CharInScreen);
+	if (PickupComponent->bRotationStarted) 
+ {
+  float XMouse;
+  float YMouse;
+  PlayerController->GetMousePosition(XMouse, YMouse);
 
-		// Get mouse position relative to the Character.
-		FVector2D Result;
-		Result.X = XMouse - CharInScreen.X;
-		Result.Y = -(YMouse - CharInScreen.Y);
+  if (ControlRotation.IsZero())
+  {
+   ControlRotation = FRotator(XMouse, 0, YMouse);
+  }
+  else 
+  {
+   ControlRotation -= FRotator(XMouse, 0, YMouse);
+   
+   PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
 
-		// Get angle rotation and rotation Character
-		float angleX = FMath::RadiansToDegrees(FMath::Acos(Result.X / Result.Size()));
-		float angleY = FMath::RadiansToDegrees(FMath::Acos(Result.Y / Result.Size()));
+  }
 
-		if (Result.Y < 0) {
-			angleX = 360 - angleX;
-		}
+  ControlRotation = FRotator(XMouse, 0, YMouse);
 
-		if (Result.X < 0) {
-			angleY = 360 - angleX;
-		}
-		FRotator rot(angleY, angleX, 0);
-		PickupComponent->ItemInRotaitonPosition->SetActorRotation(rot);
+  UE_LOG(LogTemp, Warning, TEXT("Rotation %s"), *ControlRotation.ToString());
 	}
 }
 
@@ -124,103 +144,25 @@ void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AGameController::SetupComponentsOnConstructor()
 {
-	if (MovementComponent == nullptr) {
-		MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
-		MovementComponent->bEditableWhenInherited = true;
-		AddInstanceComponent(MovementComponent);
-		MovementComponent->RegisterComponent();
-	}
+	MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
+	MovementComponent->bEditableWhenInherited = true;
+	AddInstanceComponent(MovementComponent);
+	MovementComponent->RegisterComponent();
 
-	if (OpenCloseComponent == nullptr) {
-		OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
-		OpenCloseComponent->bEditableWhenInherited = true;
-		AddInstanceComponent(OpenCloseComponent);
-		OpenCloseComponent->RegisterComponent();
+	OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
+	OpenCloseComponent->bEditableWhenInherited = true;
+	AddInstanceComponent(OpenCloseComponent);
+	OpenCloseComponent->RegisterComponent();
+	OpenCloseComponent->PlayerCharacter = this;
 
-		OpenCloseComponent->PlayerCharacter = this;
-	}
+	PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
+	PickupComponent->bEditableWhenInherited = true;
+	AddInstanceComponent(PickupComponent);
+	PickupComponent->RegisterComponent();
 
-	if (PickupComponent == nullptr) {
-		PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
-		PickupComponent->bEditableWhenInherited = true;
-		AddInstanceComponent(PickupComponent);
-		PickupComponent->RegisterComponent();
-
-		PickupComponent->PlayerCharacter = this;
-	}
+	PickupComponent->PlayerCharacter = this;
 }
 
-void AGameController::StartRaytrace()
-{
-	if (bRaytraceEnabled == false) return;
-	FVector CamLoc;
-	FRotator CamRot;
-
-	Character->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-	const FVector StartTrace = CamLoc; // trace start is the camera location
-	const FVector Direction = CamRot.Vector();
-	const FVector EndTrace = StartTrace + Direction * GraspRange; // and trace end is the camera location + an offset in the direction
-
-	FCollisionQueryParams TraceParams;
-
-	TraceParams.AddIgnoredActor(this); // We don't want to hit ourself
-
-	TArray<AActor*> IgnoredActors;
-	if (PickupComponent != nullptr) {
-		if (PickupComponent->ItemInRightHand != nullptr) {
-			IgnoredActors.Add(PickupComponent->ItemInRightHand);
-
-			TArray<AActor*> ChildrenOfItem;
-			PickupComponent->ItemInRightHand->GetAttachedActors(ChildrenOfItem);
-			IgnoredActors.Append(ChildrenOfItem);
-		}
-
-		if (PickupComponent->ItemInLeftHand != nullptr) {
-			IgnoredActors.Add(PickupComponent->ItemInLeftHand);
-
-			TArray<AActor*> ChildrenOfItem;
-			PickupComponent->ItemInLeftHand->GetAttachedActors(ChildrenOfItem);
-			IgnoredActors.Append(ChildrenOfItem);
-		}
-	}
-
-	TraceParams.AddIgnoredActors(IgnoredActors);
-
-	GetWorld()->LineTraceSingleByChannel(RaycastResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
-}
-
-void AGameController::CheckIntractability()
-{
-	AActor* Actor = RaycastResult.GetActor();
-
-	if (Actor != nullptr)
-	{
-		if (SetOfInteractableItems.Contains(Actor))
-		{
-			// Deactivate outline of previous object
-			if (FocussedActor != nullptr && FocussedActor != Actor)
-			{
-				FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(false);
-			}
-
-			FocussedActor = Cast<AStaticMeshActor>(Actor);
-			FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(true);
-		}
-		else if (FocussedActor != nullptr && bComponentsLocked == false)
-		{
-			FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(false);
-			FocussedActor = nullptr;
-		}
-	}
-	else
-	{
-		if (FocussedActor != nullptr)
-		{
-			FocussedActor->GetStaticMeshComponent()->SetRenderCustomDepth(false);
-			FocussedActor = nullptr;
-		}
-	}
-}
 
 void AGameController::SetPlayerMovable(bool bIsMovable)
 {
@@ -237,30 +179,34 @@ void AGameController::SetupScenario()
 	case EInteractionMode::OneHandMode:
 		if (PickupComponent != nullptr) {
 			PickupComponent->bTwoHandMode = false;
-			PickupComponent->bStackModeEnabled = false;
 		}
 		break;
 	case EInteractionMode::TwoHandMode:
 		if (PickupComponent != nullptr) {
 			PickupComponent->bTwoHandMode = true;
-			PickupComponent->bStackModeEnabled = false;
 		}
 		break;
 	case EInteractionMode::TwoHandStackingMode:
 		if (PickupComponent != nullptr) {
 			PickupComponent->bTwoHandMode = true;
-			PickupComponent->bStackModeEnabled = true;
 		}
 		break;
 	}
 }
 
-FHitResult AGameController::GetRaycastResult()
+bool AGameController::CheckForVisibleObjects()
 {
-	return RaycastResult;
+	float MinRecentTime = 0.01;
+
+	//Iterate Over Actors
+	for (TObjectIterator<AActor> Itr; Itr; ++Itr)
+	{
+		TArray<FName> ObjectTags = Itr->Tags;
+		if (ObjectTags.Num() > 0 && ObjectTags[0].ToString().Contains("Pickup")) {
+			float Time = Itr->GetLastRenderTime();
+			if (Time > 0,1) return true;	
+		}
+	}
+
+	return false;
 }
-
-
-
-
-

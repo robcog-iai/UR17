@@ -1,41 +1,53 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
-#include "GameUI.h"
+#include "RotationUI.h"
 #include "UGame.h"
 #include "Engine.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
-void SGameUI::Construct(const FArguments& args)
+void SRotationUI::Construct(const FArguments& args)
 {
 	GameHUD = args._GameHUD;
 
 	ChildSlot
-		[
-			SNew(SOverlay)
-			+ SOverlay::Slot()
+	[
+		SNew(SOverlay)
+		+ SOverlay::Slot()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Rotate Objekt (Left Mouse Button)"))
-		.OnClicked(this, &SGameUI::Rotation)
+			SNew(SCanvas)
+			+ SCanvas::Slot()
+			.Position(TAttribute<FVector2D>(this, &SRotationUI::GetActionsWidgetPos))
+			.Size(FVector2D(600, 800))
+			[
+				SNew(SOverlay)
+				+ SOverlay::Slot()
+				.HAlign(HAlign_Center)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					[
+						SNew(SButton)
+						.Text(FText::FromString("Rotate Object"))
+						.OnClicked(this, &SRotationUI::Rotation)
+					]
+					+ SVerticalBox::Slot()
+					[
+						SNew(SButton)
+						.Text(FText::FromString("Pick Object Up"))
+						.OnClicked(this, &SRotationUI::PickUp)
+					]
+				]
+			]
 		]
-	+ SVerticalBox::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Pick Item Up (Right Mouse Button)"))
-		.OnClicked(this, &SGameUI::PickUp)
-		]
-		]
-		];
+	];
 
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-FReply SGameUI::Rotation()
+FReply SRotationUI::Rotation()
 {
 	if (GEngine)
 	{
@@ -47,7 +59,7 @@ FReply SGameUI::Rotation()
 	return FReply::Handled();
 }
 
-FReply SGameUI::PickUp()
+FReply SRotationUI::PickUp()
 {
 	if (GEngine)
 	{
@@ -57,4 +69,9 @@ FReply SGameUI::PickUp()
 	// actually the BlueprintImplementable function of the HUD is not called; uncomment if you want to handle the OnClick via Blueprint
 	//MainMenuHUD->QuitGameClicked();
 	return FReply::Handled();
+}
+
+FVector2D SRotationUI::GetActionsWidgetPos() const
+{
+	return FVector2D(100, 100);
 }

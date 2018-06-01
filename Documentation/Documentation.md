@@ -6,4 +6,4 @@
 
 * Milestone 1 documentation can be found [here](Milestone1.md). This milestone is the realistic walking animation, where the character starts slowly and gets faster over time until the maximum speed is reached and the rotation of the objects in the hands of the character. In this iteration a very basic roation is accomplished and will be refined in the next iteration.    
 
-* Milestone 2 documentation can be found [here](Milestone2.md). 
+* Milestone 2 documentation can be found [here](Milestone2.md. This milestone is about the interaction with objects, like picking up and rotation. Objects are supposed to be picked up in a menu like fashion, where just the mouse is used to interact with the object.

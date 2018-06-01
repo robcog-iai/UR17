@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "HUD/GameHUD.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "GameFramework/GameModeBase.h"
 #include "UGameModeBase.generated.h"
 
@@ -19,11 +20,4 @@ class UGAME_API AUGameModeBase : public AGameModeBase
 public:
 	AUGameModeBase();
 
-	AGameHUD* PickupHUD;
-
-	void DrawHudMenu();
-
-	void DrawPickupHudMenu();
-
-	void RemoveMenu();
 };

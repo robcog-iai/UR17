@@ -9,7 +9,6 @@
 #include "GPickup.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
-#include "GameFramework/PlayerController.h"
 #include "../Private/Character/GameController.h"
 #include "../../HUD/GameHUD.h"
 #include "TagStatics.h"
@@ -23,6 +22,9 @@ UGPickup::UGPickup()
 	, ItemInRotaitonPosition(nullptr)
 	, bButtonReleased(false)
 	, bPickUpStarted(false)
+ , bFreeMouse(false)
+	, bOverItem(false)
+	, ItemToInteract(nullptr)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -32,14 +34,7 @@ UGPickup::UGPickup()
 	bMassEffectsMovementSpeed = true;
 	bUseQuadratricEquationForSpeedCalculation = true;
 
-	bTwoHandMode = true;
-	bStackModeEnabled = true;
-	bNeedBothHands = true;
-	bBothHandsDependOnMass = true;
-	MassThresholdBothHands = 1.5f;
-
-	bBothHandsDependOnVolume = false;
-	VolumeThresholdBothHands = 3000.0f;
+ bTwoHandMode = true;
 
 	bCheckForCollisionsOnPickup = false;
 	bCheckForCollisionsOnDrop = true;
@@ -48,7 +43,6 @@ UGPickup::UGPickup()
 	TransparentMaterial = nullptr;
 }
 
-
 // Called when the game starts
 void UGPickup::BeginPlay()
 {
@@ -56,14 +50,18 @@ void UGPickup::BeginPlay()
 
 	SetOfPickupItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), PLUGIN_TAG, TAG_KEY_PICKUP, "True");
 
+	// Go through the pickup items and give them mouse over events
+	for (AActor* InteractableItem : SetOfPickupItems)
+	{
+			InteractableItem->OnBeginCursorOver.AddDynamic(this, &UGPickup::CustomOnBeginMouseOver);
+			InteractableItem->OnEndCursorOver.AddDynamic(this, &UGPickup::CustomOnEndMouseOver);
+	}
+
 	if (PlayerCharacter == nullptr) UE_LOG(LogTemp, Fatal, TEXT("UCPickup::BeginPlay: The PlayerCharacter was not assigned. Restarting the editor might fix this."));
 
 	RaycastRange = PlayerCharacter->GraspRange;
 
 	UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
-
-	PlayerInputComponent->BindAction("CancelAction", IE_Pressed, this, &UGPickup::CancelActions);
-	PlayerInputComponent->BindAction("CancelAction", IE_Released, this, &UGPickup::StopCancelActions);
 
 	// Create Static mesh actors for hands to weld items we pickup into this position
 	if (PlayerCharacter->LeftHandPosition == nullptr || PlayerCharacter->RightHandPosition == nullptr || PlayerCharacter->BothHandPosition == nullptr) {
@@ -102,10 +100,11 @@ void UGPickup::BeginPlay()
 
 	/////////////////////////////////////////////////////////
 
-	UGameMode = (AUGameModeBase*)GetWorld()->GetAuthGameMode();
-	//Character = Cast<AGameController>(GetWorld()->GetFirstPlayerController());
-}
+ // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
+ PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+ PlayerController->bEnableMouseOverEvents = true;
 
+}
 
 // Called every frame
 void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -115,331 +114,22 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	bool bLockedByOtherComponent = PlayerCharacter->LockedByComponent != nullptr &&  PlayerCharacter->LockedByComponent != this;
 
 	// Handle the menu for the pickup and the rotation (Milestone 2)
-	if (bLockedByOtherComponent == false && bAllCanceled == false) {
-		ItemToHandle = PlayerCharacter->FocussedActor;
-
-		// Pick is initiated and first it will be asked for rotation
-		if (bRightMouseHold && !bRotationMenuActivated && !bPickupnMenuActivated) {
-			bRotationMenuActivated = true;
-			UGameMode->DrawHudMenu();
-			bPickUpStarted = true;
-		}
-		// Player choose to rotate the object first
-		else if (bLeftMouseHold && bRotationMenuActivated)
-		{
-			bRotationStarted = true;
-			UGameMode->RemoveMenu();
-			bRotationMenuActivated = false;
-			MoveToRotationPosition();
-		}
-		// Instead of rotation the player wants to directly pick the object up
-		else if (bRightMouseHold && bRotationMenuActivated && bButtonReleased)
-		{
-			bRotationStarted = false;
-			bRotationMenuActivated = false;
-			UGameMode->RemoveMenu();
-			bPickupnMenuActivated = true;
-			UGameMode->DrawPickupHudMenu();
-			bButtonReleased = false;
-		}
-
-		// Pickup with either left or right hand
-		if (bLeftMouseHold && bPickupnMenuActivated && !bRotationMenuActivated && bPickUpStarted)
-		{
-			bRotationStarted = false;
-			UGameMode->RemoveMenu();
-			PickUpItemAfterMenu(true);
-			bPickUpStarted = false;
-		}
-		else if (bRightMouseHold && bPickupnMenuActivated && !bRotationMenuActivated && bPickUpStarted && bButtonReleased)
-		{
-			bRotationStarted = false;
-			UGameMode->RemoveMenu();
-			PickUpItemAfterMenu(false);
-			bPickUpStarted = false;
-			bButtonReleased = false;
-		}
-	}
-}
-
-void UGPickup::StartPickup()
-{
-	if (bTwoHandMode == false && (ItemInRightHand != nullptr || ItemInLeftHand != nullptr)) return; // We only have one hand but already holding something
-	SetLockedByComponent(true);
-
-	PlayerCharacter->bRaytraceEnabled = false;
-	if (bStackModeEnabled == false) {
-		BaseItemToPick = ItemToHandle;
-	}
-	else {
-		BaseItemToPick = GetItemStack(ItemToHandle);
-	}
-
-	UStaticMeshComponent* MeshComponent = BaseItemToPick->GetStaticMeshComponent();
-	MeshComponent->SetSimulatePhysics(true);
-
-	// Check mass
-	MassOfLastItemPickedUp = MeshComponent->GetMass();
-
-	if (MassOfLastItemPickedUp + MassToCarry > MaximumMassToCarry) {
-		GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Red, "Object too heavy.", false);
-		UE_LOG(LogTemp, Warning, TEXT("Object too heavy %f kg"), MassOfLastItemPickedUp + MassToCarry);
-		MassOfLastItemPickedUp = 0;
-
-		UnstackItems(BaseItemToPick);
-
-		BaseItemToPick = nullptr;
-		PlayerCharacter->bRaytraceEnabled = true;
-		return;
-	}
-	//  *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-
-	if (bMassEffectsMovementSpeed) SetMovementSpeed(MassOfLastItemPickedUp);
-
-	// Check if both hands are needed
-	if (bNeedBothHands && CalculateIfBothHandsNeeded()) {
-		// Both hands needed
-		if (bTwoHandMode && ItemInRightHand == nullptr && ItemInLeftHand == nullptr) {
-			UsedHand = EHand::Both;
-		}
-		else {
-			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Red, "Object too heavy. Both hands needed!", false);
-
-			UnstackItems(BaseItemToPick);
-
-			BaseItemToPick = nullptr;
-			PlayerCharacter->bRaytraceEnabled = true;
-			return;
-		}
-	}
-	// *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-}
-
-void UGPickup::PickupItem()
-{
-	if (BaseItemToPick == nullptr || bItemCanBePickedUp == false) {
-		SetMovementSpeed(-MassOfLastItemPickedUp);
-		return;
-	}
-
-	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
-	TransformRules.bWeldSimulatedBodies = true;
-
-	if (UsedHand == EHand::Right) {
-		if (ItemInRightHand != nullptr) return; // We already carry something 
-		BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
-		ItemInRightHand = BaseItemToPick;
-	}
-	else if (UsedHand == EHand::Left) {
-		if (ItemInLeftHand != nullptr) return; // We already carry something 
-		BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
-		ItemInLeftHand = BaseItemToPick;
-	}
-	else if (UsedHand == EHand::Both) {
-		if (ItemInRightHand != nullptr || ItemInLeftHand != nullptr) return; // We already carry something 
-		BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
-		ItemInRightHand = ItemInLeftHand = BaseItemToPick;
-	}
-
-	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
-	BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
-
-	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
-
-	// Disable collisions
-	if (bEnableCollisionOfItemsInHand == false) {
-		BaseItemToPick->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		TArray<AActor*> Children;
-		BaseItemToPick->GetAttachedActors(Children);
-		for (auto& Child : Children) {
-			AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(Child);
-			if (CastActor != nullptr) CastActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-	}
-
-	BaseItemToPick = nullptr;
-
-	PlayerCharacter->bRaytraceEnabled = true;
-}
-
-void UGPickup::ShadowPickupItem()
-{
-	if (ItemToHandle == nullptr) return;
-	if (BaseItemToPick == nullptr) return;
-
-	DisableShadowItems();
-
-	FVector HandPosition;
-
-	if (UsedHand == EHand::Right) {
-		HandPosition = RightHandActor->GetActorLocation();
-	}
-	else if (UsedHand == EHand::Left) {
-		HandPosition = LeftHandActor->GetActorLocation();
-	}
-	else {
-		HandPosition = BothHandActor->GetActorLocation();
-	}
-
-	TArray<AActor*> ChildItemsOfBaseItem;
-	BaseItemToPick->GetAttachedActors(ChildItemsOfBaseItem);
-
-	AStaticMeshActor* ShadowRoot = GetNewShadowItem(BaseItemToPick);
-	ShadowItems.Add(ShadowRoot);
-
-	// Create new shadow items for each child
-	for (auto& ItemToShadow : ChildItemsOfBaseItem) {
-		AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(ItemToShadow);
-
-		if (CastActor == nullptr) return;
-
-		AStaticMeshActor* ShadowItem = GetNewShadowItem(CastActor);
-		ShadowItems.Add(ShadowItem);
-
-		ShadowItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
-		TransformRules.bWeldSimulatedBodies = true;
-
-		ShadowItem->AttachToActor(ShadowRoot, TransformRules);
-	}
-	//  *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-
-	ShadowRoot->SetActorLocation(HandPosition);
-
-	if (bCheckForCollisionsOnPickup) {
-		// Check for collisions in between
-		FVector CamLoc;
-		FRotator CamRot;
-		PlayerCharacter->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-
-		FHitResult RaycastHit = RaytraceWithIgnoredActors(ChildItemsOfBaseItem);
-
-		if (RaycastHit.Location != FVector::ZeroVector) {
-			ShadowRoot->SetActorScale3D(FVector(PICKUP_SHADOW_SCALE_FACTOR));
-			FVector FromPosition = RaycastHit.Location;
-			FVector ToPosition = CamLoc;
-
-			// *** Ignored Actors
-			TArray<AActor*> IgnoredActors = ChildItemsOfBaseItem; // ignore items to pickup 
-			IgnoredActors.Add(BaseItemToPick);
-			IgnoredActors.Append(ShadowItems); //All shadow items are ignored
-			IgnoredActors.Add(ItemInLeftHand);
-			IgnoredActors.Add(ItemInRightHand);
-
-			// Add all children in hands to ignored actors
-			if (ItemInLeftHand != nullptr) {
-				TArray<AActor*> ChildrenInLeftHand;
-				ItemInLeftHand->GetAttachedActors(ChildrenInLeftHand);
-
-				IgnoredActors.Append(ChildrenInLeftHand);
-			}
-			if (ItemInRightHand != nullptr) {
-				TArray<AActor*> ChildrenInRightHand;
-				ItemInRightHand->GetAttachedActors(ChildrenInRightHand);
-
-				IgnoredActors.Append(ChildrenInRightHand);
-			}
-			// *****************
-
-			FHitResult SweepHit = CheckForCollision(FromPosition, ToPosition, ShadowRoot, IgnoredActors);
-
-			ShadowRoot->SetActorScale3D(FVector(1.0f));
-
-			if (SweepHit.GetActor() != nullptr) {
-				ShadowRoot->SetActorLocation(SweepHit.Location);
-				bItemCanBePickedUp = false;
-			}
-			else {
-				ShadowRoot->SetActorLocation(HandPosition);
-				bItemCanBePickedUp = true;
-			}
-		}
-	}
-	else {
-		ShadowRoot->SetActorLocation(HandPosition);
-		bItemCanBePickedUp = true;
-	}
-
-	ShadowBaseItem = ShadowRoot;
-}
-
-TArray<AStaticMeshActor*> UGPickup::FindAllStackableItems(AStaticMeshActor* ActorToPickup)
-{
-	TArray<AStaticMeshActor*>  StackedItems;
-	int countNewItemsFound = 0;
-	do
-	{
-		countNewItemsFound = 0;
-		TArray<AActor*> IgnoredActors;
-
-		for (auto &elem : StackedItems) {
-			IgnoredActors.Add(elem);
-		}
-
-		FVector SecondPointOfSweep = ActorToPickup->GetActorLocation() + FVector::UpVector * STACKCHECK_RANGE;
-		TArray<FHitResult> SweptActors;
-		FComponentQueryParams Params;
-		Params.AddIgnoredComponent_LikelyDuplicatedRoot(ActorToPickup->GetStaticMeshComponent());
-		Params.AddIgnoredActors(IgnoredActors);
-		Params.bTraceComplex = true;
-		Params.bFindInitialOverlaps = true;
-
-		ActorToPickup->GetWorld()->ComponentSweepMulti(
-			SweptActors,
-			ActorToPickup->GetStaticMeshComponent(),
-			ActorToPickup->GetActorLocation(),
-			SecondPointOfSweep,
-			ActorToPickup->GetActorRotation(),
-			Params);
-
-		for (auto& elem : SweptActors) {
-			if (elem.GetActor() != nullptr) {
-				if (SetOfPickupItems.Contains(elem.GetActor())) {
-					AStaticMeshActor* CastedActor = Cast<AStaticMeshActor>(elem.GetActor());
-
-					if (StackedItems.Contains(CastedActor)) continue;
-
-					UE_LOG(LogTemp, Warning, TEXT("Found item while sweeping %s"), *elem.GetActor()->GetName());
-					FVector elemLocation = elem.GetActor()->GetActorLocation();
-					FVector ActorToPickupLocation = ActorToPickup->GetActorLocation();
-
-					if (elemLocation.Z < ActorToPickupLocation.Z) {
-						UE_LOG(LogTemp, Warning, TEXT("Ignoring lower item %s"), *elem.GetActor()->GetName());
-						continue; // ignore if the found item is lower than base item 
-					}
-
-					FVector DeltaPosition = elemLocation - ActorToPickupLocation;
-
-					if (CastedActor != nullptr) {
-						StackedItems.Add(CastedActor);
-						countNewItemsFound++;
-					}
-				}
-				else if (elem.GetActor()->GetActorLocation().Z >= ActorToPickup->GetActorLocation().Z) {
-					break; // Break at non-pickupable item which is above our base item (It's probably a shelf or something)
-				}
-			}
-		}
-	} while (countNewItemsFound > 0);
-
-	return StackedItems;
-}
-
-AStaticMeshActor * UGPickup::GetItemStack(AStaticMeshActor * BaseItem)
-{
-	TArray<AStaticMeshActor*>  StackOfItems = FindAllStackableItems(BaseItem);
-
-	StackOfItems.Remove(BaseItem);
-
-	for (auto& ChildItem : StackOfItems) {
-		FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
-		TransformRules.bWeldSimulatedBodies = true;
-
-		ChildItem->AttachToActor(BaseItem, TransformRules);
-	}
-
-	return BaseItem;
+	if (bLockedByOtherComponent == false) 
+ {
+  // Mouse is free and right mouse button was pressed again
+  if (bFreeMouse && !bRightMouse && !bPickupnMenuActivated && bOverItem)
+  {
+   if (ItemToInteract != nullptr) 
+   {
+    ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
+    bPickupnMenuActivated = true;
+   }  
+  }			
+  else 
+  {
+   bPickupnMenuActivated = false;
+  }
+ }
 }
 
 AStaticMeshActor * UGPickup::GetNewShadowItem(AStaticMeshActor * FromActor)
@@ -527,21 +217,14 @@ FVector UGPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
 	return FVector(PointOnSurface.X, PointOnSurface.Y, PointOnSurface.Z + ItemBoundExtend.Z) - DeltaOfPivotToCenter;
 }
 
-FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector StartOffset, FVector TargetOffset)
+FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector MousePosition, FVector MouseDirection)
 {
 	FHitResult RaycastResult;
 
-	FVector CamLoc;
-	FRotator CamRot;
-
-	PlayerCharacter->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-	const FVector StartTrace = CamLoc + StartOffset; // trace start is the camera location
-	const FVector Direction = CamRot.Vector();
-	const FVector EndTrace = StartTrace + Direction * RaycastRange + TargetOffset; // and trace end is the camera location + an offset in the direction
+	const FVector EndTrace = MousePosition + MouseDirection * RaycastRange; // and trace end is the camera location + an offset in the direction
 
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(IgnoredActors);
-
 
 	TArray<AActor*> ShadowActors;
 	for (auto& shadow : ShadowItems) {
@@ -552,7 +235,7 @@ FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FV
 	if (ShadowBaseItem != nullptr) TraceParams.AddIgnoredActor(ShadowBaseItem); // Always ignore shadow item
 	TraceParams.AddIgnoredActor(GetOwner()); // Always ignore player
 
-	GetWorld()->LineTraceSingleByChannel(RaycastResult, StartTrace, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
+	GetWorld()->LineTraceSingleByChannel(RaycastResult, MousePosition, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
 
 	return RaycastResult;
 }
@@ -568,96 +251,40 @@ void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
 
 void UGPickup::InputLeftHandPressed()
 {
-	if (bLeftMouseHold) return; // We already clicked that key
-	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
+	if (bLeftMouse) return; // We already clicked that key
+	if (bRightMouse) return; // Ignore this call if the other key has been pressed
 
-	bLeftMouseHold = true;
-	UsedHand = EHand::Left;
-	OnInteractionKeyPressed(false);
+	bLeftMouse = true;
+	//UsedHand = EHand::Left;
 }
 
 void UGPickup::InputLeftHandReleased()
 {
-	if (bLeftMouseHold == false) return; // We can't release if we didn't clicked first
-	if (bRightMouseHold) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
+	if (bLeftMouse == false) return; // We can't release if we didn't clicked first
+	if (bRightMouse) return; // Ignore this call if the other key has been pressed
 
-	bLeftMouseHold = false;
-	OnInteractionKeyReleased(false);
+	bLeftMouse = false;
 }
 
 void UGPickup::InputRightHandPressed()
 {
-	if (bRightMouseHold) return; // We already clicked that key
-	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
+	//if (bRightMouse) return; // We already clicked that key
+	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
 
-	bRightMouseHold = true;
-	UsedHand = EHand::Right;
-	OnInteractionKeyPressed(true);
+	bRightMouse = !bRightMouse;
+
+ if (bRightMouse) {
+  bFreeMouse = true;
+ }
+	//UsedHand = EHand::Right;
 }
 
 void UGPickup::InputRightHandReleased()
 {
-	if (bRightMouseHold == false) return;  // We can't release if we didn't clicked first
-	if (bLeftMouseHold) return; // Ignore this call if the other key has been pressed
-	if (bIsStackChecking) return; // Don't react if stackchecking is active
+	if (bRightMouse == false) return;  // We can't release if we didn't clicked first
+	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
 
 	bButtonReleased = true;
-	bRightMouseHold = false;
-	OnInteractionKeyReleased(true);
-}
-
-void UGPickup::OnInteractionKeyPressed(bool bIsRightKey)
-{
-	if (ItemToHandle != nullptr) {
-		if (SetOfPickupItems.Contains(ItemToHandle)) {
-			if (bIsRightKey) {
-				// Right hand handling
-				if (ItemInRightHand == nullptr) {
-					StartPickup();
-				}
-				else {
-					if (bIsItemDropping == false) StartDropItem();
-				}
-			}
-			else {
-				// Left hand handling
-				if (ItemInLeftHand == nullptr) {
-					StartPickup();
-				}
-				else {
-					if (bIsItemDropping == false) StartDropItem();
-				}
-			}
-		}
-	}
-	else {
-		if (bIsItemDropping == false) StartDropItem();
-	}
-}
-
-void UGPickup::OnInteractionKeyHold(bool bIsRightKey)
-{
-	if (bIsItemDropping) {
-		ShadowDropItem();
-	}
-	else {
-		ShadowPickupItem();
-	}
-}
-
-void UGPickup::OnInteractionKeyReleased(bool bIsRightKey)
-{
-	if (bIsItemDropping) {
-		DropItem();
-	}
-	else {
-		PickupItem();
-	}
-
-	ResetComponentState();
 }
 
 void UGPickup::ResetComponentState()
@@ -670,301 +297,63 @@ void UGPickup::ResetComponentState()
 
 void UGPickup::MoveToRotationPosition()
 {
-	if (ItemToHandle == nullptr) return;
-	if (BaseItemToPick == nullptr) return;
+	BaseItemToPick = ItemToHandle;
 
-	DisableShadowItems();
-
-	FVector HandPosition;
-
-	HandPosition = BothHandActor->GetActorLocation();
-	
-	TArray<AActor*> ChildItemsOfBaseItem;
-	BaseItemToPick->GetAttachedActors(ChildItemsOfBaseItem);
-
-	AStaticMeshActor* ShadowRoot = GetNewShadowItem(BaseItemToPick);
-	ShadowItems.Add(ShadowRoot);
-
-	// Create new shadow items for each child
-	for (auto& ItemToShadow : ChildItemsOfBaseItem) {
-		AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(ItemToShadow);
-
-		if (CastActor == nullptr) return;
-
-		AStaticMeshActor* ShadowItem = GetNewShadowItem(CastActor);
-		ShadowItems.Add(ShadowItem);
-
-		ShadowItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
-		TransformRules.bWeldSimulatedBodies = true;
-
-		ShadowItem->AttachToActor(ShadowRoot, TransformRules);
-	}
-	//  *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-
-	ShadowRoot->SetActorLocation(HandPosition);
-
-	if (bCheckForCollisionsOnPickup) {
-		// Check for collisions in between
-		FVector CamLoc;
-		FRotator CamRot;
-		PlayerCharacter->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-
-		FHitResult RaycastHit = RaytraceWithIgnoredActors(ChildItemsOfBaseItem);
-
-		if (RaycastHit.Location != FVector::ZeroVector) {
-			ShadowRoot->SetActorScale3D(FVector(PICKUP_SHADOW_SCALE_FACTOR));
-			FVector FromPosition = RaycastHit.Location;
-			FVector ToPosition = CamLoc;
-
-			// *** Ignored Actors
-			TArray<AActor*> IgnoredActors = ChildItemsOfBaseItem; // ignore items to pickup 
-			IgnoredActors.Add(BaseItemToPick);
-			IgnoredActors.Append(ShadowItems); //All shadow items are ignored
-			IgnoredActors.Add(ItemInLeftHand);
-			IgnoredActors.Add(ItemInRightHand);
-
-			// Add all children in hands to ignored actors
-			if (ItemInLeftHand != nullptr) {
-				TArray<AActor*> ChildrenInLeftHand;
-				ItemInLeftHand->GetAttachedActors(ChildrenInLeftHand);
-
-				IgnoredActors.Append(ChildrenInLeftHand);
-			}
-			if (ItemInRightHand != nullptr) {
-				TArray<AActor*> ChildrenInRightHand;
-				ItemInRightHand->GetAttachedActors(ChildrenInRightHand);
-
-				IgnoredActors.Append(ChildrenInRightHand);
-			}
-			// *****************
-
-			FHitResult SweepHit = CheckForCollision(FromPosition, ToPosition, ShadowRoot, IgnoredActors);
-
-			ShadowRoot->SetActorScale3D(FVector(1.0f));
-
-			if (SweepHit.GetActor() != nullptr) {
-				ShadowRoot->SetActorLocation(SweepHit.Location);
-				bItemCanBePickedUp = false;
-			}
-			else {
-				ShadowRoot->SetActorLocation(HandPosition);
-				bItemCanBePickedUp = true;
-			}
-		}
-	}
-	else {
-		ShadowRoot->SetActorLocation(HandPosition);
-		bItemCanBePickedUp = true;
+	// If we want to rotate an item from the hands the item in the hand has to be set to null.
+	if (ItemInLeftHand == BaseItemToPick)
+	{
+			ItemInLeftHand = nullptr;
+	} 
+	else if (ItemInRightHand == BaseItemToPick)
+	{
+			ItemInRightHand = nullptr;
 	}
 
-	ShadowBaseItem = ShadowRoot;
+ FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+ TransformRules.bWeldSimulatedBodies = true;
 
-	if (BaseItemToPick == nullptr || bItemCanBePickedUp == false) {
-		SetMovementSpeed(-MassOfLastItemPickedUp);
-		return;
-	}
+ BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
+ ItemInRotaitonPosition = BaseItemToPick;
 
-	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
-	TransformRules.bWeldSimulatedBodies = true;
+ BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
+ //BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
 
-	BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
-	ItemInRotaitonPosition = BaseItemToPick;
-		
-	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
-	BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
+ BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
-	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
-
-	// Disable collisions
-	if (bEnableCollisionOfItemsInHand == false) {
-		BaseItemToPick->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		TArray<AActor*> Children;
-		BaseItemToPick->GetAttachedActors(Children);
-		for (auto& Child : Children) {
-			AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(Child);
-			if (CastActor != nullptr) CastActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-	}
-
-	BaseItemToPick = nullptr;
-
-	PlayerCharacter->bRaytraceEnabled = true;
-
-	ResetComponentState();
+ bRotationStarted = true;
 }
+
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
 {
-	if (BaseItemToPick == nullptr || bItemCanBePickedUp == false) {
+	if (BaseItemToPick == nullptr) {
 		SetMovementSpeed(-MassOfLastItemPickedUp);
 		if (ItemInRotaitonPosition != nullptr)
 		{
 			BaseItemToPick = ItemInRotaitonPosition;
 		}
-		else
-		{
-			return;
+		else {
+			BaseItemToPick = ItemToHandle;
 		}
 	}	
 
-	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+ FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
 	TransformRules.bWeldSimulatedBodies = true;
 
 	if (!leftHand) {
-		if (ItemInRightHand != nullptr) return; // We already carry something 
 		BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
 		ItemInRightHand = BaseItemToPick;
-	}
-	else if (leftHand) {
-		if (ItemInLeftHand != nullptr) return; // We already carry something 
-		BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
-		ItemInLeftHand = BaseItemToPick;
-	}
+ }
+ else
+ {
+  BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
+  ItemInLeftHand = BaseItemToPick;
+ }
 
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
 	//BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
 
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
-
-	// Disable collisions
-	if (bEnableCollisionOfItemsInHand == false) {
-		BaseItemToPick->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		TArray<AActor*> Children;
-		BaseItemToPick->GetAttachedActors(Children);
-		for (auto& Child : Children) {
-			AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(Child);
-			if (CastActor != nullptr) CastActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-	}
-
-	BaseItemToPick = nullptr;
-
-	PlayerCharacter->bRaytraceEnabled = true;
-
-	if (ItemToHandle == nullptr) return;
-	if (BaseItemToPick == nullptr) return;
-
-	DisableShadowItems();
-
-	FVector HandPosition;
-
-	if (UsedHand == EHand::Right) {
-		HandPosition = RightHandActor->GetActorLocation();
-	}
-	else if (UsedHand == EHand::Left) {
-		HandPosition = LeftHandActor->GetActorLocation();
-	}
-	else {
-		HandPosition = BothHandActor->GetActorLocation();
-	}
-
-	TArray<AActor*> ChildItemsOfBaseItem;
-	BaseItemToPick->GetAttachedActors(ChildItemsOfBaseItem);
-
-	AStaticMeshActor* ShadowRoot = GetNewShadowItem(BaseItemToPick);
-	ShadowItems.Add(ShadowRoot);
-
-	// Create new shadow items for each child
-	for (auto& ItemToShadow : ChildItemsOfBaseItem) {
-		AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(ItemToShadow);
-
-		if (CastActor == nullptr) return;
-
-		AStaticMeshActor* ShadowItem = GetNewShadowItem(CastActor);
-		ShadowItems.Add(ShadowItem);
-
-		ShadowItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
-		TransformRules.bWeldSimulatedBodies = true;
-
-		ShadowItem->AttachToActor(ShadowRoot, TransformRules);
-	}
-	//  *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-
-	ShadowRoot->SetActorLocation(HandPosition);
-
-	if (bCheckForCollisionsOnPickup) {
-		// Check for collisions in between
-		FVector CamLoc;
-		FRotator CamRot;
-		PlayerCharacter->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-
-		FHitResult RaycastHit = RaytraceWithIgnoredActors(ChildItemsOfBaseItem);
-
-		if (RaycastHit.Location != FVector::ZeroVector) {
-			ShadowRoot->SetActorScale3D(FVector(PICKUP_SHADOW_SCALE_FACTOR));
-			FVector FromPosition = RaycastHit.Location;
-			FVector ToPosition = CamLoc;
-
-			// *** Ignored Actors
-			TArray<AActor*> IgnoredActors = ChildItemsOfBaseItem; // ignore items to pickup 
-			IgnoredActors.Add(BaseItemToPick);
-			IgnoredActors.Append(ShadowItems); //All shadow items are ignored
-			IgnoredActors.Add(ItemInLeftHand);
-			IgnoredActors.Add(ItemInRightHand);
-
-			// Add all children in hands to ignored actors
-			if (ItemInLeftHand != nullptr) {
-				TArray<AActor*> ChildrenInLeftHand;
-				ItemInLeftHand->GetAttachedActors(ChildrenInLeftHand);
-
-				IgnoredActors.Append(ChildrenInLeftHand);
-			}
-			if (ItemInRightHand != nullptr) {
-				TArray<AActor*> ChildrenInRightHand;
-				ItemInRightHand->GetAttachedActors(ChildrenInRightHand);
-
-				IgnoredActors.Append(ChildrenInRightHand);
-			}
-			// *****************
-
-			FHitResult SweepHit = CheckForCollision(FromPosition, ToPosition, ShadowRoot, IgnoredActors);
-
-			ShadowRoot->SetActorScale3D(FVector(1.0f));
-
-			if (SweepHit.GetActor() != nullptr) {
-				ShadowRoot->SetActorLocation(SweepHit.Location);
-				bItemCanBePickedUp = false;
-			}
-			else {
-				ShadowRoot->SetActorLocation(HandPosition);
-				bItemCanBePickedUp = true;
-			}
-		}
-	}
-	else {
-		ShadowRoot->SetActorLocation(HandPosition);
-		bItemCanBePickedUp = true;
-	}
-
-	ShadowBaseItem = ShadowRoot;
-}
-
-void UGPickup::OnStackCheckIsDone(bool wasSuccessful)
-{
-
-	bStackCheckSuccess = wasSuccessful;
-
-	if (bStackCheckSuccess) {
-		UE_LOG(LogTemp, Warning, TEXT("Stackcheck sucessful"));
-		BaseItemToPick = GetItemStack(ItemToHandle); // We need to reassign the whole stack
-		PickupItem();
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("Stackcheck failed"));
-		if (BaseItemToPick != nullptr) {
-			SetMovementSpeed(-MassOfLastItemPickedUp);
-			UnstackItems(BaseItemToPick);
-		}
-	}
-
-	bIsStackChecking = false;
-
-	if (PlayerCharacter->MovementComponent != nullptr) {
-		PlayerCharacter->MovementComponent->SetMovable(true);
-	}
+ BaseItemToPick = nullptr;
 }
 
 void UGPickup::StartDropItem()
@@ -1124,30 +513,6 @@ void UGPickup::ShadowDropItem()
 	}
 }
 
-void UGPickup::CancelActions()
-{
-	bAllCanceled = true;
-	ResetComponentState();
-
-
-	if (bIsItemDropping == false) {
-		// Pick up event canceled
-		if (BaseItemToPick != nullptr) {
-			SetMovementSpeed(-MassOfLastItemPickedUp);
-		}
-	}
-
-	BaseItemToPick = nullptr;
-
-	bRightMouseHold = false;
-	bLeftMouseHold = false;
-}
-
-void UGPickup::StopCancelActions()
-{
-	bAllCanceled = false;
-}
-
 void UGPickup::CancelDetachItems()
 {
 	if (BaseItemToPick != nullptr) {
@@ -1170,32 +535,6 @@ void UGPickup::SetLockedByComponent(bool bIsLocked)
 	else {
 		PlayerCharacter->LockedByComponent = nullptr;
 	}
-}
-
-bool UGPickup::CalculateIfBothHandsNeeded()
-{
-	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(true);
-	if (bBothHandsDependOnMass) {
-		float MassOfItem = BaseItemToPick->GetStaticMeshComponent()->GetMass();
-		UE_LOG(LogTemp, Warning, TEXT("Mass of object %f"), MassOfItem);
-
-		if (MassOfItem >= MassThresholdBothHands) {
-			BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
-			return true;
-		}
-	}
-
-	if (bBothHandsDependOnVolume) {
-		float Volume = BaseItemToPick->GetStaticMeshComponent()->Bounds.GetBox().GetSize().SizeSquared();
-		UE_LOG(LogTemp, Warning, TEXT("Volume of object %f"), Volume);
-
-		if (Volume >= VolumeThresholdBothHands) {
-			BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
-			return true;
-		}
-	}
-	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
-	return false;
 }
 
 void UGPickup::SetMovementSpeed(float Weight)
@@ -1227,3 +566,24 @@ void UGPickup::SetMovementSpeed(float Weight)
 	}
 }
 
+void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)
+{
+		if (GEngine)
+		{
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over"));
+		}
+
+		bOverItem = true;
+		ItemToInteract = TouchedComponent;
+}
+
+void UGPickup::CustomOnEndMouseOver(AActor* TouchedComponent)
+{
+		if (GEngine)
+		{
+				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over End"));
+		}
+
+		bOverItem = false;
+		ItemToInteract = nullptr;
+}

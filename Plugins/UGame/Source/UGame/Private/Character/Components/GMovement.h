@@ -3,7 +3,6 @@
 
 #pragma once
 
-
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
 #include "Engine.h"
@@ -52,8 +51,6 @@ public:
 	// Renders the player movable/unmovable
 	void SetMovable(bool bCanMove);
 
-	// Toggle crouch
-	void ToggleCrouch();
 
 private:
 	// Regulates the max speed
@@ -66,18 +63,6 @@ private:
 
 	bool bCanMove;
 
-	// *** Crouching ***
-	float DefaultHeight;
-	bool bIsCrouching;
-
-	// Smooth crouch timer handle
-	FTimerHandle CrouchTimer;
-
-	// Smooth crouch
-	void SmoothCrouch();
-
-	// Smooth stand up
-	void SmoothStandUp();
 	// *** *** *** *** *** *** 
 
 	// After this point done by Waldemar Zeitler

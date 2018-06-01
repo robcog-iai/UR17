@@ -2,27 +2,11 @@
 // Author: Waldemar Zeitler
 
 #include "UGameModeBase.h"
+#include "Engine.h"
 #include "UGame.h"
 
 AUGameModeBase::AUGameModeBase()
 {
-	HUDClass = AGameHUD::StaticClass();
-	PickupHUD = CreateDefaultSubobject<AGameHUD>(TEXT("PickupHUD"));
-}
+ HUDClass = AGameHUD::StaticClass();
 
-
-
-void AUGameModeBase::DrawHudMenu()
-{
-	PickupHUD->DrawMenu();
-}
-
-void AUGameModeBase::RemoveMenu()
-{
-	PickupHUD->RemoveMenu();
-}
-
-void AUGameModeBase::DrawPickupHudMenu()
-{
-	PickupHUD->DrawPickUpMenu();
 }

@@ -7,6 +7,9 @@
 #include "../Private/Character/Components/GOpenClose.h"
 #include "../Private/Character/Components/GPickup.h"
 
+#include "../HUD/GameHUD.h"
+#include "../UGameModeBase.h"
+
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 
 #include "Engine/StaticMeshActor.h"
@@ -98,7 +101,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FHitResult GetRaycastResult();
 
 private:
 	ACharacter* Character;
@@ -115,10 +117,6 @@ private:
 	// Creates all actor components.
 	void SetupComponentsOnConstructor();
 
-	void StartRaytrace();
-
-	void CheckIntractability();
-
 	void SetPlayerMovable(bool bIsMovable);
 
 	void SetupScenario();
@@ -126,4 +124,16 @@ private:
 	//After this point the code is written by Wlademar Zeitler
 public:
 	APlayerController* PlayerController;
+
+	/** Checks if there are interactable objects in the viewport. */
+	bool CheckForVisibleObjects();
+
+ /** Game HUD. */
+ AGameHUD* PickupHUD;
+
+ // GameMode to access the menu hud.
+ AUGameModeBase* UGameMode;
+
+ // Rotation of the object.
+ FRotator ControlRotation;
 };
