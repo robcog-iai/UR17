@@ -85,14 +85,30 @@ FReply SPickupUI::PickUp()
  FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
  FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
 
- // Pickup in right or left hand
+ // Pickup in right or left hand. If both are used the item will be left.
  if (ViewportCenter < WidgetPosition.Get())
  {
-  GameHUD->GPickup->PickUpItemAfterMenu(false);
+			// Put item into left hand, if used in right hand
+		if (GameHUD->GPickup->ItemInRightHand == nullptr)
+		{
+				GameHUD->GPickup->PickUpItemAfterMenu(false);
+		}
+		else if (GameHUD->GPickup->ItemInLeftHand == nullptr)
+		{
+				GameHUD->GPickup->PickUpItemAfterMenu(true);
+		}  
  } 
  else
  {
-  GameHUD->GPickup->PickUpItemAfterMenu(true);
+			// Put item into right hand, of used in left hand
+		if (GameHUD->GPickup->ItemInLeftHand == nullptr)
+		{
+				GameHUD->GPickup->PickUpItemAfterMenu(true);
+		}
+		else if (GameHUD->GPickup->ItemInRightHand == nullptr)
+		{
+				GameHUD->GPickup->PickUpItemAfterMenu(false);
+		}
  }
  GameHUD->GPickup->bPickupnMenuActivated = false;
  GameHUD->GPickup->bFreeMouse = false;

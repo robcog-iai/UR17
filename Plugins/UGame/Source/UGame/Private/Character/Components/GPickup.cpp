@@ -299,6 +299,16 @@ void UGPickup::MoveToRotationPosition()
 {
 	BaseItemToPick = ItemToHandle;
 
+	// If we want to rotate an item from the hands the item in the hand has to be set to null.
+	if (ItemInLeftHand == BaseItemToPick)
+	{
+			ItemInLeftHand = nullptr;
+	} 
+	else if (ItemInRightHand == BaseItemToPick)
+	{
+			ItemInRightHand = nullptr;
+	}
+
  FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
  TransformRules.bWeldSimulatedBodies = true;
 
@@ -329,24 +339,14 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
  FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
 	TransformRules.bWeldSimulatedBodies = true;
 
-	if (!leftHand && ItemInRightHand == nullptr) {
+	if (!leftHand) {
 		BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
 		ItemInRightHand = BaseItemToPick;
  }
- else if (!leftHand && ItemInLeftHand == nullptr)
+ else
  {
   BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
   ItemInLeftHand = BaseItemToPick;
- }
- else if (leftHand && ItemInLeftHand == nullptr) 
- {
-  BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
-  ItemInLeftHand = BaseItemToPick;
- }
- else 
- {
-  BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
-  ItemInRightHand = BaseItemToPick;
  }
 
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
