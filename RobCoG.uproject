@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{CD5D5283-4294-8E9C-74BB-88A84F35B8F2}",
+	"EngineAssociation": "{2E012915-478F-CF99-7869-06BF70B50F01}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -18,6 +18,10 @@
 			"Name": "USemLog",
 			"Enabled": true,
 			"MarketplaceURL": "http://robcog.org/"
+		},
+		{
+			"Name": "URoboVision",
+			"Enabled": false
 		}
 	]
 }
