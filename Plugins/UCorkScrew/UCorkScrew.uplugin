@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "UCorkScrew",
+	"Description": "Contains an actor inside to, that works like a physical constraint, but is build to open objects.",
+	"Category": "Other",
+	"CreatedBy": "Kannan Thambiah and André Osse",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UCorkScrew",
+			"Type": "Developer",
+			"LoadingPhase": "Default"
+		}
+	]
+}
