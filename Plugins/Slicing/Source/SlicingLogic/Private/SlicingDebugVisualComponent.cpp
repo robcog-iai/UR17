@@ -1,6 +1,7 @@
 // Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #include "SlicingDebugVisualComponent.h"
+#include "SlicingBladeComponent.h"
 #include "SlicingTipComponent.h"
 #include "SlicingComponent.h"
 #include "SlicingHelper.h"
