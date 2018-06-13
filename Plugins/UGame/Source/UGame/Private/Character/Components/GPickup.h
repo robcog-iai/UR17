@@ -134,6 +134,8 @@ public:
 
 	bool bRotationStarted;
 
+ bool bInRotationPosition;
+
 	// Bool to check if the menu is active and movment should be stopped.
 	bool bRotationMenuActivated;
 	// Bool to check if pick up menu should be started.

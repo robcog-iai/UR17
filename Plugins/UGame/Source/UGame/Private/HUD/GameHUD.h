@@ -19,9 +19,6 @@ class UGAME_API AGameHUD : public AHUD
 	virtual void PostInitializeComponents() override;
 
 	// Reference to the Main Menu Slate UI.
-	TSharedPtr<class SRotationUI> RotationUI;
-
-	// Reference to the Main Menu Slate UI.
 	TSharedPtr<class SPickupUI> PickupUI;
 public:
 	AGameHUD();
@@ -39,18 +36,14 @@ protected:
 	TWeakObjectPtr<AActor> SelectedActor;
 
 public:
-	/** Draw menu to ask for rotation*/
-	void DrawMenu();
-
 	/** Remove menus on screen*/
 	void RemoveMenu();
 
-	/** Draw PickUp menu to ask for rotation*/
-	void DrawPickUpMenu(float MouseX = 0, float MouseY = 0);
+	/** Draw PickUp menu, with the pickup and rotation option*/
+	void DrawPickUpMenu(float MouseX, float MouseY);
 
 	/** Position on screen */
 	FVector2D MenuPosition;
 
- /** Referenz to GPickup*/
  UGPickup* GPickup;
 };

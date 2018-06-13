@@ -35,6 +35,7 @@ UGPickup::UGPickup()
 	bUseQuadratricEquationForSpeedCalculation = true;
 
  bTwoHandMode = true;
+ bInRotationPosition = false;
 
 	bCheckForCollisionsOnPickup = false;
 	bCheckForCollisionsOnDrop = true;
@@ -320,11 +321,14 @@ void UGPickup::MoveToRotationPosition()
 
  BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
+ bInRotationPosition = true;
  bRotationStarted = true;
 }
 
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
 {
+ bInRotationPosition = false;
+
 	if (BaseItemToPick == nullptr) {
 		SetMovementSpeed(-MassOfLastItemPickedUp);
 		if (ItemInRotaitonPosition != nullptr)

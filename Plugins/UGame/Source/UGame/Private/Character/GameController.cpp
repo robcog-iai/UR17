@@ -31,9 +31,12 @@ AGameController::AGameController()
 	PlayerController = nullptr;
 
 	// Setup for the components
-	MovementComponent = nullptr;
-	PickupComponent = nullptr;
-	OpenCloseComponent = nullptr;
+ MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
+ PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
+ OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
+
+ XMousePosition = .0f;
+ YMousePosition = .0f;
 
 	GetCapsuleComponent()->SetCapsuleRadius(0.01f);
 
@@ -110,23 +113,24 @@ void AGameController::Tick(float DeltaTime)
 	// Rotate the object depending of the rotation mode by Waldemar Zeitler
 	if (PickupComponent->bRotationStarted) 
  {
-  float XMouse;
-  float YMouse;
-  PlayerController->GetMousePosition(XMouse, YMouse);
+  float XMousePositionCurrent;
+  float YMousePositionCurrent;
 
-  if (ControlRotation.IsZero())
-  {
-   ControlRotation = FRotator(XMouse, 0, YMouse);
-  }
-  else 
-  {
-   ControlRotation -= FRotator(XMouse, 0, YMouse);
-   
+  PlayerController->GetMousePosition(XMousePositionCurrent, YMousePositionCurrent);
+
+  // Check if roation just startet
+  if (XMousePosition != .0f && YMousePosition != .0f)
+  { 
+   //Xrotation is differentyl calculated to rotate in the right direction
+   XMousePosition = XMousePositionCurrent - XMousePosition;
+   YMousePosition -= YMousePositionCurrent;
+   ControlRotation = FRotator(XMousePosition, 0, YMousePosition);
+
    PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
-
   }
 
-  ControlRotation = FRotator(XMouse, 0, YMouse);
+  XMousePosition = XMousePositionCurrent;
+  YMousePosition = YMousePositionCurrent;
 
   UE_LOG(LogTemp, Warning, TEXT("Rotation %s"), *ControlRotation.ToString());
 	}
@@ -144,18 +148,15 @@ void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AGameController::SetupComponentsOnConstructor()
 {
-	MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
 	MovementComponent->bEditableWhenInherited = true;
 	AddInstanceComponent(MovementComponent);
 	MovementComponent->RegisterComponent();
 
-	OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
 	OpenCloseComponent->bEditableWhenInherited = true;
 	AddInstanceComponent(OpenCloseComponent);
 	OpenCloseComponent->RegisterComponent();
 	OpenCloseComponent->PlayerCharacter = this;
 
-	PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
 	PickupComponent->bEditableWhenInherited = true;
 	AddInstanceComponent(PickupComponent);
 	PickupComponent->RegisterComponent();

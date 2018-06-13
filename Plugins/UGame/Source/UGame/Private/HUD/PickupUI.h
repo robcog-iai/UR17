@@ -23,11 +23,14 @@ public:
 	// args Arguments structure that contains widget-specific setup information.
 	void Construct(const FArguments& args);
 
-	// Click handler for the Quit Game button – Calls MenuHUD’s QuitGameClicked() event.
+	// Click handler for the pickup button.
 	FReply PickUp();
 
- // Click handler for the Quit Game button – Calls MenuHUD’s QuitGameClicked() event.
+ // Click handler for the rotation button .
  FReply Rotate();
+
+ // Click handler for the pickup after rotation button.
+ FReply PickUpAfterRotation(bool bLeftHand);
 
 	// Stores a weak reference to the HUD controlling this class.
 	TWeakObjectPtr<class AGameHUD> GameHUD;
@@ -36,6 +39,8 @@ public:
 
  // Position on screen
  TAttribute<FVector2D> WidgetPosition;
+
+ bool bInRotationMode;
 
 private:
 

@@ -136,4 +136,9 @@ public:
 
  // Rotation of the object.
  FRotator ControlRotation;
+
+private:
+ //Mouseposition coordinates, for the rotation of the object
+ float XMousePosition;
+ float YMousePosition;
 };
