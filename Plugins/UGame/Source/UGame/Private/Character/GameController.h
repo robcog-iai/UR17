@@ -114,9 +114,6 @@ private:
 	bool bIsMovementLocked; // Whether or not the player can move
 	bool bComponentsLocked;
 
-	// Creates all actor components.
-	void SetupComponentsOnConstructor();
-
 	void SetPlayerMovable(bool bIsMovable);
 
 	void SetupScenario();

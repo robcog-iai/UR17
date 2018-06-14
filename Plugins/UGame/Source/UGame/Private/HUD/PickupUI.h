@@ -7,6 +7,8 @@
 #pragma once
 
 #include "SlateBasics.h"
+#include "GameGlobalButtonStyle.h" 
+#include "GameButtonStyle.h"
 #include "GameHUD.h"
 
 // Lays out and controls the Main Menu UI for our tutorial.
@@ -36,6 +38,8 @@ public:
 	TWeakObjectPtr<class AGameHUD> GameHUD;
 
 	TSharedPtr<SGridPanel> ActionGrid;
+
+ const struct FGlobalStyle* ButtonStyle;
 
  // Position on screen
  TAttribute<FVector2D> WidgetPosition;

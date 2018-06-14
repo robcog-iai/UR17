@@ -32,16 +32,17 @@ AGameController::AGameController()
 
 	// Setup for the components
  MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
+
  PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
+ PickupComponent->PlayerCharacter = this;
+
  OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
+ OpenCloseComponent->PlayerCharacter = this; 
 
  XMousePosition = .0f;
  YMousePosition = .0f;
 
 	GetCapsuleComponent()->SetCapsuleRadius(0.01f);
-
-	SetupComponentsOnConstructor();
-
 }
 
 // Called when the game starts or when spawned
@@ -145,25 +146,6 @@ void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	if (PickupComponent != nullptr) PickupComponent->SetupKeyBindings(PlayerInputComponent);
 	if (OpenCloseComponent != nullptr) OpenCloseComponent->SetupKeyBindings(PlayerInputComponent);
 }
-
-void AGameController::SetupComponentsOnConstructor()
-{
-	MovementComponent->bEditableWhenInherited = true;
-	AddInstanceComponent(MovementComponent);
-	MovementComponent->RegisterComponent();
-
-	OpenCloseComponent->bEditableWhenInherited = true;
-	AddInstanceComponent(OpenCloseComponent);
-	OpenCloseComponent->RegisterComponent();
-	OpenCloseComponent->PlayerCharacter = this;
-
-	PickupComponent->bEditableWhenInherited = true;
-	AddInstanceComponent(PickupComponent);
-	PickupComponent->RegisterComponent();
-
-	PickupComponent->PlayerCharacter = this;
-}
-
 
 void AGameController::SetPlayerMovable(bool bIsMovable)
 {

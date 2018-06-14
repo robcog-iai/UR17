@@ -89,24 +89,14 @@ private:
 	EHand UsedHand; // The hand we currently use for our interaction
 
 	AStaticMeshActor* ItemToHandle; // The item which is currently focused by the player
-	AStaticMeshActor* ShadowBaseItem; // The shadow root item fr pickup and drop actions
-
-	// *** *** *** ***
-
-	AStaticMeshActor* GetNewShadowItem(AStaticMeshActor* FromActor);
 
 	// *** Dropping ***
 	bool bIsItemDropping;
-	void StartDropItem();
 	void DropItem();
-	void ShadowDropItem();
 	// *** *** *** ***
 
 	void UnstackItems(AStaticMeshActor* BaseItem); // De-stacks a stack of items
 
-	void CancelDetachItems(); // Simple detaches all children of the base item
-
-	void SetLockedByComponent(bool bIsLocked); // Tells the PLayerCharacter that this component has exclusive control
 
 	float MassToCarry; // The current mass the player carries
 	float MassOfLastItemPickedUp; // The mass of the item we try to pick up
@@ -114,7 +104,6 @@ private:
 	void SetMovementSpeed(float Weight);
 
 	FHitResult CheckForCollision(FVector From, FVector To, AStaticMeshActor* ItemToSweep, TArray<AActor*> IgnoredActors);
-	void DisableShadowItems();
 
 	FVector GetPositionOnSurface(AActor* Item, FVector PointOnSurface); // Calculates the final position of an item on a surface
 
@@ -124,11 +113,7 @@ private:
 	void InputLeftHandReleased();
 	void InputRightHandPressed();
 	void InputRightHandReleased();
-	// *** *** *** *** ***
 
-	void ResetComponentState();
-
-	//After this point added by Waldemar Zeitler
 public:
 	bool bPickUpStarted;
 

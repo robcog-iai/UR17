@@ -4,7 +4,6 @@
 #define PLUGIN_TAG "UGame"
 #define TAG_KEY_PICKUP "Pickup"
 #define STACKCHECK_RANGE 500.0f
-#define PICKUP_SHADOW_SCALE_FACTOR 0.4f // The scale factor when testing collisions on pickup
 
 #include "GPickup.h"
 #include "Components/StaticMeshComponent.h"
@@ -133,26 +132,6 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
  }
 }
 
-AStaticMeshActor * UGPickup::GetNewShadowItem(AStaticMeshActor * FromActor)
-{
-	FActorSpawnParameters Parameters;
-	AStaticMeshActor* NewShadowPickupItem = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), Parameters);
-
-	NewShadowPickupItem->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
-	NewShadowPickupItem->GetStaticMeshComponent()->SetSimulatePhysics(false);
-	NewShadowPickupItem->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-	NewShadowPickupItem->GetStaticMeshComponent()->SetStaticMesh(FromActor->GetStaticMeshComponent()->GetStaticMesh());
-	NewShadowPickupItem->SetActorLocationAndRotation(FromActor->GetActorLocation(), FromActor->GetActorRotation());
-
-	for (size_t i = 0; i < NewShadowPickupItem->GetStaticMeshComponent()->GetMaterials().Num(); i++)
-	{
-		NewShadowPickupItem->GetStaticMeshComponent()->SetMaterial(i, TransparentMaterial);
-	}
-
-	return NewShadowPickupItem;
-}
-
 void UGPickup::UnstackItems(AStaticMeshActor * BaseItem)
 {
 	if (BaseItem == nullptr) return;
@@ -167,7 +146,6 @@ void UGPickup::UnstackItems(AStaticMeshActor * BaseItem)
 	for (auto& DroppedItem : ChildItemsOfBaseItem) {
 		AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(DroppedItem);
 		DroppedItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
 		if (CastActor != nullptr) {
 			CastActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			CastActor->GetStaticMeshComponent()->SetSimulatePhysics(true);
@@ -192,21 +170,7 @@ FHitResult UGPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActo
 	return FHitResult();
 }
 
-void UGPickup::DisableShadowItems()
-{
-	for (auto& ShdwItm : ShadowItems) {
-		ShdwItm->Destroy();
-	}
-
-	ShadowItems.Empty();
-
-	if (ShadowBaseItem != nullptr)
-	{
-		ShadowBaseItem->Destroy();
-		ShadowBaseItem = nullptr;
-	}
-}
-
+//TODO: Check if necessary for dropping an item
 FVector UGPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
 {
 	FVector ItemOrigin;
@@ -218,6 +182,7 @@ FVector UGPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
 	return FVector(PointOnSurface.X, PointOnSurface.Y, PointOnSurface.Z + ItemBoundExtend.Z) - DeltaOfPivotToCenter;
 }
 
+//TODO: Check if necessary for dropping an item
 FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector MousePosition, FVector MouseDirection)
 {
 	FHitResult RaycastResult;
@@ -227,13 +192,6 @@ FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FV
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActors(IgnoredActors);
 
-	TArray<AActor*> ShadowActors;
-	for (auto& shadow : ShadowItems) {
-		ShadowActors.Add(shadow);
-	}
-	TraceParams.AddIgnoredActors(ShadowActors); // Always ignore shadow item
-
-	if (ShadowBaseItem != nullptr) TraceParams.AddIgnoredActor(ShadowBaseItem); // Always ignore shadow item
 	TraceParams.AddIgnoredActor(GetOwner()); // Always ignore player
 
 	GetWorld()->LineTraceSingleByChannel(RaycastResult, MousePosition, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
@@ -288,14 +246,6 @@ void UGPickup::InputRightHandReleased()
 	bButtonReleased = true;
 }
 
-void UGPickup::ResetComponentState()
-{
-	DisableShadowItems();
-	SetLockedByComponent(false);
-	PlayerCharacter->bRaytraceEnabled = true;
-	CancelDetachItems();
-}
-
 void UGPickup::MoveToRotationPosition()
 {
 	BaseItemToPick = ItemToHandle;
@@ -317,12 +267,14 @@ void UGPickup::MoveToRotationPosition()
  ItemInRotaitonPosition = BaseItemToPick;
 
  BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
- //BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
 
  BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
  bInRotationPosition = true;
  bRotationStarted = true;
+
+ BaseItemToPick = nullptr;
+ ItemToHandle = nullptr;
 }
 
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
@@ -334,6 +286,7 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 		if (ItemInRotaitonPosition != nullptr)
 		{
 			BaseItemToPick = ItemInRotaitonPosition;
+   ItemInRotaitonPosition = nullptr;
 		}
 		else {
 			BaseItemToPick = ItemToHandle;
@@ -354,191 +307,16 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
  }
 
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
-	//BaseItemToPick->SetActorRelativeRotation(FRotator::ZeroRotator);
 
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
- BaseItemToPick = nullptr;
-}
 
-void UGPickup::StartDropItem()
-{
-	bIsItemDropping = true;
-	SetLockedByComponent(true);
+ ItemToHandle = nullptr;
+ BaseItemToPick = nullptr;
 }
 
 void UGPickup::DropItem()
 {
-	bIsItemDropping = false;
-	if (ShadowBaseItem == nullptr) return;
-
-	AStaticMeshActor* ItemToDrop;
-
-	if (UsedHand == EHand::Right) {
-		ItemToDrop = ItemInRightHand;
-	}
-	else {
-		ItemToDrop = ItemInLeftHand; // Left hand or both hand item
-	}
-
-	if (ItemToDrop == nullptr) return;
-
-	TArray<AActor*> ChildItemsOfBaseItem;
-	ItemToDrop->GetAttachedActors(ChildItemsOfBaseItem);
-
-	ItemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	ItemToDrop->GetStaticMeshComponent()->SetSimulatePhysics(true);
-	ItemToDrop->SetActorLocation(ShadowBaseItem->GetActorLocation());
-	ItemToDrop->SetActorRotation(ShadowBaseItem->GetActorRotation());
-	ItemToDrop->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	float Mass = 0;
-
-	for (auto& DroppedItem : ChildItemsOfBaseItem) {
-		AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(DroppedItem);
-		DroppedItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
-		if (CastActor != nullptr) {
-			CastActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			CastActor->GetStaticMeshComponent()->SetSimulatePhysics(true);
-
-			Mass += CastActor->GetStaticMeshComponent()->GetMass();
-		}
-	}
-	Mass += ItemToDrop->GetStaticMeshComponent()->GetMass();
-
-	if (ItemInRightHand == ItemInLeftHand) {
-		ItemInRightHand = ItemInLeftHand = nullptr;
-	}
-	else if (UsedHand == EHand::Right) {
-		ItemInRightHand = nullptr;
-	}
-	else if (UsedHand == EHand::Left) {
-		ItemInLeftHand = nullptr;
-	}
-
-	if (bMassEffectsMovementSpeed) {
-		SetMovementSpeed(-Mass);
-	}
-}
-
-void UGPickup::ShadowDropItem()
-{
-	DisableShadowItems();
-
-	AStaticMeshActor* ItemToDrop;
-
-	if (UsedHand == EHand::Right) {
-		ItemToDrop = ItemInRightHand;
-	}
-	else {
-		ItemToDrop = ItemInLeftHand; // Left hand or both hand item
-	}
-
-	if (ItemToDrop == nullptr) return;
-
-	TArray<AActor*> ChildItemsOfBaseItem;
-	ItemToDrop->GetAttachedActors(ChildItemsOfBaseItem);
-
-	AStaticMeshActor* ShadowRoot = GetNewShadowItem(ItemToDrop);
-	ItemToDrop->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	ShadowItems.Add(ShadowRoot);
-
-	TArray<AActor*> IgnoredActors; // Actors that get ignored by following raytrace
-	IgnoredActors.Add(ItemToDrop);
-
-	for (auto& ItemToShadow : ChildItemsOfBaseItem) {
-		AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(ItemToShadow);
-
-		if (CastActor == nullptr) return;
-		CastActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-		AStaticMeshActor* ShadowItem = GetNewShadowItem(CastActor);
-		ShadowItems.Add(ShadowItem);
-
-		ShadowItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
-		TransformRules.bWeldSimulatedBodies = true;
-
-		ShadowItem->AttachToActor(ShadowRoot, TransformRules);
-		IgnoredActors.Add(CastActor);
-	}
-
-	FVector CamLoc;
-	FRotator CamRot;
-	PlayerCharacter->Controller->GetPlayerViewPoint(CamLoc, CamRot); // Get the camera position and rotation
-
-	FHitResult RaycastHit = RaytraceWithIgnoredActors(IgnoredActors);
-
-	if (RaycastHit.Actor != nullptr) {
-
-		if (bCheckForCollisionsOnDrop) {
-			ShadowRoot->SetActorRotation(ShadowRoot->GetActorRotation());
-
-			// Checking for collisions between the player and the position the player wants to drop the item
-			FVector FromPosition = CamLoc;
-			FVector ToPosition = RaycastHit.Location;
-
-			// *** Ignored Actors
-			TArray<AActor*> IgnoredActors = ChildItemsOfBaseItem; // ignore items to pickup 
-			IgnoredActors.Add(BaseItemToPick);
-			IgnoredActors.Append(ShadowItems); //All shadow items are ignored
-			IgnoredActors.Add(ItemInLeftHand);
-			IgnoredActors.Add(ItemInRightHand);
-
-			// Add all children in hands to ignored actors
-			if (ItemInLeftHand != nullptr) {
-				TArray<AActor*> ChildrenInLeftHand;
-				ItemInLeftHand->GetAttachedActors(ChildrenInLeftHand);
-
-				IgnoredActors.Append(ChildrenInLeftHand);
-			}
-			if (ItemInRightHand != nullptr) {
-				TArray<AActor*> ChildrenInRightHand;
-				ItemInRightHand->GetAttachedActors(ChildrenInRightHand);
-
-				IgnoredActors.Append(ChildrenInRightHand);
-			}
-			// *****************
-
-			FHitResult SweepHit = CheckForCollision(FromPosition, ToPosition, ShadowRoot, IgnoredActors);
-
-			if (SweepHit.GetActor() != nullptr) {
-				ShadowRoot->SetActorLocation(SweepHit.Location);
-				ShadowBaseItem = ShadowRoot;
-			}
-		}
-		else {
-			ShadowRoot->SetActorLocation(GetPositionOnSurface(ItemToDrop, RaycastHit.Location));
-			ShadowBaseItem = ShadowRoot;
-		}
-	}
-	else {
-		ShadowBaseItem = nullptr; // We didn't hit any surface
-	}
-}
-
-void UGPickup::CancelDetachItems()
-{
-	if (BaseItemToPick != nullptr) {
-		TArray<AActor*> Children;
-		BaseItemToPick->GetAttachedActors(Children);
-		for (auto& item : Children) {
-			AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(item);
-
-			CastActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			CastActor->GetStaticMeshComponent()->SetSimulatePhysics(true);
-		}
-	}
-}
-
-void UGPickup::SetLockedByComponent(bool bIsLocked)
-{
-	if (bIsLocked) {
-		PlayerCharacter->LockedByComponent = this;
-	}
-	else {
-		PlayerCharacter->LockedByComponent = nullptr;
-	}
+ //TODO: Implement dropping
 }
 
 void UGPickup::SetMovementSpeed(float Weight)

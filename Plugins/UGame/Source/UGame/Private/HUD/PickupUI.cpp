@@ -10,6 +10,7 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SPickupUI::Construct(const FArguments& args)
 {
 	GameHUD = args._GameHUD;
+ ButtonStyle = &FGameButtonStyles::Get().GetWidgetStyle<FGlobalStyle>("ButtonStyle");
 
 	ChildSlot
  .VAlign(VAlign_Fill)
@@ -23,7 +24,7 @@ void SPickupUI::Construct(const FArguments& args)
 			SNew(SCanvas)
 			+ SCanvas::Slot()
 		.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
-  .Size(FVector2D(200,200))
+  .Size(FVector2D(400,400))
 			[
 				SAssignNew(ActionGrid, SGridPanel)
 			]
@@ -40,6 +41,8 @@ void SPickupUI::Construct(const FArguments& args)
    .AutoHeight()
 			[
 				SNew(SButton)
+    .ButtonStyle(&ButtonStyle->MenuButtonStyle)
+    .TextStyle(&ButtonStyle->MenuButtonTextStyle)
 				.Text(FText::FromString("Rotate Object"))
 				.OnClicked(this, &SPickupUI::Rotate)
 			]
@@ -48,6 +51,8 @@ void SPickupUI::Construct(const FArguments& args)
    .HAlign(HAlign_Center)
 			[
 				SNew(SButton)
+    .ButtonStyle(&ButtonStyle->MenuButtonStyle)
+    .TextStyle(&ButtonStyle->MenuButtonTextStyle)
 				.Text(FText::FromString("Pick Object Up"))
 				.OnClicked(this, &SPickupUI::PickUp)
 			]
@@ -60,12 +65,16 @@ void SPickupUI::Construct(const FArguments& args)
 			+ SVerticalBox::Slot()
 			[
 				SNew(SButton)
+    .ButtonStyle(&ButtonStyle->MenuButtonStyle)
+    .TextStyle(&ButtonStyle->MenuButtonTextStyle)
 				.Text(FText::FromString("Put in left hand"))
 				.OnClicked(this, &SPickupUI::PickUpAfterRotation, true)
 			]
 			+ SVerticalBox::Slot()
 			[
 				SNew(SButton)
+    .ButtonStyle(&ButtonStyle->MenuButtonStyle)
+    .TextStyle(&ButtonStyle->MenuButtonTextStyle)
 				.Text(FText::FromString("Put in right hand"))
 				.OnClicked(this, &SPickupUI::PickUpAfterRotation, false)
 			]
