@@ -117,7 +117,7 @@ FReply SPickupUI::PickUp()
 				GameHUD->GPickup->PickUpItemAfterMenu(false);
 		}
  }
- GameHUD->GPickup->bPickupnMenuActivated = false;
+ GameHUD->GPickup->bPickupMenuActivated = false;
  GameHUD->GPickup->bFreeMouse = false;
  GameHUD->RemoveMenu();
 
@@ -126,11 +126,6 @@ FReply SPickupUI::PickUp()
 
 FReply SPickupUI::Rotate()
 {
- if (GEngine)
- {
-  GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Rotate"));
- }
-
  GameHUD->GPickup->MoveToRotationPosition();
  GameHUD->GPickup->bFreeMouse = false;
 
@@ -141,11 +136,6 @@ FReply SPickupUI::Rotate()
 
 FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 {
- if (GEngine)
- {
-  GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Pick up after rotation"));
- }
-
  if (bLeftHand)
  {
   if (GameHUD->GPickup->ItemInLeftHand == nullptr)
@@ -169,6 +159,7 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
   }
  }
 
+ GameHUD->GPickup->bPickupMenuActivated = false;
  GameHUD->GPickup->bFreeMouse = false;
  GameHUD->RemoveMenu();
 
@@ -178,8 +169,6 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 
 FVector2D SPickupUI::GetActionsWidgetPos() const
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Yellow, TEXT("Mouseposition returned."));
-
  // The viewport is necessary to get the excat mouseposition on the screen
  FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
  float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));

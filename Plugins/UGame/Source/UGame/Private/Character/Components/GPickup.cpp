@@ -17,7 +17,7 @@
 UGPickup::UGPickup()
 	:bRotationStarted(false)
 	, bRotationMenuActivated(false)
-	, bPickupnMenuActivated(false)
+	, bPickupMenuActivated(false)
 	, ItemInRotaitonPosition(nullptr)
 	, bButtonReleased(false)
 	, bPickUpStarted(false)
@@ -117,17 +117,17 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (bLockedByOtherComponent == false) 
  {
   // Mouse is free and right mouse button was pressed again
-  if (bFreeMouse && !bRightMouse && !bPickupnMenuActivated && bOverItem)
+  if (bFreeMouse && !bRightMouse && !bPickupMenuActivated && bOverItem)
   {
    if (ItemToInteract != nullptr) 
    {
     ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
-    bPickupnMenuActivated = true;
+    bPickupMenuActivated = true;
    }  
   }			
   else 
   {
-   bPickupnMenuActivated = false;
+   bPickupMenuActivated = false;
   }
  }
 }
@@ -350,10 +350,7 @@ void UGPickup::SetMovementSpeed(float Weight)
 
 void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)
 {
-		if (GEngine)
-		{
-				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over"));
-		}
+ UE_LOG(LogTemp, Warning, TEXT("Mouse over"));
 
 		bOverItem = true;
 		ItemToInteract = TouchedComponent;
@@ -361,10 +358,7 @@ void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)
 
 void UGPickup::CustomOnEndMouseOver(AActor* TouchedComponent)
 {
-		if (GEngine)
-		{
-				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, TEXT("Mouse Over End"));
-		}
+  UE_LOG(LogTemp, Warning, TEXT("Mouse over end"));
 
 		bOverItem = false;
 		ItemToInteract = nullptr;
