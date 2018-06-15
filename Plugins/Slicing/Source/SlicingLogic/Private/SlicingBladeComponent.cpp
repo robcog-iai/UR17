@@ -59,6 +59,12 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
 
+	// Have to check for null, as it randomly sets it to null for no reason...
+	if (CutComponent == NULL)
+	{
+		return;
+	}
+
 	// Makes the Cutting with Constraints possible, by somwehat disabling Gravity and Physics in a sense without actually deactivating them.
 	CutComponent->SetLinearDamping(100.f);
 	CutComponent->SetAngularDamping(100.f);
