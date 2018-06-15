@@ -82,6 +82,7 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	// that is being cut
 	if (!bIsCurrentlyCutting || OtherComp != CutComponent)
 	{
+		ResetResistance();
 		ResetState();
 		return;
 	}
@@ -89,6 +90,7 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	else if (TipComponent != NULL && OtherComp == TipComponent->CutComponent)
 	{
 		bIsCurrentlyCutting = false;
+		ResetResistance();
 		ResetState();
 		return;
 	}
@@ -102,9 +104,12 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 		bIsCurrentlyCutting = false;
 
+		ResetResistance();
 		ResetState();
 		return;
 	}
+
+	ResetResistance();
 
 	// After everything is checked, the actual slicing happens here
 	SliceComponent(OtherComp);
@@ -168,10 +173,10 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	CutComponent->GetOwner()->Destroy();
 }
 
-// Resets everything to the state the component was in before the cutting-process began
-void USlicingBladeComponent::ResetState()
+// Resets everything to the state the component was in before the dampening was set
+void USlicingBladeComponent::ResetResistance()
 {
-	bIsCurrentlyCutting = false;
+	// Reset the dampening
 	if (CutComponent)
 	{
 		CutComponent->SetLinearDamping(0.f);
@@ -179,7 +184,13 @@ void USlicingBladeComponent::ResetState()
 	}
 	SlicingObject->SetLinearDamping(0.f);
 	SlicingObject->SetAngularDamping(0.f);
-	CutComponent = NULL;
+}
+
+// Resets everything to the state the component was in before the cutting-process began
+void USlicingBladeComponent::ResetState()
+{
+	bIsCurrentlyCutting = false;
+	CutComponent = nullptr;
 
 	ConstraintOne->BreakConstraint();
 }

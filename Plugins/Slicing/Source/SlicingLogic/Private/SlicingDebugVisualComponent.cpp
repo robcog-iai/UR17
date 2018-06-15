@@ -106,7 +106,7 @@ void USlicingDebugVisualComponent::DrawCuttingExitPoint()
 		FVector(0, 1000, 0));
 
 	FHitResult Hits;
-	BladeComponent->CutComponent->LineTraceComponent(Hits, EndPosition, BladeComponent->GetComponentLocation(),
+	BladeComponent->CutComponent->LineTraceComponent(Hits, EndPosition, BladeComponent->CutComponent->GetComponentLocation(),
 		FCollisionQueryParams::DefaultQueryParam);
 	
 	DrawDebugBox(GetWorld(), Hits.Location, FVector(3, 3, 3), BladeComponent->CutComponent->GetComponentQuat(),

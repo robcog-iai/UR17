@@ -47,6 +47,7 @@ public:
 private:
 	/**** The slicing-logic ****/
 	void SliceComponent(UPrimitiveComponent* CuttableComponent);
+	void ResetResistance();
 	void ResetState();
 	void SetUpConstrains(UPrimitiveComponent* CuttableComponent);
 };
