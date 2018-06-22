@@ -70,12 +70,12 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	CutComponent->SetAngularDamping(100.f);
 
 	// Called incase the CutComponent has a tag !!! TODO: Build in Security !!!
-	if (CutComponent->ComponentHasTag(FName("Resistance")))
+	if (CutComponent->ComponentHasTag(FName("Resistance")) && (CutComponent->ComponentTags.IndexOfByKey("Resistance") + 1))
 	{
 		// A value in between 0 and 100.
 		int32 resistancePercentage = FCString::Atoi( *CutComponent->ComponentTags[(CutComponent->ComponentTags.IndexOfByKey("Resistance") + 1)].ToString());
 		((UStaticMeshComponent*)this->GetAttachParent())->SetLinearDamping(100000000000.f * ((resistancePercentage) / 100));
-		((UStaticMeshComponent*)this->GetAttachParent())->SetAngularDamping(100000000000.f * ((resistancePercentage) / 100));
+		//((UStaticMeshComponent*)this->GetAttachParent())->SetAngularDamping(100000000000.f * ((resistancePercentage) / 100));
 	}
 
 	SetUpConstrains(CutComponent);
