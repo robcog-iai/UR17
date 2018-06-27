@@ -86,7 +86,7 @@ void AGameController::Tick(float DeltaTime)
 
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
-	// Stop movment when menu is active by Wlademar Zeitler
+	// Stop movment when menu is active 
 	if (PickupComponent->bFreeMouse && !bIsMovementLocked)
 	{
 		SetPlayerMovable(false);
@@ -98,8 +98,12 @@ void AGameController::Tick(float DeltaTime)
 
  if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem)
  {
+  XMousePosition = .0f;
+  YMousePosition = .0f;
+
   float XMouse;
   float YMouse;
+
   PlayerController->GetMousePosition(XMouse, YMouse);
   PickupHUD->DrawPickUpMenu(XMouse, YMouse);
  }
@@ -111,7 +115,7 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bEnableMouseOverEvents = false;
 	}
 
-	// Rotate the object depending of the rotation mode by Waldemar Zeitler
+	// Rotate the object depending of the rotation mode 
 	if (PickupComponent->bRotationStarted) 
  {
   float XMousePositionCurrent;
@@ -122,10 +126,9 @@ void AGameController::Tick(float DeltaTime)
   // Check if roation just startet
   if (XMousePosition != .0f && YMousePosition != .0f)
   { 
-   //Xrotation is differentyl calculated to rotate in the right direction
    XMousePosition -= XMousePositionCurrent;
    YMousePosition -= YMousePositionCurrent;
-   //ControlRotation = FRotator(XMousePosition, 0, YMousePosition);
+
    ControlRotation = FRotator(YMousePosition, 0, XMousePosition);
 
    PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
@@ -134,7 +137,7 @@ void AGameController::Tick(float DeltaTime)
   XMousePosition = XMousePositionCurrent;
   YMousePosition = YMousePositionCurrent;
 
-  UE_LOG(LogTemp, Warning, TEXT("Rotation %s"), *ControlRotation.ToString());
+  UE_LOG(LogTemp, Warning, TEXT("Actor Rotation %s"), *PickupComponent->ItemInRotaitonPosition->GetActorRotation().ToString());
 	}
 }
 

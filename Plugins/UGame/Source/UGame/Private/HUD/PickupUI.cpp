@@ -31,7 +31,7 @@ void SPickupUI::Construct(const FArguments& args)
 		]
 	];
 
-	if (!GameHUD->GPickup->bInRotationPosition) {
+	if (!GameHUD->GPickup->bInRotationPosition && GameHUD->GPickup->ItemInLeftHand == nullptr && GameHUD->GPickup->ItemInRightHand == nullptr) {
 		ActionGrid->AddSlot(0,0)
 		[
 				SNew(SVerticalBox)
@@ -58,7 +58,23 @@ void SPickupUI::Construct(const FArguments& args)
 			]
 		];
 	}
-	else {
+ else if (GameHUD->GPickup->ItemInLeftHand != nullptr || GameHUD->GPickup->ItemInRightHand != nullptr)
+ {
+  ActionGrid->AddSlot(0, 0)
+  [
+    SNew(SVerticalBox)
+    + SVerticalBox::Slot()
+   [
+    SNew(SButton)
+    .ButtonStyle(&ButtonStyle->MenuButtonStyle)
+   .TextStyle(&ButtonStyle->MenuButtonTextStyle)
+   .Text(FText::FromString("Drop Item"))
+   //.OnClicked(this, &SPickupUI::PickUpAfterRotation, true)
+   ]
+  ];
+ }
+	else 
+ {
 		ActionGrid->AddSlot(0, 0)
 		[
 			SNew(SVerticalBox)

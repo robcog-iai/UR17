@@ -267,8 +267,9 @@ void UGPickup::MoveToRotationPosition()
  ItemInRotaitonPosition = BaseItemToPick;
 
  BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
-
  BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
+
+ 
 
  bInRotationPosition = true;
  bRotationStarted = true;
@@ -296,13 +297,16 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
  FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
 	TransformRules.bWeldSimulatedBodies = true;
 
-	if (!leftHand) {
-		BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
-		ItemInRightHand = BaseItemToPick;
+	if (!leftHand) 
+ {
+  BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
+
+  ItemInRightHand = BaseItemToPick;
  }
  else
  {
   BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
+
   ItemInLeftHand = BaseItemToPick;
  }
 
