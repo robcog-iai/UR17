@@ -1,10 +1,6 @@
-# Milestone 2 - deadline 30.03.18
+# Milestone 2 - Pickup and object rotation with a menu
 
-* Pickup and object rotation with a menu.
-
-# Documentation
-
-* Bug Note: Objects can't be dropped at the moment. Because of the changes made the rotation is not working correctly and needs some adjustments, so that a 360Â° rotation is possible.
+* Bug Note: Objects can't be dropped at the moment. Because of the changes made the rotation is not working correctly and needs some adjustments, so that a 360° rotation is possible.
 
 * The first part of the milestones was to create a separate plugin. This plugin only depends on Tags and unnecessary functions are removed.
 
@@ -161,15 +157,4 @@ Most of the functionality is done in the "GPickup" "TickComponent" were the clas
 This solution is at the moment a bit confusing and will be resolved at a later point.
 The actual pick up is as it was before but adjusted to picking up for rotation and putting the object in the left or right hand afterwards. As mentioned above dropping objects is not possible at the moment.
 
-# Tutorial
-
-* To pick an object up you have to look at it and push the right mouse button and afterwards the following menu will pop up.
-![](Img/Milestone2/FirstMenu.png "Rotation menu.")
-Now you have the choice either pick the object up (does not work at the moment) or rotated it. If you choose to rotated the object it will be moved to the center of the screen (an actor is used as placeholder) and it is now possible to rotate it with the mouse movement (at the moment a bit buggy).  
-![](Img/Milestone2/Rotation1.png "Rotation after menu.")
-When you are finished with the rotation you can push the right mouse button again and menu for moving the object to the right or left hand will be called. 
-![](Img/Milestone2/SecondMenu.png "Second menu after rotation.")   
-The object can now be moved to the left or right hand with just pressing a mouse button.
-![](Img/Milestone2/PickupAfterRotation.png "Pick up after rotation.")
-![](Img/Milestone2/PickupAfterRotaitonRight.png "Pick up after rotaiton in right hand.")
 
