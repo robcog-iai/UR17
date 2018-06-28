@@ -20,27 +20,27 @@ AGameController::AGameController()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
- // Chagned to 300 (from 120) for testing
+	// Chagned to 300 (from 120) for testing
 	GraspRange = 300.0f;
 	bRaytraceEnabled = true;
 
- // Initiate empty rotator
- ControlRotation = FRotator::ZeroRotator;
+	// Initiate empty rotator
+	ControlRotation = FRotator::ZeroRotator;
 
 	// Set PlayerController (by Waldemar Zeitler)
 	PlayerController = nullptr;
 
 	// Setup for the components
- MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
+	MovementComponent = CreateDefaultSubobject<UGMovement>(TEXT("Movement Component"));
 
- PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
- PickupComponent->PlayerCharacter = this;
+	PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
+	PickupComponent->PlayerCharacter = this;
 
- OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
- OpenCloseComponent->PlayerCharacter = this; 
+	OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
+	OpenCloseComponent->PlayerCharacter = this;
 
- XMousePosition = .0f;
- YMousePosition = .0f;
+	XMousePosition = .0f;
+	YMousePosition = .0f;
 
 	GetCapsuleComponent()->SetCapsuleRadius(0.01f);
 }
@@ -57,26 +57,26 @@ void AGameController::BeginPlay()
 		Character->PlayerState->bIsSpectator = true;
 	}
 
- // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
- PlayerController = Cast<APlayerController>(GetController());
+	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
+	PlayerController = Cast<APlayerController>(GetController());
 
- if (!PlayerController) {
-  UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
- }
+	if (!PlayerController) {
+		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
+	}
 
- PlayerController->bEnableMouseOverEvents = true;
+	PlayerController->bEnableMouseOverEvents = true;
 
 	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
-	
+
 	// *** *** *** *** *** ***
 	//LeftHandPosition = SpawnActor<AActor>(FVector(0, 0, 0), FRotator(0, 0, 0));
 
  // Setup HUD
- PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
+	PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
 
 	SetupScenario();
 
- PickupHUD->GPickup = PickupComponent;
+	PickupHUD->GPickup = PickupComponent;
 }
 
 // Called every frame
@@ -93,20 +93,20 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bShowMouseCursor = true;
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
-  PickupComponent->bRotationStarted = false;
+		PickupComponent->bRotationStarted = false;
 	}
 
- if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem)
- {
-  XMousePosition = .0f;
-  YMousePosition = .0f;
+	if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem)
+	{
+		XMousePosition = .0f;
+		YMousePosition = .0f;
 
-  float XMouse;
-  float YMouse;
+		float XMouse;
+		float YMouse;
 
-  PlayerController->GetMousePosition(XMouse, YMouse);
-  PickupHUD->DrawPickUpMenu(XMouse, YMouse);
- }
+		PlayerController->GetMousePosition(XMouse, YMouse);
+		PickupHUD->DrawPickUpMenu(XMouse, YMouse);
+	}
 	else if (!PickupComponent->bFreeMouse && bIsMovementLocked)
 	{
 		SetPlayerMovable(true);
@@ -116,28 +116,28 @@ void AGameController::Tick(float DeltaTime)
 	}
 
 	// Rotate the object depending of the rotation mode 
-	if (PickupComponent->bRotationStarted) 
- {
-  float XMousePositionCurrent;
-  float YMousePositionCurrent;
+	if (PickupComponent->bRotationStarted)
+	{
+		float XMousePositionCurrent;
+		float YMousePositionCurrent;
 
-  PlayerController->GetMousePosition(XMousePositionCurrent, YMousePositionCurrent);
+		PlayerController->GetMousePosition(XMousePositionCurrent, YMousePositionCurrent);
 
-  // Check if roation just startet
-  if (XMousePosition != .0f && YMousePosition != .0f)
-  { 
-   XMousePosition -= XMousePositionCurrent;
-   YMousePosition -= YMousePositionCurrent;
+		// Check if roation just startet
+		if (XMousePosition != .0f && YMousePosition != .0f)
+		{
+			XMousePosition -= XMousePositionCurrent;
+			YMousePosition -= YMousePositionCurrent;
 
-   ControlRotation = FRotator(YMousePosition, 0, XMousePosition);
+			ControlRotation = FRotator(YMousePosition, 0, XMousePosition);
 
-   PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
-  }
+			PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
+		}
 
-  XMousePosition = XMousePositionCurrent;
-  YMousePosition = YMousePositionCurrent;
+		XMousePosition = XMousePositionCurrent;
+		YMousePosition = YMousePositionCurrent;
 
-  UE_LOG(LogTemp, Warning, TEXT("Actor Rotation %s"), *PickupComponent->ItemInRotaitonPosition->GetActorRotation().ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Actor Rotation %s"), *PickupComponent->ItemInRotaitonPosition->GetActorRotation().ToString());
 	}
 }
 
@@ -191,7 +191,7 @@ bool AGameController::CheckForVisibleObjects()
 		TArray<FName> ObjectTags = Itr->Tags;
 		if (ObjectTags.Num() > 0 && ObjectTags[0].ToString().Contains("Pickup")) {
 			float Time = Itr->GetLastRenderTime();
-			if (Time > 0,1) return true;	
+			if (Time > 0, 1) return true;
 		}
 	}
 

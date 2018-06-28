@@ -21,7 +21,7 @@ UGPickup::UGPickup()
 	, ItemInRotaitonPosition(nullptr)
 	, bButtonReleased(false)
 	, bPickUpStarted(false)
- , bFreeMouse(false)
+	, bFreeMouse(false)
 	, bOverItem(false)
 	, ItemToInteract(nullptr)
 {
@@ -33,8 +33,8 @@ UGPickup::UGPickup()
 	bMassEffectsMovementSpeed = true;
 	bUseQuadratricEquationForSpeedCalculation = true;
 
- bTwoHandMode = true;
- bInRotationPosition = false;
+	bTwoHandMode = true;
+	bInRotationPosition = false;
 
 	bCheckForCollisionsOnPickup = false;
 	bCheckForCollisionsOnDrop = true;
@@ -53,8 +53,8 @@ void UGPickup::BeginPlay()
 	// Go through the pickup items and give them mouse over events
 	for (AActor* InteractableItem : SetOfPickupItems)
 	{
-			InteractableItem->OnBeginCursorOver.AddDynamic(this, &UGPickup::CustomOnBeginMouseOver);
-			InteractableItem->OnEndCursorOver.AddDynamic(this, &UGPickup::CustomOnEndMouseOver);
+		InteractableItem->OnBeginCursorOver.AddDynamic(this, &UGPickup::CustomOnBeginMouseOver);
+		InteractableItem->OnEndCursorOver.AddDynamic(this, &UGPickup::CustomOnEndMouseOver);
 	}
 
 	if (PlayerCharacter == nullptr) UE_LOG(LogTemp, Fatal, TEXT("UCPickup::BeginPlay: The PlayerCharacter was not assigned. Restarting the editor might fix this."));
@@ -101,8 +101,8 @@ void UGPickup::BeginPlay()
 	/////////////////////////////////////////////////////////
 
  // Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
- PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
- PlayerController->bEnableMouseOverEvents = true;
+	PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+	PlayerController->bEnableMouseOverEvents = true;
 
 }
 
@@ -114,22 +114,22 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	bool bLockedByOtherComponent = PlayerCharacter->LockedByComponent != nullptr &&  PlayerCharacter->LockedByComponent != this;
 
 	// Handle the menu for the pickup and the rotation (Milestone 2)
-	if (bLockedByOtherComponent == false) 
- {
-  // Mouse is free and right mouse button was pressed again
-  if (bFreeMouse && !bRightMouse && !bPickupMenuActivated && bOverItem)
-  {
-   if (ItemToInteract != nullptr) 
-   {
-    ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
-    bPickupMenuActivated = true;
-   }  
-  }			
-  else 
-  {
-   bPickupMenuActivated = false;
-  }
- }
+	if (bLockedByOtherComponent == false)
+	{
+		// Mouse is free and right mouse button was pressed again
+		if (bFreeMouse && !bRightMouse && !bPickupMenuActivated && bOverItem)
+		{
+			if (ItemToInteract != nullptr)
+			{
+				ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
+				bPickupMenuActivated = true;
+			}
+		}
+		else
+		{
+			bPickupMenuActivated = false;
+		}
+	}
 }
 
 void UGPickup::UnstackItems(AStaticMeshActor * BaseItem)
@@ -232,9 +232,9 @@ void UGPickup::InputRightHandPressed()
 
 	bRightMouse = !bRightMouse;
 
- if (bRightMouse) {
-  bFreeMouse = true;
- }
+	if (bRightMouse) {
+		bFreeMouse = true;
+	}
 	//UsedHand = EHand::Right;
 }
 
@@ -253,74 +253,74 @@ void UGPickup::MoveToRotationPosition()
 	// If we want to rotate an item from the hands the item in the hand has to be set to null.
 	if (ItemInLeftHand == BaseItemToPick)
 	{
-			ItemInLeftHand = nullptr;
-	} 
+		ItemInLeftHand = nullptr;
+	}
 	else if (ItemInRightHand == BaseItemToPick)
 	{
-			ItemInRightHand = nullptr;
+		ItemInRightHand = nullptr;
 	}
 
- FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
- TransformRules.bWeldSimulatedBodies = true;
+	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+	TransformRules.bWeldSimulatedBodies = true;
 
- BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
- ItemInRotaitonPosition = BaseItemToPick;
+	BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
+	ItemInRotaitonPosition = BaseItemToPick;
 
- BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
- BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
+	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
+	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
- 
 
- bInRotationPosition = true;
- bRotationStarted = true;
 
- BaseItemToPick = nullptr;
- ItemToHandle = nullptr;
+	bInRotationPosition = true;
+	bRotationStarted = true;
+
+	BaseItemToPick = nullptr;
+	ItemToHandle = nullptr;
 }
 
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
 {
- bInRotationPosition = false;
+	bInRotationPosition = false;
 
 	if (BaseItemToPick == nullptr) {
 		SetMovementSpeed(-MassOfLastItemPickedUp);
 		if (ItemInRotaitonPosition != nullptr)
 		{
 			BaseItemToPick = ItemInRotaitonPosition;
-   ItemInRotaitonPosition = nullptr;
+			ItemInRotaitonPosition = nullptr;
 		}
 		else {
 			BaseItemToPick = ItemToHandle;
 		}
-	}	
+	}
 
- FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
 	TransformRules.bWeldSimulatedBodies = true;
 
-	if (!leftHand) 
- {
-  BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
+	if (!leftHand)
+	{
+		BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
 
-  ItemInRightHand = BaseItemToPick;
- }
- else
- {
-  BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
+		ItemInRightHand = BaseItemToPick;
+	}
+	else
+	{
+		BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
 
-  ItemInLeftHand = BaseItemToPick;
- }
+		ItemInLeftHand = BaseItemToPick;
+	}
 
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
 
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
- ItemToHandle = nullptr;
- BaseItemToPick = nullptr;
+	ItemToHandle = nullptr;
+	BaseItemToPick = nullptr;
 }
 
 void UGPickup::DropItem()
 {
- //TODO: Implement dropping
+	//TODO: Implement dropping
 }
 
 void UGPickup::SetMovementSpeed(float Weight)
@@ -333,7 +333,7 @@ void UGPickup::SetMovementSpeed(float Weight)
 
 	float NewSpeed = 0;
 
-	if (Weight <= 0 /*We are dropping*/  && ItemInLeftHand == nullptr && ItemInRightHand == nullptr) {	// Check if we still carry something
+	if (Weight <= 0 /*We are dropping*/ && ItemInLeftHand == nullptr && ItemInRightHand == nullptr) {	// Check if we still carry something
 		PlayerCharacter->MovementComponent->CurrentSpeed = MaxMovementSpeed;
 		UE_LOG(LogTemp, Warning, TEXT("New speed %f"), MaxMovementSpeed);
 		MassOfLastItemPickedUp = 0;
@@ -354,16 +354,16 @@ void UGPickup::SetMovementSpeed(float Weight)
 
 void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)
 {
- UE_LOG(LogTemp, Warning, TEXT("Mouse over"));
+	UE_LOG(LogTemp, Warning, TEXT("Mouse over"));
 
-		bOverItem = true;
-		ItemToInteract = TouchedComponent;
+	bOverItem = true;
+	ItemToInteract = TouchedComponent;
 }
 
 void UGPickup::CustomOnEndMouseOver(AActor* TouchedComponent)
 {
-  UE_LOG(LogTemp, Warning, TEXT("Mouse over end"));
+	UE_LOG(LogTemp, Warning, TEXT("Mouse over end"));
 
-		bOverItem = false;
-		ItemToInteract = nullptr;
+	bOverItem = false;
+	ItemToInteract = nullptr;
 }

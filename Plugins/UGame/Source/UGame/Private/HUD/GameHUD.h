@@ -45,5 +45,5 @@ public:
 	/** Position on screen */
 	FVector2D MenuPosition;
 
- UGPickup* GPickup;
+	UGPickup* GPickup;
 };

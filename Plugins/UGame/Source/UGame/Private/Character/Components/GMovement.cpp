@@ -9,15 +9,15 @@
 // Sets default values for this component's properties
 UGMovement::UGMovement()
 	:CurrentSpeed(0)
-	,SpeedLimit(5.0f)
-	,SpeedUpValue(0.01f)
-	,SpeedUpTime(0.05f)
-	,bIsMoving(false)
+	, SpeedLimit(5.0f)
+	, SpeedUpValue(0.01f)
+	, SpeedUpTime(0.05f)
+	, bIsMoving(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	
+
 	MinMovementSpeed = 0.05f;
 	MaxMovementSpeed = 0.25f;
 

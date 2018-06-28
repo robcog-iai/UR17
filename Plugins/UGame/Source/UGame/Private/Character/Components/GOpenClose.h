@@ -35,7 +35,7 @@ protected:
 private:
 	TSet<AActor*> SetOfOpenCloasableItems; // All actors in the world that can be opened
 
-	void SetLockedByComponent(bool bIsLocked); 
+	void SetLockedByComponent(bool bIsLocked);
 
 	AStaticMeshActor* ClickedActor; // The last clicked actor
 	void AddForceToObject(float DeltaTime);

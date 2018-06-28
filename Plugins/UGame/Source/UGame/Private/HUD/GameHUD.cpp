@@ -8,12 +8,12 @@
 
 AGameHUD::AGameHUD()
 {
- GPickup = nullptr;
+	GPickup = nullptr;
 }
 
 void AGameHUD::PostInitializeComponents()
 {
-	Super::PostInitializeComponents();	
+	Super::PostInitializeComponents();
 }
 
 void AGameHUD::RemoveMenu()
@@ -24,8 +24,8 @@ void AGameHUD::RemoveMenu()
 void AGameHUD::DrawPickUpMenu(float MouseX, float MouseY)
 {
 	SAssignNew(PickupUI, SPickupUI).GameHUD(this);
- PickupUI->WidgetPosition = FVector2D(MouseX, MouseY);
-	
+	PickupUI->WidgetPosition = FVector2D(MouseX, MouseY);
+
 	if (GEngine->IsValidLowLevel())
 	{
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupUI.ToSharedRef()));

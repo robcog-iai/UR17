@@ -19,5 +19,4 @@ class UGAME_API AUGameModeBase : public AGameModeBase
 
 public:
 	AUGameModeBase();
-
 };

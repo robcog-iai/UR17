@@ -23,7 +23,7 @@ enum class EScenarioType : uint8
 {
 	OnePersonBreakfast,
 	TwoPersonBreakfast,
-	FourPersonBreakfast 
+	FourPersonBreakfast
 };
 
 UENUM(BlueprintType)
@@ -78,16 +78,15 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-
 	// Components attached to this actor
 	UPROPERTY(EditAnywhere, Instanced)
-	UGMovement* MovementComponent;
+		UGMovement* MovementComponent;
 
 	UPROPERTY(EditAnywhere, Instanced)
-	UGOpenClose* OpenCloseComponent;
+		UGOpenClose* OpenCloseComponent;
 
 	UPROPERTY(EditAnywhere, Instanced)
-	UGPickup* PickupComponent;
+		UGPickup* PickupComponent;
 
 	// ******************************
 
@@ -109,7 +108,7 @@ private:
 	FRotator PreviousRotation;
 
 	TSet<AActor*> SetOfInteractableItems; // All interactable actors 
-	TMap<AActor*, TArray<UMaterialInterface*>> DefaultActorMaterial;	
+	TMap<AActor*, TArray<UMaterialInterface*>> DefaultActorMaterial;
 
 	bool bIsMovementLocked; // Whether or not the player can move
 	bool bComponentsLocked;
@@ -125,17 +124,17 @@ public:
 	/** Checks if there are interactable objects in the viewport. */
 	bool CheckForVisibleObjects();
 
- /** Game HUD. */
- AGameHUD* PickupHUD;
+	/** Game HUD. */
+	AGameHUD* PickupHUD;
 
- // GameMode to access the menu hud.
- AUGameModeBase* UGameMode;
+	// GameMode to access the menu hud.
+	AUGameModeBase* UGameMode;
 
- // Rotation of the object.
- FRotator ControlRotation;
+	// Rotation of the object.
+	FRotator ControlRotation;
 
 private:
- //Mouseposition coordinates, for the rotation of the object
- float XMousePosition;
- float YMousePosition;
+	//Mouseposition coordinates, for the rotation of the object
+	float XMousePosition;
+	float YMousePosition;
 };

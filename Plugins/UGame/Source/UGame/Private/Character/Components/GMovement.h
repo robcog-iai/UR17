@@ -68,7 +68,7 @@ private:
 	// After this point done by Waldemar Zeitler
 public:
 	/**
-	*  Calculates a rising speed up. This funktion is done with the PT1-Glied function. 
+	*  Calculates a rising speed up. This funktion is done with the PT1-Glied function.
 	*  The "Sprungantwort" function is used: a(t) = K(1-e^(-t/T)).
 	*  https://de.wikipedia.org/wiki/PT1-Glied
 	*  @param TimeStep - Current time to rise the speed

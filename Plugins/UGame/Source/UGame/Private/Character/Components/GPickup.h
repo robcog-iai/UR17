@@ -37,9 +37,9 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "CI - General")
 		UMaterial* TransparentMaterial;
 
- // Whether or nor the player can use both hands
- UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
-  bool bTwoHandMode;
+	// Whether or nor the player can use both hands
+	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
+		bool bTwoHandMode;
 
 	// Whether or not the player's movement speed depends on the weight the player carries
 	UPROPERTY(EditAnywhere, Category = "CI - Physics")
@@ -119,15 +119,15 @@ public:
 
 	bool bRotationStarted;
 
- bool bInRotationPosition;
+	bool bInRotationPosition;
 
 	// Bool to check if the menu is active and movment should be stopped.
 	bool bRotationMenuActivated;
 	// Bool to check if pick up menu should be started.
 	bool bPickupMenuActivated;
 
- // Bool for free mouse mode
- bool bFreeMouse;
+	// Bool for free mouse mode
+	bool bFreeMouse;
 
 	void MoveToRotationPosition();
 
@@ -141,7 +141,7 @@ public:
 	bool bLeftMouse;
 	bool bRightMouse;
 
- APlayerController* PlayerController;
+	APlayerController* PlayerController;
 
 	// True if we are above an item
 	bool bOverItem;
@@ -151,10 +151,10 @@ public:
 
 	//Function to handle the interaction if the mouse is over the item
 	UFUNCTION()
-			void CustomOnBeginMouseOver(AActor* TouchedComponent);
+		void CustomOnBeginMouseOver(AActor* TouchedComponent);
 
 	//Function to handle the interaction if the mouse is not over the item
 	UFUNCTION()
-			void CustomOnEndMouseOver(AActor* TouchedComponent);
+		void CustomOnEndMouseOver(AActor* TouchedComponent);
 };
 

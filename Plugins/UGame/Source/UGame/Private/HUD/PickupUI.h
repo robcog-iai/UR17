@@ -28,27 +28,26 @@ public:
 	// Click handler for the pickup button.
 	FReply PickUp();
 
- // Click handler for the rotation button .
- FReply Rotate();
+	// Click handler for the rotation button .
+	FReply Rotate();
 
- // Click handler for the pickup after rotation button.
- FReply PickUpAfterRotation(bool bLeftHand);
+	// Click handler for the pickup after rotation button.
+	FReply PickUpAfterRotation(bool bLeftHand);
 
 	// Stores a weak reference to the HUD controlling this class.
 	TWeakObjectPtr<class AGameHUD> GameHUD;
 
 	TSharedPtr<SGridPanel> ActionGrid;
 
- const struct FGlobalStyle* ButtonStyle;
+	const struct FGlobalStyle* ButtonStyle;
 
- // Position on screen
- TAttribute<FVector2D> WidgetPosition;
+	// Position on screen
+	TAttribute<FVector2D> WidgetPosition;
 
- bool bInRotationMode;
+	bool bInRotationMode;
 
 private:
-
- FVector2D ButtonPosition;
+	FVector2D ButtonPosition;
 
 	// Get the position where to draw the menu
 	FVector2D GetActionsWidgetPos() const;
