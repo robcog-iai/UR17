@@ -15,7 +15,7 @@ void AGameHUD::DrawPickUpMenu(float MouseX, float MouseY)
 }
 ```  
 
-The buttons are then removed with a call to the GEngine.
+The buttons are then removed with a call to GEngine.
 
 ```
 void AGameHUD::RemoveMenu()
@@ -23,3 +23,60 @@ void AGameHUD::RemoveMenu()
 	GEngine->GameViewport->RemoveAllViewportWidgets();
 }
 ```
+
+* In PickupUI the actuell buttons are than drawn. The header file defines the button functions and holds the necessary variables to draw the buttons with a certain style and at the correct poition. For the drawing of the button it ist necessary to create a ChildSlot with an SOverlay and a SCanvas, to able to draw at position on the screen. This setup is slate specific. The buttons are then defined as ActionGrid. To get the correct button the UI needs to know in which state the pick up is currently, this is done with GameHUD which has referenc to GPickup. The following code shows the construction of the Rotate and PickUp buttons. Following this is an "else if" which asks if an object is hold for the Drop button and an "else" for the pick up after the rotation.
+
+```
+void SPickupUI::Construct(const FArguments& args)
+{
+	GameHUD = args._GameHUD;
+	ButtonStyle = &FGameButtonStyles::Get().GetWidgetStyle<FGlobalStyle>("ButtonStyle");
+
+	ChildSlot
+	.VAlign(VAlign_Fill)
+	.HAlign(HAlign_Fill)
+	[
+		SNew(SOverlay)
+		+ SOverlay::Slot()
+		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Left)
+		[
+			SNew(SCanvas)
+			+ SCanvas::Slot()
+			.Position(TAttribute<FVector2D>(this, &SPickupUI::GetActionsWidgetPos))
+			.Size(FVector2D(400, 400))
+			[
+			SAssignNew(ActionGrid, SGridPanel)
+			]
+		]
+	];
+
+	if (!GameHUD->GPickup->bInRotationPosition && GameHUD->GPickup->ItemInLeftHand == nullptr && GameHUD->GPickup->ItemInRightHand == nullptr) {
+		ActionGrid->AddSlot(0, 0)
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Top)
+			.HAlign(HAlign_Center)
+			.AutoHeight()
+			[
+				SNew(SButton)
+				.ButtonStyle(&ButtonStyle->MenuButtonStyle)
+				.TextStyle(&ButtonStyle->MenuButtonTextStyle)
+				.Text(FText::FromString("Rotate Object"))
+				.OnClicked(this, &SPickupUI::Rotate)
+			]
+			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Top)
+			.HAlign(HAlign_Center)
+			[
+				SNew(SButton)
+				.ButtonStyle(&ButtonStyle->MenuButtonStyle)
+				.TextStyle(&ButtonStyle->MenuButtonTextStyle)
+				.Text(FText::FromString("Pick Object Up"))
+				.OnClicked(this, &SPickupUI::PickUp)
+			]
+		];
+	}
+```
+
