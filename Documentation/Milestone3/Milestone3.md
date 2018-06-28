@@ -80,3 +80,48 @@ void SPickupUI::Construct(const FArguments& args)
 	}
 ```
 
+* The pick up and rotation buttons are setting falgs in the GPickup object, to indicate if the object should be rotated or picked up. One special thing about the pick up is that it is checked if the object is on the right or left sied of the chracter and is picked up in the closer hand. 
+
+```
+FReply SPickupUI::Rotate()
+{
+	GameHUD->GPickup->MoveToRotationPosition();
+	GameHUD->GPickup->bFreeMouse = false;
+
+	GameHUD->RemoveMenu();
+
+	return FReply::Handled();
+}
+
+FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
+{
+	if (bLeftHand)
+	{
+		if (GameHUD->GPickup->ItemInLeftHand == nullptr)
+		{
+			GameHUD->GPickup->PickUpItemAfterMenu(true);
+		}
+		else if (GameHUD->GPickup->ItemInRightHand == nullptr)
+		{
+			GameHUD->GPickup->PickUpItemAfterMenu(false);
+		}
+	}
+	else
+	{
+		if (GameHUD->GPickup->ItemInRightHand == nullptr)
+		{
+			GameHUD->GPickup->PickUpItemAfterMenu(false);
+		}
+		else if (GameHUD->GPickup->ItemInLeftHand == nullptr)
+		{
+			GameHUD->GPickup->PickUpItemAfterMenu(true);
+		}
+	}
+
+	GameHUD->GPickup->bPickupMenuActivated = false;
+	GameHUD->GPickup->bFreeMouse = false;
+	GameHUD->RemoveMenu();
+
+	return FReply::Handled();
+}
+```
