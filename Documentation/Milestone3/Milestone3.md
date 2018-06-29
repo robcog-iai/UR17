@@ -125,3 +125,7 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 	return FReply::Handled();
 }
 ```
+
+* The ButtonStyle files just handle the look of the buttons and don't include relevant code.
+
+*
