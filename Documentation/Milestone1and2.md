@@ -20,7 +20,9 @@ This Milestone has been completely finished. It was possible to break the lid fi
 ![Figure 1](/Documentation/Img/Figure1.png)
 To make sure that the lid can’t be turned on the left, it gets a 30 degree offset and a limit of 30 degrees. The 30 degree limit makes it possible to turn 30 degrees in both directions, left and right, so the offset makes it possible to turn it only into the right direction for 60 degrees and back. The offset isn’t visible from outside. When the number of degrees is reached it breaks the constraint.
 To reach all this a extended version of a physical constraint actor is used. To get this actor into a plugin the description in the following source was used:
+
 [Source of Physics Constraint Actor](https://forums.unrealengine.com/development-discussion/c-gameplay-programming/50761-adding-an-actor-class-to-plugin)
+
 The last posts of Mhousse1247 helped to get it into a plugin.
 To get the normal plugin folder structure of unreal, public for the header file and private for the cpp file, it’s just necessary to replace the line “PrivateIncludePaths.Add("TestPlugin/Private");” with “PrivateIncludePaths.Add("TestPlugin/Public");”. Also it was of course necessary to exchange “TestPlugin” with “UCorkScrew” which is the name of the plugin.
 
@@ -64,7 +66,7 @@ Figure 2 shows the spots the 180° counter is used for the right-turn-opening. T
 is as shown on the picture on -30° and 150°, so exactly 180° from each other. The left-turnopening
 value is on 30° and -150°. The calculation part is just different for each turning way.
 
-[Figure 2](/Documentation/Img/Figure2.png)
+![Figure 2](/Documentation/Img/Figure2.png)
 
 The concept on the left-opening-turn is the same as right, just the calculation must be different
 caused by the turning way and the spots. So just the right way will be explained here.
@@ -77,7 +79,7 @@ To get this value it’s just necessary to watch how far it is turned yet and se
 three different spots on the circle there must be 3 different calculations. The areas are shown in
 figure 3.
 
-[Figure 3](/Documentation/Img/Figure3.png)
+![Figure 3](/Documentation/Img/Figure3.png)
 
 Each Area needs a own calculation, which takes care of the negative or positive degree value and
 also the different spots of 180° counters.
@@ -89,7 +91,7 @@ degree. Since the offset is -30 degrees we need to subtract 30 of the current va
 change the value from negative to positive which is in the calculation simple made with an equivalent
 calculation:
 
-[Figure 4](/Documentation/Img/Figure4.png)
+![Figure 4](/Documentation/Img/Figure4.png)
 
 Since it subtract the value, which is negative if it’s turned more than 30 degrees to the left, it gets the
 real degree over the spot of 30. If it hasn’t turned more than 180°, the 180° counter is on 0. So it
@@ -113,29 +115,29 @@ could make really weird looks. There has been no solution found yet.
 ## Tutorial
 First set 2 mesh actors in the world directly under each other, like in figure 5, and activate the
 physical simulation at the top one.
-[Figure 5](/Documentation/Img/Figure5.png)
+![Figure 5](/Documentation/Img/Figure5.png)
 Go in the project folder on the unreal editor into “UCorkScrew C++ Classes” –> “UCorkScrew” ->
 “Public”, as you can see in Figure 6.
-[Figure 6](/Documentation/Img/Figure6.png)
+![Figure 6](/Documentation/Img/Figure6.png)
 Now you can see the RealisticOpeningActor, which is basically the extended PhysicsConstraintActor
 with the new futures. You can now move it inside the world like a usual PhysicsConstraintActor. You
 can see it in Figure 7 and 8.
 
-[Figure 7](/Documentation/Img/Figure7.png)
-[Figure 8](/Documentation/Img/Figure8.png)
+![Figure 7](/Documentation/Img/Figure7.png)
+![Figure 8](/Documentation/Img/Figure8.png)
 
 Now you can connect the lower one with the bottle and the lid with the top one just be clicking on
 the fields in the properties. It opens a drop-down menu showing all actors in the world. Click on the
 once you want to use as bottle, so the lower once. Figure 9 shows how it should look like.
 
-[Figure 9](/Documentation/Img/Figure9.png)
+![Figure 9](/Documentation/Img/Figure9.png)
 
 After connecting the Bottle, I moves the realistic constraint actor at the spot the bottle is located on.
 If u select another object and then the RealisticOpeningActor again you can see it is on the right
 position. You can also instandly see that the bottle cube gets a red wireframe. If you now add the lid
 as well it gets blue and a small blue wireframe between those two. Shown in Figure 10.
 
-[Figure 10](/Documentation/Img/Figure10.png)
+![Figure 10](/Documentation/Img/Figure10.png)
 
 Now you can just change the other properties of the constraint, like the ScrewAngle in any value you
 want. Only blocked are lower values than 1 for this value. If you start playing now the lied won’t fall,
