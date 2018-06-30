@@ -18,24 +18,27 @@ These are all currently NEW implemented features that are useable in other proje
 * Converted static meshes (as procedural meshes) are now converted back to static meshes after the cutting-process has finished
   * This allows the game-environment to be unchanged as much as possible, as procedural meshes only have limited functionality (e.g. the tested grasping in VR only worked with static meshes, so without the conversion back, the user would not have been able to pick up cut objects anymore)
   * The process for that is rather complicated (and processor-intensive), so code was copied from a function in the unreal engine (as it was unaccessable otherwise), with slight modifications where applicable. The copied code is clearly marked.
-* The user can now supply a new material to be used as the inner cut material for the newly cut out area of objects. This means that once an object is cut, the two new exposed areas will have the material the user sets in the material slot with the slot name "InnerMaterial".
+* The user can now supply a new material to be used as the inner cut material for the newly cut out area of objects. This means that once an object is cut, the two new exposed areas will have the material the user sets in the material slot with the slot name "InnerMaterial". (![Inner Cut Material In-Action](DocumentationPictures/InnerMaterial.gif)
   * If the user does not create a new slot, the default WorldGridMaterial will be used.
-* Cutting is now using constraints to simulate a knife being "stuck" in an object, meaning it will move the object with the knife, instead of just being able to freely move around
+* Cutting is now using constraints to simulate a knife being "stuck" in an object, meaning it will move the object with the knife, instead of just being able to freely move around. (![Constraints In-Action](DocumentationPictures/Constraints.gif)
   * This results in limiting the movement of a cutting object to only one plane while cutting - as that's how a knife would cut objects in reality
 * Cuttable objects can now have a resistance value attached to them. This value determines how much force the user has to apply to be able to cut the objects (aka move the knife through the object)
 
 
 # Documentation
 
-* This time a lot of work has been done to refactor the code, but the general idea of the existing classes stayed the same. For more detailed explanation refer to the explenation seen in [Milestone2](Documentation/Milestone2.md).
+* This time a lot of work has been done to refactor the code, but the general idea of the existing classes stayed the same. For more detailed explanation refer to the explanation seen in [Milestone2](Documentation/Milestone2.md).
 
 ### SlicingLogicModule:
 
 * The visual debugging got refactored into the class "USlicingDebugVisualComponent".
   * This component has to be added to a cuttable object to be able to display any visual debugging.
+    * It will search for other slicing components that might be attached to the same actor. If it doesn't find that specific component, it will not display the visuals relating to that component.
+    * Everything else was mostly untouched and just copied over
   * No other component will be able to display any visual debugging information.
 * The class "FSlicingHelper" was created to house all the static functions used in the slicing logic.
   * This is the place where the conversions from static mesh to procedural mesh and back happen.
+    * Now the static materials are saved throughout the conversion process, as to correctly recreate the static mesh at the end.
   * There are also some auxilliary function to aid other classes, like with the function "GetSlicingComponent(UStaticMeshComponent* SlicingObject)"
 
 
@@ -43,7 +46,7 @@ These are all currently NEW implemented features that are useable in other proje
 
 * The Tutorial for using the plugin hasn't changed from the previous tutorial as supplied in [Milestone2](Documentation/Milestone2.md).
 * The only exception being the new inner cut material that can be displayed when cutting an object.
-  * For that the user can now create a new material-slot in a specific static mesh and give it the material slot name "InnerMaterial" (See: ![Inner Cut Material](TutorialPictures/InnerMaterial.png).
+  * For that the user can now create a new material-slot in a specific static mesh and give it the material slot name "InnerMaterial" (See: ![Inner Cut Material Setup](TutorialPictures/InnerMaterial.png).
 	
 
 # Todos
