@@ -1,8 +1,8 @@
 # Milestone 3 - Clickable objects with menu and rotation
 
-* The GameHUD class is the controller of the the three different menus that are currently available. To choose the right menu GameHUD has an instance UGPickup and for the correct position it receives the mouse position for drawing the menu. The menu is drawn by assigning the PickupUI and giving it the current mouse position. Over the GEngine PickupUI gets called and added to the viewport.  
-
 ## Menu files
+
+* The GameHUD class is the controller of the the three different menus that are currently available. To choose the right menu GameHUD has an instance UGPickup and for the correct position it receives the mouse position for drawing the menu. The menu is drawn by assigning the PickupUI and giving it the current mouse position. Over the GEngine PickupUI gets called and added to the viewport.  
 
 ```
 void AGameHUD::DrawPickUpMenu(float MouseX, float MouseY)
@@ -130,4 +130,67 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 
 * The ButtonStyle files just handle the look of the buttons and don't include relevant code.
 
-## Character and pick up
+## Character
+* The character handles the falgs it receives from GPickup. On right mouse click the character stops and becomes possible to move around with the mouse. If an object is close enough it can be clicked on and a menu pops up at the position of the mouse.
+
+```
+	// Stop movment when menu is active 
+	if (PickupComponent->bFreeMouse && !bIsMovementLocked)
+	{
+		SetPlayerMovable(false);
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->bEnableClickEvents = true;
+		PlayerController->bEnableMouseOverEvents = true;
+		PickupComponent->bRotationStarted = false;
+	}
+
+	if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem)
+	{
+		XMousePosition = .0f;
+		YMousePosition = .0f;
+
+		float XMouse;
+		float YMouse;
+
+		PlayerController->GetMousePosition(XMouse, YMouse);
+		PickupHUD->DrawPickUpMenu(XMouse, YMouse);
+	}
+	else if (!PickupComponent->bFreeMouse && bIsMovementLocked)
+	{
+		SetPlayerMovable(true);
+		PlayerController->bShowMouseCursor = false;
+		PlayerController->bEnableClickEvents = false;
+		PlayerController->bEnableMouseOverEvents = false;
+	}
+```
+
+* The rotation is now reworked, so it works correctly with the mosue movement. To get the rotation the past and present position of the mouse are subtracted and the different ist added to the current rotation of the object.
+
+```
+	// Rotate the object depending of the rotation mode 
+	if (PickupComponent->bRotationStarted)
+	{
+		float XMousePositionCurrent;
+		float YMousePositionCurrent;
+
+		PlayerController->GetMousePosition(XMousePositionCurrent, YMousePositionCurrent);
+
+		// Check if roation just startet
+		if (XMousePosition != .0f && YMousePosition != .0f)
+		{
+			XMousePosition -= XMousePositionCurrent;
+			YMousePosition -= YMousePositionCurrent;
+
+			ControlRotation = FRotator(YMousePosition, 0, XMousePosition);
+
+			PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
+		}
+
+		XMousePosition = XMousePositionCurrent;
+		YMousePosition = YMousePositionCurrent;
+
+		UE_LOG(LogTemp, Warning, TEXT("Actor Rotation %s"), *PickupComponent->ItemInRotaitonPosition->GetActorRotation().ToString());
+	}
+```
+
+## Pick up
