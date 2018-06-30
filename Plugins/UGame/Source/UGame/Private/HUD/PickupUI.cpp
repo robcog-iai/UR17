@@ -31,7 +31,7 @@ void SPickupUI::Construct(const FArguments& args)
 		]
 	];
 
-	if (!GameHUD->GPickup->bInRotationPosition && GameHUD->GPickup->ItemInLeftHand == nullptr && GameHUD->GPickup->ItemInRightHand == nullptr) {
+	if (!GameHUD->GPickup->bInRotationPosition && GameHUD->GPickup->ItemInLeftHand != GameHUD->GPickup->ItemToInteract && GameHUD->GPickup->ItemInRightHand != GameHUD->GPickup->ItemToInteract) {
 		ActionGrid->AddSlot(0, 0)
 		[
 			SNew(SVerticalBox)
@@ -58,7 +58,7 @@ void SPickupUI::Construct(const FArguments& args)
 			]
 		];
 	}
-	else if (GameHUD->GPickup->ItemInLeftHand != nullptr || GameHUD->GPickup->ItemInRightHand != nullptr)
+	else if (GameHUD->GPickup->ItemInLeftHand == GameHUD->GPickup->ItemToInteract || GameHUD->GPickup->ItemInRightHand == GameHUD->GPickup->ItemToInteract)
 	{
 		ActionGrid->AddSlot(0, 0)
 		[
