@@ -67,4 +67,4 @@ have to be actors in order to add them to the mesh. The actor needs to have a sk
 
 # Issues:
 
-- There currently is bug that occurs when the player turns around 180 degrees. When passing the 180 degree point the arms will move to the correct position, but will move there by going the opposit direction.
+- There currently is a bug that occurs when the player turns around 180 degrees. When passing the 180 degree point the arms will move to the correct position, but will move there by going the opposit direction.
