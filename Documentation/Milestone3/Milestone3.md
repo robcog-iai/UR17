@@ -194,3 +194,100 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 ```
 
 ## Pick up
+* The GPickup class handles the flags to free the mouse and to start the drawing of the menus. So, if the right mouse button is pressed during normal gameplay a flag will be set to free the mouse.
+
+```
+// Handle the menu for the pickup and the rotation (Milestone 2)
+	if (bLockedByOtherComponent == false)
+	{
+		// Mouse is free and right mouse button was pressed again
+		if (bFreeMouse && !bRightMouse && !bPickupMenuActivated && bOverItem)
+		{
+			if (ItemToInteract != nullptr)
+			{
+				ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
+				bPickupMenuActivated = true;
+			}
+		}
+		else
+		{
+			bPickupMenuActivated = false;
+		}
+	}
+```
+
+* The pick up functions for the rotation and hand positions are now cleaned up and move the object to the set actor positions.
+
+```
+void UGPickup::MoveToRotationPosition()
+{
+	BaseItemToPick = ItemToHandle;
+
+	// If we want to rotate an item from the hands the item in the hand has to be set to null.
+	if (ItemInLeftHand == BaseItemToPick)
+	{
+		ItemInLeftHand = nullptr;
+	}
+	else if (ItemInRightHand == BaseItemToPick)
+	{
+		ItemInRightHand = nullptr;
+	}
+
+	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+	TransformRules.bWeldSimulatedBodies = true;
+
+	BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
+	ItemInRotaitonPosition = BaseItemToPick;
+
+	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
+	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
+
+
+
+	bInRotationPosition = true;
+	bRotationStarted = true;
+
+	BaseItemToPick = nullptr;
+	ItemToHandle = nullptr;
+}
+
+void UGPickup::PickUpItemAfterMenu(bool leftHand)
+{
+	bInRotationPosition = false;
+
+	if (BaseItemToPick == nullptr) {
+		SetMovementSpeed(-MassOfLastItemPickedUp);
+		if (ItemInRotaitonPosition != nullptr)
+		{
+			BaseItemToPick = ItemInRotaitonPosition;
+			ItemInRotaitonPosition = nullptr;
+		}
+		else {
+			BaseItemToPick = ItemToHandle;
+		}
+	}
+
+	FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+	TransformRules.bWeldSimulatedBodies = true;
+
+	if (!leftHand)
+	{
+		BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
+
+		ItemInRightHand = BaseItemToPick;
+	}
+	else
+	{
+		BaseItemToPick->AttachToActor(LeftHandActor, TransformRules);
+
+		ItemInLeftHand = BaseItemToPick;
+	}
+
+	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
+
+	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
+
+	ItemToHandle = nullptr;
+	BaseItemToPick = nullptr;
+}
+```
