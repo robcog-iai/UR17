@@ -137,7 +137,7 @@ If u select another object and then the RealisticOpeningActor again you can see 
 position. You can also instandly see that the bottle cube gets a red wireframe. If you now add the lid
 as well it gets blue and a small blue wireframe between those two. Shown in Figure 10.
 
-![Figure 10](/Documentation/Img/Figure10.png)
+![Figure 10](/Documentation/Img/Figure10.JPG)
 
 Now you can just change the other properties of the constraint, like the ScrewAngle in any value you
 want. Only blocked are lower values than 1 for this value. If you start playing now the lied won’t fall,
