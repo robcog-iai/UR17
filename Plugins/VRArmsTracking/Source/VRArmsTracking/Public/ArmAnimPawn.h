@@ -133,7 +133,7 @@ public:
 	//Moves the player to the cameras world position
 	void ResetHeadPosition();
 
-	//Remembers start distance between head and arms
+	//Remembers current state of players head and hands so differences can be calculated later
 	void SetMovementValues();
 
 	//Turns in multiple steps
@@ -143,7 +143,7 @@ public:
 	int TurnStepCounter;
 
 	//Number of steps to turn
-	int MaxTurnSteps = 20;
+	int MaxTurnSteps = 10;
 
 	//One rotation step
 	FRotator RotationStep;
@@ -156,5 +156,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+
 
 };

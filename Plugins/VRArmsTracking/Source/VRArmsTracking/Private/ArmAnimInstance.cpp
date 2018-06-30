@@ -24,6 +24,8 @@ void UArmAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
+	if(!bIsCalled) 	OnCollisionDelegate.AddDynamic(this, &UArmAnimInstance::Test);
+	bIsCalled = true;
 	//Check it Pawn == null
 	if (!OwningPawn)
 	{
@@ -38,6 +40,11 @@ void UArmAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 	RightHandWorldLocation = CalculatePosition(true, RightHandWorldRotation, OwningPawn->RightHandRotationOffset, OwningPawn->MotionControllerRight);
 	LeftHandWorldLocation = CalculatePosition(false, LeftHandWorldRotation, OwningPawn->LeftHandRotationOffset, OwningPawn->MotionControllerLeft);
 
+}
+
+void UArmAnimInstance::Test(FHitResult HitObject)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Some variable values: x: %s"), *HitObject.Actor->GetName()));
 }
 
 
@@ -89,6 +96,11 @@ FVector UArmAnimInstance::CalculateOffset(bool bIsRightHand, AArmAnimPawn* Curre
 	//Compare the distance
 	if (DistanceHandEff > DistanceHandHit)
 	{
+		//When we get a collision brodcast it to all functions
+		if (OnCollisionDelegate.IsBound()) 
+		{
+			OnCollisionDelegate.Broadcast(HitObject);
+		}
 		return HitObject.Location;
 	}
 

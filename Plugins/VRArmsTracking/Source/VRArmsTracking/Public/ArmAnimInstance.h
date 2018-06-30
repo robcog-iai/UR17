@@ -6,6 +6,9 @@
 #include "ArmAnimPawn.h"
 #include "VRArmsTracking.h"
 #include "ArmAnimInstance.generated.h"
+
+//Declare a delegate for an collision event
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCollisionDelegate, FHitResult, CollisionObject);
 /**
  * This Class calculate the positions for the head and hands. 
 	You need also a blueprint with anim graph to use it
@@ -39,9 +42,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FRotator RightHandWorldRotation;
 
+	//The Delegater. It will be called when we get a collision
+	UPROPERTY(BlueprintAssignable, Category = "Delegate")
+		FCollisionDelegate OnCollisionDelegate;
+
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
+
+	UFUNCTION()
+	void Test(FHitResult HitObject);
+
+	bool bIsCalled = false;
+
 
 	/*
 	Function to check if we hit something (collision)

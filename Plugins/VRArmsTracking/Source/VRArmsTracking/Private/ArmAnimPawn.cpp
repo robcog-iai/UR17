@@ -69,12 +69,6 @@ void AArmAnimPawn::BeginPlay()
 
 	//Setup the physical animation and crate animation data with magical numbers
 	AnimationComponent->SetSkeletalMeshComponent(Mesh);
-	FPhysicalAnimationData AnimationData = FPhysicalAnimationData();
-	AnimationData.bIsLocalSimulation = true;
-	AnimationData.AngularVelocityStrength = 100;
-	AnimationData.OrientationStrength = 1000;
-	AnimationData.PositionStrength = 1000;
-	AnimationData.VelocityStrength = 100;
 
 	HMDName = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName().ToString();
 
@@ -97,37 +91,57 @@ void AArmAnimPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//Mesh follows HMD
-	if (bHeadReset == true) 
+	//Mesh follows HMD if player position etc have been reset have been reset
+	if (bHeadReset)
 	{
-		FVector HeadMovedDistance = HeadStartLocation - Camera->GetComponentLocation();
-		Mesh->SetWorldLocation(MeshStartLocation - HeadMovedDistance);
-		if (!bIsTurning)
+		Mesh->SetWorldLocation(Camera->GetComponentLocation() + FVector(0, 0, -160));
+
+		//if mesh is currently turning stop here
+		if (bIsTurning)
 		{
-			float ResultHead = HeadYawStart.Yaw - Camera->GetComponentRotation().Yaw;
-			float ResultLHand = ControllerLYawStart.Yaw - MotionControllerLeft->GetComponentRotation().Yaw;
-			float ResultRHand = ControllerRYawStart.Yaw - MotionControllerRight->GetComponentRotation().Yaw;
-			if (ResultHead < -TurnThreshold && ResultHead > -360 + TurnThreshold && ResultLHand < -TurnThreshold && ResultRHand < -TurnThreshold)
-			{
-				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
-				if (ResultHead < -180) {
-					RotationStep = FRotator(0, -(TurnThreshold / MaxTurnSteps), 0);
-				}
-				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
-				TurnStepCounter = 0;
-				bIsTurning = true;
-				GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
-			}
-			else if (ResultHead > TurnThreshold && ResultHead < 360 - TurnThreshold && ResultLHand > TurnThreshold && ResultRHand > TurnThreshold)
+			return;
+		}
+
+		//calculate how far the head and hands have moved
+		float ResultHead = HeadYawStart.Yaw - Camera->GetComponentRotation().Yaw;
+		float ResultLHand = ControllerLYawStart.Yaw - MotionControllerLeft->GetComponentRotation().Yaw;
+		float ResultRHand = ControllerRYawStart.Yaw - MotionControllerRight->GetComponentRotation().Yaw;
+
+		//if both head and hands have moved more than the threshold start turning in that direction
+		//divides the amount to turn into multiple small steps and applys these steps in fixed intervals using a timer 
+		if (ResultHead < -TurnThreshold &&
+			ResultLHand < -TurnThreshold &&
+			ResultRHand < -TurnThreshold)
+		{
+			if (ResultHead < -180)
 			{
 				RotationStep = FRotator(0, -(TurnThreshold / MaxTurnSteps), 0);
-				if (ResultHead > 180) {
-					RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
-				}
-				TurnStepCounter = 0;
-				bIsTurning = true;
-				GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
 			}
+			else
+			{
+				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+			}
+
+			TurnStepCounter = 0;
+			bIsTurning = true;
+			GetOwner()->GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
+		}
+		else if (ResultHead > TurnThreshold &&
+			ResultLHand > TurnThreshold &&
+			ResultRHand > TurnThreshold)
+		{
+			if (ResultHead > 180)
+			{
+				RotationStep = FRotator(0, TurnThreshold / MaxTurnSteps, 0);
+			}
+			else
+			{
+				RotationStep = FRotator(0, -(TurnThreshold / MaxTurnSteps), 0);
+			}
+
+			TurnStepCounter = 0;
+			bIsTurning = true;
+			GetOwner()->GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, 0.01, true);
 		}
 	}
 
@@ -140,14 +154,16 @@ void AArmAnimPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("resetPosition", IE_Pressed, this, &AArmAnimPawn::ResetHeadPosition);
 }
 
+
 //Reset HMD position and make mesh follow HMD
 void AArmAnimPawn::ResetHeadPosition()
 {
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition(0, EOrientPositionSelector::OrientationAndPosition);
-	FTimerHandle UnusedHandle;
-	GetWorldTimerManager().SetTimer(UnusedHandle, this, &AArmAnimPawn::SetMovementValues, 0.5, false);
+	FTimerHandle PositionResetTimer;
+	GetWorldTimerManager().SetTimer(PositionResetTimer, this, &AArmAnimPawn::SetMovementValues, 0.5, false);
 }
 
+//saves current state of players head and hands so differences can be calculated later
 void AArmAnimPawn::SetMovementValues()
 {
 	MeshStartLocation = Mesh->GetComponentLocation();
@@ -161,6 +177,7 @@ void AArmAnimPawn::SetMovementValues()
 
 void AArmAnimPawn::TurnInSteps()
 {
+	//if there are still steps to turn do so
 	if (TurnStepCounter < MaxTurnSteps)
 	{
 		FVector MeshForwardBefore = Mesh->GetForwardVector();
@@ -173,6 +190,7 @@ void AArmAnimPawn::TurnInSteps()
 		MeshStartLocation = MeshStartLocation + (MeshForwardAfter *ShouldersLocalX);
 		TurnStepCounter++;
 	}
+	//else tell the timer to stop turning
 	else 
 	{
 		GetWorldTimerManager().SetTimer(TurnTimer, this, &AArmAnimPawn::TurnInSteps, -1, false);
