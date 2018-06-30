@@ -11,4 +11,7 @@
 * If the rotation button was pushed the object will be put into the rotation position in front of the character, where the object can be rotated with the movment of the mouse. After the rotation you can press the right mouse button again to stop the rotation and again interact with the object. It can now be picked up in the left or right hand. If it is picked up into the left hand and an object is hold it will instead be put into the right hand. 
 
 ![](../Img/Milestone3/M3Pic2.PNG "Object put into the right hand.")
-![](../Img/Milestone3/M3Pic3.PNG "Object put into the right hand.")
+
+* The last menu will appear if you interact with an object in one of the hands. This menu button is "Drop Item". This function is at the moment not implemented.
+
+![](../Img/Milestone3/M3Pic3.PNG "Object put into the right hand and drop button.")
