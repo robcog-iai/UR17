@@ -2,6 +2,8 @@
 
 * The GameHUD class is the controller of the the three different menus that are currently available. To choose the right menu GameHUD has an instance UGPickup and for the correct position it receives the mouse position for drawing the menu. The menu is drawn by assigning the PickupUI and giving it the current mouse position. Over the GEngine PickupUI gets called and added to the viewport.  
 
+## Menu files
+
 ```
 void AGameHUD::DrawPickUpMenu(float MouseX, float MouseY)
 {
@@ -128,4 +130,4 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 
 * The ButtonStyle files just handle the look of the buttons and don't include relevant code.
 
-*
+## Character and pick up
