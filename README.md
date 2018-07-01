@@ -1,12 +1,14 @@
 * see [master](https://github.com/robcog-iai/UR17/tree/master) branch for filling out the README
-# Members
+# UR - P3 
+
+## Members
 - André Osse
 
-# Project description
+## Project description
 - A physics constraint that helps bottles to have realistic behavior at opening them.
 - Easy to use
 
-# Milestones
+## Milestones
 - Milestone 1:
 	- Creating an editor plugin for a screw joint between 2 mesh actors.
 	- Screw joint constraints the movement in one direction.
@@ -30,9 +32,9 @@
 	- Putting documentation in markdown on GitHub.
 
 
-# Documentation
+## Documentation
 You can find the documentation for milestone 1 and 2 in the /Documentation/Documentation.pdf or in markdown [here](/Documentation/Milestone1and2.md).
 You can find the documentation for milestone 3 [here](/Documentation/Milestone3.md).
-# Tutorial
+## Tutorial
 You can find a  written tutorial in the Milestone 1 and 2 documentation, but you can also find a video [here](https://youtu.be/Fwbgb_8h_Us) or in the /Documentation/TutorialVideo/ folder.
 If you want to see this working in VR you can see this [here](https://youtu.be/KHbCYiSnoqw) or in the /Documentation/WorkInVRVideo/ folder.
