@@ -41,14 +41,24 @@ These are all currently NEW implemented features that are useable in other proje
     * Now the static materials are saved throughout the conversion process, as to correctly recreate the static mesh at the end.
   * There are also some auxilliary function to aid other classes, like with the function "GetSlicingComponent(UStaticMeshComponent* SlicingObject)".
 
+### SlicingBladeComponent
+  * Uses **Constraints** now to simulate the realistic behaviors of cutting.
+    * Added the variable `resistancePercentage` inside the `OnBeginOverlap` function which is used to simulate a resistance of an object with the help of **Linear Damping**.
+      * `resistancePercentage` takes it's value through the reading of the `CutComponent` **Tags**. More specifically a *percentage* integer tag below one called **Resistance** (See *Picture 1*).
+    * It's usage simulates pushing of the object with the knife, if you shove it with the flat side while cutting.
+      * Statically puts **Linear Damping** for the `CutComponent` to 100 to "pseudo" disable physics of it.
+        * Needs to be done with physics, since the Constraints need it.
+  * Takes and sets `InsideCutMaterial` by identifying the SlotName by the name (See *Picture 2*) inside the SlicingLogicModule, which then sets it in here.
+
 
 # Tutorial
 
 * The Tutorial for using the plugin hasn't changed from the previous tutorial as supplied in [Milestone2](Documentation/Milestone2.md).
 * The only exception being the new inner cut material that can be displayed when cutting an object.
-  * For that the user can now create a new material-slot in a specific static mesh and give it the material slot name "InsideCutMaterial" (See reference below.)
+  * For that the user can now create a new material-slot in a specific static mesh and give it the material slot name "InsideCutMaterial" (See *Picture 2*.)
 
-![Inner Cut Material Setup](TutorialPictures/InnerMaterial.png).
+**Picture 2:**  
+![Inner Cut Material Setup](TutorialPictures/InnerMaterial.png)
 
 
 # Todos
