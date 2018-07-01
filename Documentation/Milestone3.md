@@ -28,7 +28,7 @@ The friction/damping force was the idea to help the lid not moving endless when 
 
 The debug-mode is pretty simple. In the Tick function, that gets called on every tick, there is a function that is a part, which is only activated if the debug-mode is activated too. The debug-mode simply got a new category on the Unreal Editor. Shown in the figure below. If the save log flag is activated, it just prints the log on the output log. You can find a few values there, like the real current degree value and the actual swing 1 value. It just gets an output if the change is bigger than 1 degree from the last output, so it won't be flooding the output log. Though this should be just activated on one constraint at the time, to make sure the reader doesn't get confused by different values.
 
-![Figure 1](/Documentation/Img/Milestone3/Figure1.png)
+![Figure 1](/Documentation/Img/Milestone3/FIGURE1.PNG)
 
 In the debug-mode there are 2 values, that also can be used as sliders. The first value called MoveToDegree means, that the lid gets rotated until this degree. The TurningSpeed simply sets a speed the rotation gets done. It can be a value between 0.1 and 1.0. 1.0 is the quickest rotation that can be set. The limit is to make it better visible how the rotation of the lid in a realistic way works. Of course, it also moves up if a value for moving upwards is set.
 If the debug-mode isn't activated this doesn't work and effects nothing. By default, the debug-mode is deactivated.
