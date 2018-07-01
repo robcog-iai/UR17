@@ -56,6 +56,7 @@ These are all currently NEW implemented features that are useable in other proje
 * The Tutorial for using the plugin hasn't changed from the previous tutorial as supplied in [Milestone2](Documentation/Milestone2.md).
 * The only exception being the new inner cut material that can be displayed when cutting an object.
   * For that the user can now create a new material-slot in a specific static mesh and give it the material slot name "InsideCutMaterial" (See *Picture 2*.)
+    * To create another slot, press the `+` Key, choose the desired Material in the Dropdown menu of the spawned new slot and name the slot `InsideCutMaterial` 
 
 **Picture 2:**  
 ![Inner Cut Material Setup](TutorialPictures/InnerMaterial.png)
