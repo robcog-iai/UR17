@@ -1,0 +1,17 @@
+palm_r,None
+middle_01_r,Middle
+middle_02_r,Middle
+middle_03_r,Middle
+index_01_r,Index
+index_02_r,Index
+index_03_r,Index
+ring_01_r,Ring
+ring_02_r,Ring
+ring_03_r,Ring
+pinky_01_r,Pinky
+pinky_02_r,Pinky
+pinky_03_r,Pinky
+thumb_01_r,Thumb
+thumb_02_r,Thumb
+thumb_03_r,Thumb
+armature_r,None
