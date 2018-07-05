@@ -18,9 +18,11 @@ These are all currently NEW implemented features that are useable in other proje
 * Converted static meshes (as procedural meshes) are now converted back to static meshes after the cutting-process has finished
   * This allows the game-environment to be unchanged as much as possible, as procedural meshes only have limited functionality (e.g. the tested grasping in VR only worked with static meshes, so without the conversion back, the user would not have been able to pick up cut objects anymore)
   * The process for that is rather complicated (and processor-intensive), so code was copied from a function in the unreal engine (as it was unaccessable otherwise), with slight modifications where applicable. The copied code is clearly marked.
-* The user can now supply a new material to be used as the inner cut material for the newly cut out area of objects. This means that once an object is cut, the two new exposed areas will have the material the user sets in the material slot with the slot name "InsideCutMaterial". (![Inner Cut Material In-Action](DocumentationPictures/InnerMaterial.gif))
+* The user can now supply a new material to be used as the inner cut material for the newly cut out area of objects. This means that once an object is cut, the two new exposed areas will have the material the user sets in the material slot with the slot name "InsideCutMaterial".  
+![Inner Cut Material In-Action](DocumentationPictures/InnerMaterial.gif)
   * If the user does not create a new slot, the default WorldGridMaterial will be used.
-* Cutting is now using constraints to simulate a knife being "stuck" in an object, meaning it will move the object with the knife, instead of just being able to freely move around. (![Constraints In-Action](DocumentationPictures/Constraints.gif))
+* Cutting is now using constraints to simulate a knife being "stuck" in an object, meaning it will move the object with the knife, instead of just being able to freely move around.  
+ ![Constraints In-Action](DocumentationPictures/Constraints.gif)
   * This results in limiting the movement of a cutting object to only one plane while cutting - as that's how a knife would cut objects in reality
 * Cuttable objects can now have a resistance value attached to them. This value determines how much force the user has to apply to be able to cut the objects (aka move the knife through the object)
 
@@ -56,7 +58,7 @@ These are all currently NEW implemented features that are useable in other proje
 * The Tutorial for using the plugin hasn't changed from the previous tutorial as supplied in [Milestone2](Documentation/Milestone2.md).
 * The only exception being the new inner cut material that can be displayed when cutting an object.
   * For that the user can now create a new material-slot in a specific static mesh and give it the material slot name "InsideCutMaterial" (See *Picture 2*.)
-    * To create another slot, press the `+` Key, choose the desired Material in the Dropdown menu of the spawned new slot and name the slot `InsideCutMaterial` 
+    * To create another slot, press the `+` Key, choose the desired Material in the Dropdown menu of the spawned new slot and name the slot `InsideCutMaterial`
 
 **Picture 2:**  
 ![Inner Cut Material Setup](TutorialPictures/InnerMaterial.png)
