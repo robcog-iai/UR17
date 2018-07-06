@@ -47,7 +47,8 @@ to refresh.
 ***The Knife is done. Result:***
 
 ![TutorialPictures8](TutorialPictures/8.PNG)  
-**Example Box Placements**
+**Example Box Placements**  
+[Top](#ur---p2)
 
 ## Make Object Cuttable
 
@@ -78,7 +79,8 @@ To give an object a resistance on which the knife's progress through it is hinde
 ***You don't need this, as it will work even without these Tags.***  
 
 ![TutorialPic10](TutorialPictures/12.PNG)  
-**It will look like this**
+**It will look like this**  
+[Top](#ur---p2)
 
 ## Give the Object an Inner Material
 
@@ -97,4 +99,5 @@ After that you will find yourself, or at least a window opened, inside the Stati
 To create another slot, press the `+` Key. That will create another slot under your current one which you must rename to `InsideCutMaterial`. If you've done so you're able to select another Material in the appearing dropdown menu to use for the new planes created by the Knife.
 
 ![Innter Material](TutorialPictures/InnerMaterial.png)  
-**If done correctly, it should look like this.**
+**If done correctly, it should look like this.**  
+[Top](#ur---p2)
