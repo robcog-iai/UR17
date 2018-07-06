@@ -10,7 +10,7 @@ In this example we use the **SM_Knife_Table**. Double click on it in the
 
 In the top bottom should be a tab called **Socket Manager**. Press the button
 and add three sockets named **BladeBox**, **Handle** and **CuttingExitpointBox**.
-It should look like this: 
+It should look like this:
 
 ![TutorialPic1](TutorialPictures/1.PNG)
 
@@ -61,3 +61,10 @@ StaticMeshComponent click on ***Generate Overlap Event***.
 ![TutorialPic9](TutorialPictures/9.PNG)
 
 ***Now that object is Cuttable.***
+
+### (Optional) Step 3: Add Resistance
+To give an object a resistance on which the knife's progress through it is hindered, go to the tag section (under the Details view) and add two more tags: The first one called "**Resistance**" and the second a number from one to one-hundred.  
+
+***You don't need this, as it will work even without these Tags.***  
+
+![TutorialPic10](TutorialPictures/12.PNG)
