@@ -48,7 +48,7 @@ to refresh.
 
 ![TutorialPictures8](TutorialPictures/8.PNG)  
 **Example Box Placements**  
-[Top](#ur17-p2)
+[Top](#ur17---p2)
 
 ## Make Object Cuttable
 
@@ -80,7 +80,7 @@ To give an object a resistance on which the knife's progress through it is hinde
 
 ![TutorialPic10](TutorialPictures/12.PNG)  
 **It will look like this**  
-[Top](#ur17-p2)
+[Top](#ur17---p2)
 
 ## Give the Object an Inner Material
 
@@ -100,4 +100,4 @@ To create another slot, press the `+` Key. That will create another slot under y
 
 ![Innter Material](TutorialPictures/InnerMaterial.png)  
 **If done correctly, it should look like this.**  
-[Top](#ur17-p2)
+[Top](#ur17---p2)
