@@ -291,3 +291,8 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 	BaseItemToPick = nullptr;
 }
 ```
+
+# Bugs
+* At the moment there are some bugs with the free mouse mode and the menus. It is possible to push the left mouse button which some times allows movment with an object in rotation position or it can freeze the whole interaction.  
+
+* It is also not possible to drop objects at the moment, which leads to a stuck drop menu if an object which is in one of the hands.
