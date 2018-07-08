@@ -15,8 +15,8 @@
 UCLASS()
 class UGAME_API AUGameModeBase : public AGameModeBase
 {
-	GENERATED_BODY()
+				GENERATED_BODY()
 
 public:
-	AUGameModeBase();
+				AUGameModeBase();
 };

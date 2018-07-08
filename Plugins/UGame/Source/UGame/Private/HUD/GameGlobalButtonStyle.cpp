@@ -11,17 +11,17 @@ const FName FGlobalStyle::TypeName = TEXT("FGlobalStyle");
 
 const FName FGlobalStyle::GetTypeName() const
 {
-	static const FName TypeName = TEXT("FGlobalStyle");
-	return TypeName;
+				static const FName TypeName = TEXT("FGlobalStyle");
+				return TypeName;
 }
 
 const FGlobalStyle& FGlobalStyle::GetDefault()
 {
-	static FGlobalStyle Default;
-	return Default;
+				static FGlobalStyle Default;
+				return Default;
 }
 
 UGameGlobalButtonStyle::UGameGlobalButtonStyle(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+				: Super(ObjectInitializer)
 {
 }

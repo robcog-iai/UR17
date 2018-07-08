@@ -16,39 +16,42 @@ class UGAME_API SPickupUI : public SCompoundWidget
 {
 
 public:
-	SLATE_BEGIN_ARGS(SPickupUI)
-	{}
-	SLATE_ARGUMENT(TWeakObjectPtr<class AGameHUD>, GameHUD)
-	SLATE_END_ARGS()
+				SLATE_BEGIN_ARGS(SPickupUI)
+				{}
+				SLATE_ARGUMENT(TWeakObjectPtr<class AGameHUD>, GameHUD)
+				SLATE_END_ARGS()
 
-	// Constructs and lays out the Main Menu UI Widget.
-	// args Arguments structure that contains widget-specific setup information.
-	void Construct(const FArguments& args);
+				// Constructs and lays out the Main Menu UI Widget.
+				// args Arguments structure that contains widget-specific setup information.
+				void Construct(const FArguments& args);
 
-	// Click handler for the pickup button.
-	FReply PickUp();
+				// Click handler for the pickup button.
+				FReply PickUp();
 
-	// Click handler for the rotation button .
-	FReply Rotate();
+				// Click handler for the rotation button .
+				FReply Rotate();
 
-	// Click handler for the pickup after rotation button.
-	FReply PickUpAfterRotation(bool bLeftHand);
+				// Click handler for the pickup after rotation button.
+				FReply PickUpAfterRotation(bool bLeftHand);
 
-	// Stores a weak reference to the HUD controlling this class.
-	TWeakObjectPtr<class AGameHUD> GameHUD;
+				// Click handler for the drop button .
+				FReply Drop();
 
-	TSharedPtr<SGridPanel> ActionGrid;
+				// Stores a weak reference to the HUD controlling this class.
+				TWeakObjectPtr<class AGameHUD> GameHUD;
 
-	const struct FGlobalStyle* ButtonStyle;
+				TSharedPtr<SGridPanel> ActionGrid;
 
-	// Position on screen
-	TAttribute<FVector2D> WidgetPosition;
+				const struct FGlobalStyle* ButtonStyle;
 
-	bool bInRotationMode;
+				// Position on screen
+				TAttribute<FVector2D> WidgetPosition;
+
+				bool bInRotationMode;
 
 private:
-	FVector2D ButtonPosition;
+				FVector2D ButtonPosition;
 
-	// Get the position where to draw the menu
-	FVector2D GetActionsWidgetPos() const;
+				// Get the position where to draw the menu
+				FVector2D GetActionsWidgetPos() const;
 };

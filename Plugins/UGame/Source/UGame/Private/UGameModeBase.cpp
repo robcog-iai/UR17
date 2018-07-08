@@ -7,5 +7,5 @@
 
 AUGameModeBase::AUGameModeBase()
 {
-	HUDClass = AGameHUD::StaticClass();
+				HUDClass = AGameHUD::StaticClass();
 }

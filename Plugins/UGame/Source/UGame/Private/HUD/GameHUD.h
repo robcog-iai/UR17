@@ -13,37 +13,37 @@
 UCLASS()
 class UGAME_API AGameHUD : public AHUD
 {
-	GENERATED_BODY()
+				GENERATED_BODY()
 
-	// Initializes the Slate UI and adds it as widget content to the game viewport.
-	virtual void PostInitializeComponents() override;
+				// Initializes the Slate UI and adds it as widget content to the game viewport.
+				virtual void PostInitializeComponents() override;
 
-	// Reference to the Main Menu Slate UI.
-	TSharedPtr<class SPickupUI> PickupUI;
+				// Reference to the Main Menu Slate UI.
+				TSharedPtr<class SPickupUI> PickupUI;
 public:
-	AGameHUD();
+				AGameHUD();
 
-	/** Set the selected Acotr for whom the menu should be drawn.
-	*   @param Selected actor
-	*/
-	void SetActionGridActor(AActor* InSelectedActor);
+				/** Set the selected Acotr for whom the menu should be drawn.
+				*   @param Selected actor
+				*/
+				void SetActionGridActor(AActor* InSelectedActor);
 
-	/** gets player controller */
-	class AGameController* GetPlayerController() const;
+				/** gets player controller */
+				class AGameController* GetPlayerController() const;
 
 protected:
-	/** Actor for whom the menu should be displayed*/
-	TWeakObjectPtr<AActor> SelectedActor;
+				/** Actor for whom the menu should be displayed*/
+				TWeakObjectPtr<AActor> SelectedActor;
 
 public:
-	/** Remove menus on screen*/
-	void RemoveMenu();
+				/** Remove menus on screen*/
+				void RemoveMenu();
 
-	/** Draw PickUp menu, with the pickup and rotation option*/
-	void DrawPickUpMenu(float MouseX, float MouseY);
+				/** Draw PickUp menu, with the pickup and rotation option*/
+				void DrawPickUpMenu(float MouseX, float MouseY);
 
-	/** Position on screen */
-	FVector2D MenuPosition;
+				/** Position on screen */
+				FVector2D MenuPosition;
 
-	UGPickup* GPickup;
+				UGPickup* GPickup;
 };

@@ -11,80 +11,80 @@
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UGAME_API UGMovement : public UActorComponent
 {
-	GENERATED_BODY()
+				GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
-	UGMovement();
+				// Sets default values for this component's properties
+				UGMovement();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
+				// Called when the game starts
+				virtual void BeginPlay() override;
 
-	// Handles moving forward/backward
-	void MoveForward(const float Val);
+				// Handles moving forward/backward
+				void MoveForward(const float Val);
 
-	// Handles strafing Left/Right
-	void MoveRight(const float Val);
+				// Handles strafing Left/Right
+				void MoveRight(const float Val);
 
-	void AddControllerPitchInput(const float Val);
+				void AddControllerPitchInput(const float Val);
 
-	void AddControllerYawInput(const float Val);
+				void AddControllerYawInput(const float Val);
 
-	// The maximum (or default) speed
-	UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
-		float MaxMovementSpeed;
+				// The maximum (or default) speed
+				UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
+								float MaxMovementSpeed;
 
-	// The minimum movement speed. Used if player picks up items which then effects speed
-	UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
-		float MinMovementSpeed;
+				// The minimum movement speed. Used if player picks up items which then effects speed
+				UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
+								float MinMovementSpeed;
 
-	float CurrentSpeed;
+				float CurrentSpeed;
 
 protected:
 
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void SetupKeyBindings(UInputComponent* PlayerInputComponent);
+				// Called every frame
+				virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+				void SetupKeyBindings(UInputComponent* PlayerInputComponent);
 
-	// Renders the player movable/unmovable
-	void SetMovable(bool bCanMove);
+				// Renders the player movable/unmovable
+				void SetMovable(bool bCanMove);
 
 
 private:
-	// Regulates the max speed
-	float SpeedLimit;
+				// Regulates the max speed
+				float SpeedLimit;
 
-	ACharacter* Character;
+				ACharacter* Character;
 
-	// Stores the default speed set at start game
-	float DefaultSpeed;
+				// Stores the default speed set at start game
+				float DefaultSpeed;
 
-	bool bCanMove;
+				bool bCanMove;
 
-	// *** *** *** *** *** *** 
+				// *** *** *** *** *** *** 
 
-	// After this point done by Waldemar Zeitler
+				// After this point done by Waldemar Zeitler
 public:
-	/**
-	*  Calculates a rising speed up. This funktion is done with the PT1-Glied function.
-	*  The "Sprungantwort" function is used: a(t) = K(1-e^(-t/T)).
-	*  https://de.wikipedia.org/wiki/PT1-Glied
-	*  @param TimeStep - Current time to rise the speed
-	*  @return the new walking speed
-	*/
-	float VelocitySpeedUp(float TimeStep);
+				/**
+				*  Calculates a rising speed up. This funktion is done with the PT1-Glied function.
+				*  The "Sprungantwort" function is used: a(t) = K(1-e^(-t/T)).
+				*  https://de.wikipedia.org/wiki/PT1-Glied
+				*  @param TimeStep - Current time to rise the speed
+				*  @return the new walking speed
+				*/
+				float VelocitySpeedUp(float TimeStep);
 
-	// SpeedUpValue for the how fast the character gets his max speed. 
-	UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
-		float SpeedUpValue;
+				// SpeedUpValue for the how fast the character gets his max speed. 
+				UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
+								float SpeedUpValue;
 
 private:
-	// Time taken from the tick function, to calculate the speed up
-	float SpeedUpTime;
+				// Time taken from the tick function, to calculate the speed up
+				float SpeedUpTime;
 
-	// Bool to check if the character is moving.
-	bool bIsMoving;
+				// Bool to check if the character is moving.
+				bool bIsMoving;
 
 };
