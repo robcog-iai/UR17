@@ -119,6 +119,8 @@ public:
 
 	bool bRotationStarted;
 
+	bool bDropStarted;
+
 	bool bInRotationPosition;
 
 	// Bool to check if the menu is active and movment should be stopped.

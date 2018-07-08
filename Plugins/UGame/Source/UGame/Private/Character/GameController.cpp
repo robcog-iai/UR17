@@ -139,6 +139,11 @@ void AGameController::Tick(float DeltaTime)
 
 		UE_LOG(LogTemp, Warning, TEXT("Actor Rotation %s"), *PickupComponent->ItemInRotaitonPosition->GetActorRotation().ToString());
 	}
+
+	if (PickupComponent->bDropStarted)
+	{
+
+	}
 }
 
 // Called to bind functionality to input

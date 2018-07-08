@@ -17,6 +17,7 @@
 UGPickup::UGPickup()
 	:bRotationStarted(false)
 	, bRotationMenuActivated(false)
+	, bDropStarted(false)
 	, bPickupMenuActivated(false)
 	, ItemInRotaitonPosition(nullptr)
 	, bButtonReleased(false)
@@ -269,8 +270,6 @@ void UGPickup::MoveToRotationPosition()
 	BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
-
-
 	bInRotationPosition = true;
 	bRotationStarted = true;
 
@@ -321,6 +320,8 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 void UGPickup::DropItem()
 {
 	//TODO: Implement dropping
+	
+	bDropStarted = true;
 }
 
 void UGPickup::SetMovementSpeed(float Weight)
