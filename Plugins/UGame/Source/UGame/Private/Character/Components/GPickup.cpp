@@ -212,10 +212,13 @@ void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
 void UGPickup::InputLeftHandPressed()
 {
 	if (bLeftMouse) return; // We already clicked that key
-	if (bRightMouse) return; // Ignore this call if the other key has been pressed
 
 	bLeftMouse = true;
-	//UsedHand = EHand::Left;
+	if (bDropStarted)
+	{
+		bDropStarted = false;
+		DropItem();
+	}
 }
 
 void UGPickup::InputLeftHandReleased()
@@ -319,9 +322,11 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 
 void UGPickup::DropItem()
 {
-	//TODO: Implement dropping
+	FDetachmentTransformRules TransformRules = FDetachmentTransformRules::KeepWorldTransform;
+	TransformRules.bCallModify = true;
 
-	bDropStarted = true;
+	ItemToHandle->DetachFromActor(TransformRules);
+
 }
 
 void UGPickup::SetMovementSpeed(float Weight)

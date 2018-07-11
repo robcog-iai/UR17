@@ -93,7 +93,8 @@ void AGameController::Tick(float DeltaTime)
 		PickupComponent->bRotationStarted = false;
 	}
 
-	if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem)
+	if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem
+		&& !(PickupComponent->bRotationStarted || PickupComponent->bDropStarted))
 	{
 		XMousePosition = .0f;
 		YMousePosition = .0f;
@@ -112,7 +113,7 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bEnableMouseOverEvents = false;
 	}
 
-	// Rotate the object depending of the rotation mode 
+	// Rotate/drop the object 
 	if (PickupComponent->bRotationStarted || PickupComponent->bDropStarted)
 	{
 		float XMousePositionCurrent;
@@ -120,7 +121,7 @@ void AGameController::Tick(float DeltaTime)
 
 		PlayerController->GetMousePosition(XMousePositionCurrent, YMousePositionCurrent);
 
-		// Check if roation just startet
+		// Check if roation/drop just startet
 		if (XMousePosition != .0f && YMousePosition != .0f)
 		{
 			XMousePosition -= XMousePositionCurrent;
@@ -140,10 +141,7 @@ void AGameController::Tick(float DeltaTime)
 
 		XMousePosition = XMousePositionCurrent;
 		YMousePosition = YMousePositionCurrent;
-
-		UE_LOG(LogTemp, Warning, TEXT("Actor Rotation %s"), *PickupComponent->ItemInRotaitonPosition->GetActorRotation().ToString());
 	}
-
 }
 
 // Called to bind functionality to input

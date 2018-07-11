@@ -31,7 +31,8 @@ void SPickupUI::Construct(const FArguments& args)
 		]
 	];
 
-	if (!GameHUD->GPickup->bInRotationPosition && GameHUD->GPickup->ItemInLeftHand != GameHUD->GPickup->ItemToInteract && GameHUD->GPickup->ItemInRightHand != GameHUD->GPickup->ItemToInteract) {
+	if (!GameHUD->GPickup->bInRotationPosition && GameHUD->GPickup->ItemInLeftHand != GameHUD->GPickup->ItemToInteract && GameHUD->GPickup->ItemInRightHand != GameHUD->GPickup->ItemToInteract 
+		&& !GameHUD->GPickup->bDropStarted) {
 		ActionGrid->AddSlot(0, 0)
 		[
 			SNew(SVerticalBox)
@@ -58,7 +59,7 @@ void SPickupUI::Construct(const FArguments& args)
 			]
 		];
 	}
-	else if (GameHUD->GPickup->ItemInLeftHand == GameHUD->GPickup->ItemToInteract || GameHUD->GPickup->ItemInRightHand == GameHUD->GPickup->ItemToInteract)
+	else if (!GameHUD->GPickup->bDropStarted && (GameHUD->GPickup->ItemInLeftHand == GameHUD->GPickup->ItemToInteract || GameHUD->GPickup->ItemInRightHand == GameHUD->GPickup->ItemToInteract))
 	{
 		ActionGrid->AddSlot(0, 0)
 		[
@@ -184,7 +185,7 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 
 FReply SPickupUI::Drop()
 {
-	GameHUD->GPickup->DropItem();
+	GameHUD->GPickup->bDropStarted = true;
 
 	GameHUD->RemoveMenu();
 
