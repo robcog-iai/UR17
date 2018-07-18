@@ -59,7 +59,8 @@ void SPickupUI::Construct(const FArguments& args)
 			]
 		];
 	}
-	else if (!GameHUD->GPickup->bDropStarted && (GameHUD->GPickup->ItemInLeftHand == GameHUD->GPickup->ItemToInteract || GameHUD->GPickup->ItemInRightHand == GameHUD->GPickup->ItemToInteract))
+	else if (!GameHUD->GPickup->bDropStarted && GameHUD->GPickup->ItemToHandle != nullptr && 
+		(GameHUD->GPickup->ItemInLeftHand == GameHUD->GPickup->ItemToInteract || GameHUD->GPickup->ItemInRightHand == GameHUD->GPickup->ItemToInteract))
 	{
 		ActionGrid->AddSlot(0, 0)
 		[
@@ -134,8 +135,7 @@ FReply SPickupUI::PickUp()
 			GameHUD->GPickup->PickUpItemAfterMenu(false);
 		}
 	}
-	GameHUD->GPickup->bPickupMenuActivated = false;
-	GameHUD->GPickup->bFreeMouse = false;
+	
 	GameHUD->RemoveMenu();
 
 	return FReply::Handled();

@@ -60,8 +60,6 @@ void UGPickup::BeginPlay()
 
 	if (PlayerCharacter == nullptr) UE_LOG(LogTemp, Fatal, TEXT("UCPickup::BeginPlay: The PlayerCharacter was not assigned. Restarting the editor might fix this."));
 
-	RaycastRange = PlayerCharacter->GraspRange;
-
 	UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
 
 	// Create Static mesh actors for hands to weld items we pickup into this position
@@ -133,27 +131,7 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	}
 }
 
-void UGPickup::UnstackItems(AStaticMeshActor * BaseItem)
-{
-	if (BaseItem == nullptr) return;
-
-	TArray<AActor*> ChildItemsOfBaseItem;
-	BaseItem->GetAttachedActors(ChildItemsOfBaseItem);
-
-	BaseItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	BaseItem->GetStaticMeshComponent()->SetSimulatePhysics(true);
-	BaseItem->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	for (auto& DroppedItem : ChildItemsOfBaseItem) {
-		AStaticMeshActor* CastActor = Cast<AStaticMeshActor>(DroppedItem);
-		DroppedItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		if (CastActor != nullptr) {
-			CastActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			CastActor->GetStaticMeshComponent()->SetSimulatePhysics(true);
-		}
-	}
-}
-
+// TODO: Check if necessary for dropping the item.
 FHitResult UGPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActor * ItemToSweep, TArray<AActor*> IgnoredActors)
 {
 	TArray<FHitResult> Hits;
@@ -169,35 +147,6 @@ FHitResult UGPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActo
 	}
 
 	return FHitResult();
-}
-
-//TODO: Check if necessary for dropping an item
-FVector UGPickup::GetPositionOnSurface(AActor * Item, FVector PointOnSurface)
-{
-	FVector ItemOrigin;
-	FVector ItemBoundExtend;
-	Item->GetActorBounds(false, ItemOrigin, ItemBoundExtend);
-
-	FVector DeltaOfPivotToCenter = ItemOrigin - Item->GetActorLocation();
-
-	return FVector(PointOnSurface.X, PointOnSurface.Y, PointOnSurface.Z + ItemBoundExtend.Z) - DeltaOfPivotToCenter;
-}
-
-//TODO: Check if necessary for dropping an item
-FHitResult UGPickup::RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector MousePosition, FVector MouseDirection)
-{
-	FHitResult RaycastResult;
-
-	const FVector EndTrace = MousePosition + MouseDirection * RaycastRange; // and trace end is the camera location + an offset in the direction
-
-	FCollisionQueryParams TraceParams;
-	TraceParams.AddIgnoredActors(IgnoredActors);
-
-	TraceParams.AddIgnoredActor(GetOwner()); // Always ignore player
-
-	GetWorld()->LineTraceSingleByChannel(RaycastResult, MousePosition, EndTrace, ECollisionChannel::ECC_Visibility, TraceParams);
-
-	return RaycastResult;
 }
 
 void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
@@ -231,15 +180,17 @@ void UGPickup::InputLeftHandReleased()
 
 void UGPickup::InputRightHandPressed()
 {
-	//if (bRightMouse) return; // We already clicked that key
 	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
 
 	bRightMouse = !bRightMouse;
 
 	if (bRightMouse) {
 		bFreeMouse = true;
+	} 
+	else if (!bRightMouse && ItemToInteract == nullptr)
+	{
+		bFreeMouse = false;
 	}
-	//UsedHand = EHand::Right;
 }
 
 void UGPickup::InputRightHandReleased()
@@ -285,13 +236,13 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 	bInRotationPosition = false;
 
 	if (BaseItemToPick == nullptr) {
-		SetMovementSpeed(-MassOfLastItemPickedUp);
 		if (ItemInRotaitonPosition != nullptr)
 		{
 			BaseItemToPick = ItemInRotaitonPosition;
 			ItemInRotaitonPosition = nullptr;
 		}
-		else {
+		else 
+		{
 			BaseItemToPick = ItemToHandle;
 		}
 	}
@@ -316,46 +267,19 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 
 	BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
+	bPickupMenuActivated = false;
+	bFreeMouse = false;
+
 	ItemToHandle = nullptr;
 	BaseItemToPick = nullptr;
 }
 
 void UGPickup::DropItem()
 {
-	FDetachmentTransformRules TransformRules = FDetachmentTransformRules::KeepWorldTransform;
-	TransformRules.bCallModify = true;
-
-	ItemToHandle->DetachFromActor(TransformRules);
-
-}
-
-void UGPickup::SetMovementSpeed(float Weight)
-{
-	if (PlayerCharacter->MovementComponent == nullptr) return;
-	MassToCarry += Weight;
-
-	float MinSpeed = PlayerCharacter->MovementComponent->MinMovementSpeed;
-	float MaxSpeed = PlayerCharacter->MovementComponent->MaxMovementSpeed;
-
-	float NewSpeed = 0;
-
-	if (Weight <= 0 /*We are dropping*/ && ItemInLeftHand == nullptr && ItemInRightHand == nullptr) {	// Check if we still carry something
-		PlayerCharacter->MovementComponent->CurrentSpeed = MaxMovementSpeed;
-		UE_LOG(LogTemp, Warning, TEXT("New speed %f"), MaxMovementSpeed);
-		MassOfLastItemPickedUp = 0;
-	}
-	else {
-		if (bUseQuadratricEquationForSpeedCalculation) {
-			NewSpeed = (MinSpeed - MaxSpeed) * MassToCarry * MassToCarry / (MaximumMassToCarry * MaximumMassToCarry) + MaxSpeed;
-		}
-		else {
-			NewSpeed = (MinSpeed - MaxSpeed) * MassToCarry / MaximumMassToCarry + MaxSpeed;
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("New speed %f"), NewSpeed);
-
-		PlayerCharacter->MovementComponent->CurrentSpeed = NewSpeed;
-	}
+	ItemToHandle->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	ItemToHandle->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	ItemToHandle->GetStaticMeshComponent()->SetSimulatePhysics(true);;
+	ItemToHandle = nullptr;
 }
 
 void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)

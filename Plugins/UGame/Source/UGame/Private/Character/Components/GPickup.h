@@ -81,7 +81,6 @@ public:
 	void SetupKeyBindings(UInputComponent* PlayerInputComponent);
 
 private:
-	float RaycastRange;
 	float MaxMovementSpeed;
 
 	AStaticMeshActor* LeftHandActor;
@@ -96,19 +95,10 @@ private:
 
 	// *** *** *** ***
 
-	void UnstackItems(AStaticMeshActor* BaseItem); // De-stacks a stack of items
-
-
 	float MassToCarry; // The current mass the player carries
 	float MassOfLastItemPickedUp; // The mass of the item we try to pick up
 
-	void SetMovementSpeed(float Weight);
-
 	FHitResult CheckForCollision(FVector From, FVector To, AStaticMeshActor* ItemToSweep, TArray<AActor*> IgnoredActors);
-
-	FVector GetPositionOnSurface(AActor* Item, FVector PointOnSurface); // Calculates the final position of an item on a surface
-
-	FHitResult RaytraceWithIgnoredActors(TArray<AActor*> IgnoredActors, FVector MousePosition = FVector::ZeroVector, FVector MouseDirection = FVector::ZeroVector);
 
 	void InputLeftHandPressed();
 	void InputLeftHandReleased();
