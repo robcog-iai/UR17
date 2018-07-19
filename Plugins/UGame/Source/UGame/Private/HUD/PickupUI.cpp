@@ -176,8 +176,6 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 		}
 	}
 
-	GameHUD->GPickup->bPickupMenuActivated = false;
-	GameHUD->GPickup->bFreeMouse = false;
 	GameHUD->RemoveMenu();
 
 	return FReply::Handled();

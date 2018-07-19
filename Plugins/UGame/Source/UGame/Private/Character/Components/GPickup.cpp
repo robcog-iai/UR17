@@ -278,8 +278,16 @@ void UGPickup::DropItem()
 {
 	ItemToHandle->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	ItemToHandle->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	ItemToHandle->GetStaticMeshComponent()->SetSimulatePhysics(true);;
+	ItemToHandle->GetStaticMeshComponent()->SetSimulatePhysics(true);
+
+	if (ItemInRightHand == ItemToHandle)
+		ItemInRightHand = nullptr;
+	else
+		ItemInLeftHand = nullptr;
+
 	ItemToHandle = nullptr;
+	bDropStarted = false;
+	bFreeMouse = false;
 }
 
 void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)
