@@ -141,7 +141,7 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	{
 		FStaticMaterial Material = ComponentMaterials[index];
 
-		if (Material.MaterialSlotName == FName("InsideCutMaterial"))
+		if (Material.MaterialSlotName.Compare(FName("InsideCutMaterial")) == 0)
 		{
 			// Found the needed material, do not need to search further
 			InsideCutMaterialInterface = Material.MaterialInterface;
@@ -159,7 +159,6 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 		EProcMeshSliceCapOption::CreateNewSectionForCap,
 		InsideCutMaterialInterface
 	);
-
 	OutputProceduralMesh->bGenerateOverlapEvents = true;
 	OutputProceduralMesh->SetEnableGravity(true);
 	OutputProceduralMesh->SetSimulatePhysics(true);
@@ -169,11 +168,11 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 
 	CuttableComponent->SetLinearDamping(0.f);
 	CuttableComponent->SetAngularDamping(0.f);
-	
+
 	// Convert both seperated procedural meshes into static meshes for best compatibility
-	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh, ComponentMaterials);
 	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent,
 		ComponentMaterials);
+	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh, ComponentMaterials);
 
 	// Delete old original static mesh
 	CutComponent->GetOwner()->Destroy();
@@ -204,17 +203,15 @@ void USlicingBladeComponent::ResetState()
 // Connects the given Component, normally the CuttableComponent, with either the Blade OR the Hand if it's welded.
 void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableComponent)
 {
-	// Linear Damping setting
-
 	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
 	ConstraintOne->SetConstrainedComponents(this, FName("Blade"), CuttableComponent, FName("Object"));
+
 	// High number may not be needed. Adjust
 	ConstraintOne->ConstraintInstance.SetAngularBreakable(false, 10000.f);
 	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10000.f);
-
 	ConstraintOne->ConstraintInstance.SetLinearDriveParams(1000.f, 1000.f, 1000.f);
 	
-	// It's enough here to set Limited
+	// It's enough here to set Limited, Locked is too limiting for the purpose of realism
 	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
 	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Limited, 0.1f);
