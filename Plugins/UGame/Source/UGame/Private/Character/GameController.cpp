@@ -62,8 +62,6 @@ void AGameController::BeginPlay()
 
 	PlayerController->bEnableMouseOverEvents = true;
 
-	SetOfInteractableItems = FTagStatics::GetActorSetWithKeyValuePair(GetWorld(), "UGame", TAG_KEY_INTERACTABLE, "True");
-
 	// *** *** *** *** *** ***
 	//LeftHandPosition = SpawnActor<AActor>(FVector(0, 0, 0), FRotator(0, 0, 0));
 
@@ -181,21 +179,4 @@ void AGameController::SetupScenario()
 		}
 		break;
 	}
-}
-
-bool AGameController::CheckForVisibleObjects()
-{
-	float MinRecentTime = 0.01;
-
-	//Iterate Over Actors
-	for (TObjectIterator<AActor> Itr; Itr; ++Itr)
-	{
-		TArray<FName> ObjectTags = Itr->Tags;
-		if (ObjectTags.Num() > 0 && ObjectTags[0].ToString().Contains("Pickup")) {
-			float Time = Itr->GetLastRenderTime();
-			if (Time > 0, 1) return true;
-		}
-	}
-
-	return false;
 }

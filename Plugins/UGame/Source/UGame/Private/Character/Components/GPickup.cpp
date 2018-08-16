@@ -32,13 +32,10 @@ UGPickup::UGPickup()
 
 	MaximumMassToCarry = 10.0f;
 	bMassEffectsMovementSpeed = true;
-	bUseQuadratricEquationForSpeedCalculation = true;
 
 	bTwoHandMode = true;
 	bInRotationPosition = false;
 	// *** *** *** *** *** *** *** ***
-
-	TransparentMaterial = nullptr;
 }
 
 // Called when the game starts

@@ -43,10 +43,6 @@ public:
 	// Sets default values for this character's properties
 	AGameController();
 
-	// The context scenario type
-	UPROPERTY(EditAnywhere, Category = "CI - Scenario Setup")
-		EScenarioType ScenarioType;
-
 	// The interaction mode
 	UPROPERTY(EditAnywhere, Category = "CI - Scenario Setup")
 		EInteractionMode InteractionMode;
@@ -98,15 +94,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
 private:
 	ACharacter * Character;
-	FHitResult RaycastResult; // The result of the constant raycasting
-	FVector PreviousPosition;
-	FRotator PreviousRotation;
-
-	TSet<AActor*> SetOfInteractableItems; // All interactable actors 
-	TMap<AActor*, TArray<UMaterialInterface*>> DefaultActorMaterial;
 
 	bool bIsMovementLocked; // Whether or not the player can move
 	bool bComponentsLocked;
@@ -115,12 +104,8 @@ private:
 
 	void SetupScenario();
 
-	//After this point the code is written by Wlademar Zeitler
 public:
 	APlayerController * PlayerController;
-
-	/** Checks if there are interactable objects in the viewport. */
-	bool CheckForVisibleObjects();
 
 	/** Game HUD. */
 	AGameHUD* PickupHUD;

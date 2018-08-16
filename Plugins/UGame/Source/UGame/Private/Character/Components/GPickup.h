@@ -11,14 +11,6 @@
 #include "CoreMinimal.h"
 #include "GPickup.generated.h"
 
-UENUM()
-enum EHand
-{
-	Right UMETA(DisplayName = "Right"),
-	Left UMETA(DisplayName = "Left"),
-	Both UMETA(DisplayName = "Both")
-};
-
 class AGameController; // Use Forward Declaration. Including the header in CPickup.cpp
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -33,10 +25,6 @@ public:
 	AStaticMeshActor* ItemInLeftHand;
 	AStaticMeshActor* ItemInRightHand;
 
-	// The materials for the shadow items
-	UPROPERTY(EditAnyWhere, Category = "CI - General")
-		UMaterial* TransparentMaterial;
-
 	// Whether or nor the player can use both hands
 	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
 		bool bTwoHandMode;
@@ -44,10 +32,6 @@ public:
 	// Whether or not the player's movement speed depends on the weight the player carries
 	UPROPERTY(EditAnywhere, Category = "CI - Physics")
 		bool bMassEffectsMovementSpeed;
-
-	// Use quadratic formula to calculate speed. If false the speed calculation is linear. Using quadratic formula leads to higher speed if lighter items are carried
-	UPROPERTY(EditAnywhere, Category = "CI - Physics")
-		bool bUseQuadratricEquationForSpeedCalculation;
 
 	// How much mass can the player carry
 	UPROPERTY(EditAnywhere, Category = "CI - Physics")
@@ -80,9 +64,6 @@ private:
 	TSet<AActor*> SetOfPickupItems; // All items in the world wich can be picked up
 
 	AStaticMeshActor* BaseItemToPick; // The item we are about to pick up	
-
-	EHand UsedHand; // The hand we currently use for our interaction
-
 	// *** *** *** ***
 
 	float MassToCarry; // The current mass the player carries
