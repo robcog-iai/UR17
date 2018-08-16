@@ -133,7 +133,15 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 		int32 NumTris = NumIndices / 3;
 		for (int32 TriIdx = 0; TriIdx < NumTris; TriIdx++)
 		{
-			RawMesh.FaceMaterialIndices.Add(SectionIdx);
+			if (SectionIdx > 0)
+			{
+				RawMesh.FaceMaterialIndices.Add(1);
+			}
+			else
+			{
+				RawMesh.FaceMaterialIndices.Add(SectionIdx);
+			}
+
 			RawMesh.FaceSmoothingMasks.Add(0); // Assume this is ignored as bRecomputeNormals is false
 		}
 
