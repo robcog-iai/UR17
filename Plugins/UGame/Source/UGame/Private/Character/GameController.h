@@ -71,8 +71,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CI - Debug")
 		bool bIsDebugMode;
 
-	bool bRaytraceEnabled;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -92,7 +90,7 @@ public:
 
 	AStaticMeshActor* FocussedActor; // The currently focussed actor
 
-	UActorComponent* LockedByComponent; // If this isn't nuullptr this component has exclusive rights
+	UActorComponent* LockedByComponent; // If this isn't nullptr this component has exclusive rights
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

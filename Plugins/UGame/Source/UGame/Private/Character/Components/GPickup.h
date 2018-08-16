@@ -53,14 +53,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CI - Physics")
 		float MaximumMassToCarry;
 
-	// Whether or not to check for collisions on pickup
-	UPROPERTY(EditAnywhere, Category = "CI - Collision")
-		bool bCheckForCollisionsOnPickup;
-
-	// Whether or not to check for collisions on drop
-	UPROPERTY(EditAnywhere, Category = "CI - Collision")
-		bool bCheckForCollisionsOnDrop;
-
 	AGameController * PlayerCharacter; // The player character instance
 
 	TArray<AStaticMeshActor*> ShadowItems; // The array that holds all the current shadow items
@@ -81,8 +73,6 @@ public:
 	void SetupKeyBindings(UInputComponent* PlayerInputComponent);
 
 private:
-	float MaxMovementSpeed;
-
 	AStaticMeshActor* LeftHandActor;
 	AStaticMeshActor* RightHandActor;
 	AStaticMeshActor* BothHandActor;
@@ -97,8 +87,6 @@ private:
 
 	float MassToCarry; // The current mass the player carries
 	float MassOfLastItemPickedUp; // The mass of the item we try to pick up
-
-	FHitResult CheckForCollision(FVector From, FVector To, AStaticMeshActor* ItemToSweep, TArray<AActor*> IgnoredActors);
 
 	void InputLeftHandPressed();
 	void InputLeftHandReleased();

@@ -24,13 +24,12 @@ UGMovement::UGMovement()
 	Character = nullptr;
 }
 
-
 // Called when the game starts
 void UGMovement::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Set to MinMovmentSpeed, for the speed up (by Waldemar Zeitler)
+	// Set to MinMovmentSpeed, for the speed up
 	CurrentSpeed = 0;
 
 	Character = Cast<ACharacter>(GetOwner()); // Setup player
@@ -53,19 +52,8 @@ void UGMovement::MoveForward(const float Val) {
 		// Add movement in that direction
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
 
-		// Recalculate the current speed (by Waldemar Zeitler)
-		if (!bIsMoving) {
-			bIsMoving = true;
-		}
-
-		if (SpeedUpTime < 2) {
-			SpeedUpTime += SpeedUpValue;
-		}
-		CurrentSpeed = VelocitySpeedUp(SpeedUpTime) + MinMovementSpeed;
-		CurrentSpeed = CurrentSpeed * Val;
-
-		Character->AddMovementInput(Direction, CurrentSpeed);
-		UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
+		// Add movement in the current direction
+		SpeedUp(Direction, Val);		
 	}
 }
 
@@ -78,21 +66,8 @@ void UGMovement::MoveRight(const float Val) {
 		const FRotator Rotation = Character->Controller->GetControlRotation();
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
 
-		// add movement in that direction
-		// Recalculate the current speed (by Waldemar Zeitler)
-		if (!bIsMoving) {
-			bIsMoving = true;
-		}
-
-		if (SpeedUpTime < 2) {
-			SpeedUpTime += SpeedUpValue;
-		}
-		CurrentSpeed = VelocitySpeedUp(SpeedUpTime) + MinMovementSpeed;
-		CurrentSpeed = CurrentSpeed * Val;
-
-		Character->AddMovementInput(Direction, CurrentSpeed);
-
-		UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
+		// Add movement in the current direction
+		SpeedUp(Direction, Val);
 	}
 }
 
@@ -151,7 +126,7 @@ void UGMovement::SetMovable(bool bCanMove)
 	this->bCanMove = bCanMove;
 }
 
-float UGMovement::VelocitySpeedUp(float TimeStep)
+float UGMovement::CalculateNewSpeed(float TimeStep)
 {
 	// The variables are fixed and change the curve of the function, if changed
 	int TVariable = 1;
@@ -162,4 +137,21 @@ float UGMovement::VelocitySpeedUp(float TimeStep)
 	float NewSpeed = MaxMovementSpeed * BracePart;
 
 	return NewSpeed;
+}
+
+void UGMovement::SpeedUp(const FVector Direction, const float Val)
+{
+	// Recalculate the current speed (by Waldemar Zeitler)
+	if (!bIsMoving) {
+		bIsMoving = true;
+	}
+
+	if (SpeedUpTime < 2) {
+		SpeedUpTime += SpeedUpValue;
+	}
+	CurrentSpeed = CalculateNewSpeed(SpeedUpTime) + MinMovementSpeed;
+	CurrentSpeed = CurrentSpeed * Val;
+
+	Character->AddMovementInput(Direction, CurrentSpeed);
+	UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
 }

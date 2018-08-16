@@ -22,7 +22,6 @@ AGameController::AGameController()
 	PrimaryActorTick.bCanEverTick = true;
 	// Chagned to 300 (from 120) for testing
 	GraspRange = 300.0f;
-	bRaytraceEnabled = true;
 
 	// Set PlayerController (by Waldemar Zeitler)
 	PlayerController = nullptr;

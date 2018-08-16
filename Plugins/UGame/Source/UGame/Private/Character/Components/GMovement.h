@@ -74,17 +74,23 @@ public:
 	*  @param TimeStep - Current time to rise the speed
 	*  @return the new walking speed
 	*/
-	float VelocitySpeedUp(float TimeStep);
+	float CalculateNewSpeed(float TimeStep);
 
 	// SpeedUpValue for the how fast the character gets his max speed. 
 	UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
 		float SpeedUpValue;
 
 private:
-	// Time taken from the tick function, to calculate the speed up
+	// Time taken from the tick function, to calculate the speed up.
 	float SpeedUpTime;
 
 	// Bool to check if the character is moving.
 	bool bIsMoving;
+
+	/** 
+	*	Rises and sets new speed value. 
+	*	@param Direction - Direction in which to speed up.
+	*/
+	void SpeedUp(const FVector Direction, const float Val);
 
 };

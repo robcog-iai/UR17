@@ -36,9 +36,6 @@ UGPickup::UGPickup()
 
 	bTwoHandMode = true;
 	bInRotationPosition = false;
-
-	bCheckForCollisionsOnPickup = false;
-	bCheckForCollisionsOnDrop = true;
 	// *** *** *** *** *** *** *** ***
 
 	TransparentMaterial = nullptr;
@@ -94,15 +91,9 @@ void UGPickup::BeginPlay()
 	BothHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
 	// *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 
-
-	MaxMovementSpeed = PlayerCharacter->MovementComponent->MaxMovementSpeed;
-
-	/////////////////////////////////////////////////////////
-
-	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
+	// Initilize the player controller to get the mouse axis
 	PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
 	PlayerController->bEnableMouseOverEvents = true;
-
 }
 
 // Called every frame
@@ -129,24 +120,6 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 			bPickupMenuActivated = false;
 		}
 	}
-}
-
-// TODO: Check if necessary for dropping the item.
-FHitResult UGPickup::CheckForCollision(FVector From, FVector To, AStaticMeshActor * ItemToSweep, TArray<AActor*> IgnoredActors)
-{
-	TArray<FHitResult> Hits;
-	FComponentQueryParams Params;
-
-	Params.AddIgnoredActors(IgnoredActors);
-	Params.AddIgnoredActor(GetOwner()); // Always ignore player
-
-	GetWorld()->ComponentSweepMulti(Hits, ItemToSweep->GetStaticMeshComponent(), From, To, ItemToSweep->GetActorRotation(), Params);
-
-	if (Hits.Num() > 0) {
-		return Hits[0];
-	}
-
-	return FHitResult();
 }
 
 void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
