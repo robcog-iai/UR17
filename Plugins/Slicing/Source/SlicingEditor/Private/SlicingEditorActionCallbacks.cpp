@@ -99,7 +99,26 @@ void FSlicingEditorActionCallbacks::MakeCuttableObjects()
 		}
 		
 		// Let the cutting object go through the actor
-		StaticMeshActor->GetStaticMeshComponent()->bGenerateOverlapEvents = true;
+		StaticMeshComponent->bGenerateOverlapEvents = true;
+
+		// Enable physics, as otherwise the object won't be cuttable
+		StaticMeshComponent->SetSimulatePhysics(true);
+		StaticMeshActor->SetMobility(EComponentMobility::Movable);
+
+		// Add new materialslot for potential inside cut material
+		if (StaticMeshComponent->GetStaticMesh()->GetMaterialIndex("InsideCutMaterial") == -1)
+		{
+			StaticMeshComponent->GetStaticMesh()->Modify();
+			
+			FStaticMaterial InnerStaticMaterial = FStaticMaterial();
+			InnerStaticMaterial.MaterialSlotName = "InsideCutMaterial";
+			StaticMeshComponent->GetStaticMesh()->StaticMaterials.Add(InnerStaticMaterial);
+
+			StaticMeshComponent->GetStaticMesh()->PostEditChange();
+		}
+
+		// Add the custom resistance property
+		// ...
 	}
 }
 
