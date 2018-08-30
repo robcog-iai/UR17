@@ -104,7 +104,7 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (bLockedByOtherComponent == false)
 	{
 		// Mouse is free and right mouse button was pressed again
-		if (bFreeMouse && !bRightMouse && !bPickupMenuActivated && bOverItem)
+		if (bFreeMouse && !bRightMouse && !bPickupMenuActivated && bOverItem && !bDropStarted)
 		{
 			if (ItemToInteract != nullptr)
 			{
@@ -130,31 +130,41 @@ void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
 
 void UGPickup::InputLeftHandPressed()
 {
-	if (bLeftMouse) return; // We already clicked that key
-
 	bLeftMouse = true;
+
 	if (bDropStarted)
 	{
 		bDropStarted = false;
 		DropItem();
 	}
+
+ if (bRightMouse)
+ {
+     bRightMouse = false;
+ }
+
+ if (bFreeMouse)
+ {
+     bFreeMouse = false;
+ }    
 }
 
 void UGPickup::InputLeftHandReleased()
 {
-	if (bLeftMouse == false) return; // We can't release if we didn't clicked first
-	if (bRightMouse) return; // Ignore this call if the other key has been pressed
-
 	bLeftMouse = false;
+
+ if (bFreeMouse)
+ {
+     bFreeMouse = false;
+ }    
 }
 
 void UGPickup::InputRightHandPressed()
 {
-	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
-
 	bRightMouse = !bRightMouse;
 
-	if (bRightMouse) {
+	if (bRightMouse) 
+ {
 		bFreeMouse = true;
 	} 
 	else if (!bRightMouse && ItemToInteract == nullptr)
@@ -165,9 +175,6 @@ void UGPickup::InputRightHandPressed()
 
 void UGPickup::InputRightHandReleased()
 {
-	if (bRightMouse == false) return;  // We can't release if we didn't clicked first
-	if (bLeftMouse) return; // Ignore this call if the other key has been pressed
-
 	bButtonReleased = true;
 }
 

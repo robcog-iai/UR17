@@ -108,6 +108,8 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bShowMouseCursor = false;
 		PlayerController->bEnableClickEvents = false;
 		PlayerController->bEnableMouseOverEvents = false;
+  // Sets the focus back to the screen after the mouse was freed
+  PlayerController->SetInputMode(FInputModeGameOnly());
 	}
 
 	// Rotate/drop the object 
