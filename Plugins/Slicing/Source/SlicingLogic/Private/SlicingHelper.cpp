@@ -41,7 +41,13 @@ void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 	UProceduralMeshComponent* ProceduralMeshComponent, TArray<FStaticMaterial> &StaticMaterials)
 {
 	// Generate the static mesh from the data scanned from the procedural mesh
-	UStaticMesh* StaticMesh = GenerateStaticMesh(ProceduralMeshComponent);
+	int32 index = 0;
+	for (FStaticMaterial Material : StaticMaterials)
+	{
+		index++;
+		if (Material.MaterialSlotName.Compare(FName("InsideCutMaterial"))) break;
+	}
+	UStaticMesh* StaticMesh = GenerateStaticMesh(ProceduralMeshComponent, index);
 	// Set the static materials gotten from the old static mesh
 	StaticMesh->StaticMaterials = StaticMaterials;
 
@@ -85,7 +91,7 @@ void FSlicingHelper::CorrectProperties(UPrimitiveComponent* NewComponent, UPrimi
 	NewComponent->ComponentTags = OldComponent->ComponentTags;
 }
 
-UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent)
+UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent, int32 index)
 {
 	///																   ///
 	/// COPIED OVER FROM "ProceduralMeshComponentDetails.cpp l.118-212 ///
@@ -130,16 +136,17 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 		}
 
 		// copy face info
+		// Current Goal: The given InnerMaterial Index.
 		int32 NumTris = NumIndices / 3;
 		for (int32 TriIdx = 0; TriIdx < NumTris; TriIdx++)
 		{
 			if (SectionIdx > 0)
 			{
-				RawMesh.FaceMaterialIndices.Add(1);
+				RawMesh.FaceMaterialIndices.Add(index);
 			}
 			else
 			{
-				RawMesh.FaceMaterialIndices.Add(SectionIdx);
+				RawMesh.FaceMaterialIndices.Add(0);
 			}
 
 			RawMesh.FaceSmoothingMasks.Add(0); // Assume this is ignored as bRecomputeNormals is false

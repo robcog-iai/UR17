@@ -44,6 +44,6 @@ public:
 
 private:
 	static void CorrectProperties(UPrimitiveComponent* NewComponent, UPrimitiveComponent* OldComponent);
-	static UStaticMesh* GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent);
+	static UStaticMesh* GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent, int32 index);
 	static AStaticMeshActor* SpawnStaticMeshActor(UProceduralMeshComponent* ProceduralMeshComponent);
 };
