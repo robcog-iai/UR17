@@ -16,5 +16,5 @@
 
 * [VXelements_Manual](Documentation/VXelements_Manual.md)
 
-
+* [ImproveLight_Manual](Documentation/ImproveLight_Manual.md)
 
