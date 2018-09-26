@@ -26,6 +26,4 @@
 
 ## Video
 
-![](https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.gif)
-
-<img src="https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.gif" width="40" height="40" />
+![](https://media.giphy.com/media/2kOcVTorlG6GGb1dw9/giphy.gif)
