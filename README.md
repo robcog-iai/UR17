@@ -17,7 +17,7 @@
 
 ## Tutorial
 
-* [click here](Documentation/Tutorial.md)
+* [flex water](Documentation/Tutorial.md)
 
 * [installation guide](Documentation/HowToInstall.md)
 
