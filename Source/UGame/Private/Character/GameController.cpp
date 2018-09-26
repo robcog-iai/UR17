@@ -32,9 +32,6 @@ AGameController::AGameController()
 	PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
 	PickupComponent->PlayerCharacter = this;
 
-	OpenCloseComponent = CreateDefaultSubobject<UGOpenClose>(TEXT("OpenClose Component"));
-	OpenCloseComponent->PlayerCharacter = this;
-
 	XMousePosition = .0f;
 	YMousePosition = .0f;
 
@@ -67,8 +64,6 @@ void AGameController::BeginPlay()
 
 	// Setup HUD
 	PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
-
-	SetupScenario();
 
 	PickupHUD->GPickup = PickupComponent;
 }
@@ -150,7 +145,6 @@ void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	if (MovementComponent != nullptr) MovementComponent->SetupKeyBindings(PlayerInputComponent);
 	if (PickupComponent != nullptr) PickupComponent->SetupKeyBindings(PlayerInputComponent);
-	if (OpenCloseComponent != nullptr) OpenCloseComponent->SetupKeyBindings(PlayerInputComponent);
 }
 
 void AGameController::SetPlayerMovable(bool bIsMovable)
@@ -159,26 +153,5 @@ void AGameController::SetPlayerMovable(bool bIsMovable)
 	{
 		bIsMovementLocked = !bIsMovable;
 		MovementComponent->SetMovable(bIsMovable);
-	}
-}
-
-void AGameController::SetupScenario()
-{
-	switch (InteractionMode) {
-	case EInteractionMode::OneHandMode:
-		if (PickupComponent != nullptr) {
-			PickupComponent->bTwoHandMode = false;
-		}
-		break;
-	case EInteractionMode::TwoHandMode:
-		if (PickupComponent != nullptr) {
-			PickupComponent->bTwoHandMode = true;
-		}
-		break;
-	case EInteractionMode::TwoHandStackingMode:
-		if (PickupComponent != nullptr) {
-			PickupComponent->bTwoHandMode = true;
-		}
-		break;
 	}
 }

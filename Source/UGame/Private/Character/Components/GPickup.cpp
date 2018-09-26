@@ -33,7 +33,6 @@ UGPickup::UGPickup()
 	MaximumMassToCarry = 10.0f;
 	bMassEffectsMovementSpeed = true;
 
-	bTwoHandMode = true;
 	bInRotationPosition = false;
 	// *** *** *** *** *** *** *** ***
 }

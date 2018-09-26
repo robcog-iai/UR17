@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../Private/Character/Components/GMovement.h"
-#include "../Private/Character/Components/GOpenClose.h"
 #include "../Private/Character/Components/GPickup.h"
 
 #include "../HUD/GameHUD.h"
@@ -18,22 +17,6 @@
 #include "GameFramework/Character.h"
 #include "GameController.generated.h"
 
-UENUM(BlueprintType)
-enum class EScenarioType : uint8
-{
-	OnePersonBreakfast,
-	TwoPersonBreakfast,
-	FourPersonBreakfast
-};
-
-UENUM(BlueprintType)
-enum class EInteractionMode : uint8
-{
-	OneHandMode,
-	TwoHandMode,
-	TwoHandStackingMode
-};
-
 UCLASS()
 class UGAME_API AGameController : public ACharacter
 {
@@ -42,10 +25,6 @@ class UGAME_API AGameController : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AGameController();
-
-	// The interaction mode
-	UPROPERTY(EditAnywhere, Category = "CI - Scenario Setup")
-		EInteractionMode InteractionMode;
 
 	// The grasp range of the player
 	UPROPERTY(EditAnywhere, Category = "CI - Player Setup")
@@ -77,9 +56,6 @@ public:
 		UGMovement* MovementComponent;
 
 	UPROPERTY(EditAnywhere, Instanced)
-		UGOpenClose* OpenCloseComponent;
-
-	UPROPERTY(EditAnywhere, Instanced)
 		UGPickup* PickupComponent;
 
 	// ******************************
@@ -101,8 +77,6 @@ private:
 	bool bComponentsLocked;
 
 	void SetPlayerMovable(bool bIsMovable);
-
-	void SetupScenario();
 
 public:
 	APlayerController * PlayerController;

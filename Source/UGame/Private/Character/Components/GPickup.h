@@ -25,10 +25,6 @@ public:
 	AStaticMeshActor* ItemInLeftHand;
 	AStaticMeshActor* ItemInRightHand;
 
-	// Whether or nor the player can use both hands
-	UPROPERTY(EditAnyWhere, Category = "CI - Hand Setup")
-		bool bTwoHandMode;
-
 	// Whether or not the player's movement speed depends on the weight the player carries
 	UPROPERTY(EditAnywhere, Category = "CI - Physics")
 		bool bMassEffectsMovementSpeed;
