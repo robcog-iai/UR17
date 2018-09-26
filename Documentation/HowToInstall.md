@@ -11,3 +11,6 @@ Create a copy from this [repository](https://github.com/robcog-iai/RobCoG). Go t
 Create a copy from this [repository](https://github.com/robcog-iai/UR17/tree/ur17-p6) and add all Plugins from this [repository](https://github.com/robcog-iai/RobCoG/tree/dev-flex). 
 They can be manually downloaded or added by the command *'git submodule update --init --recursive'*. 
 
+
+
+![](https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.gif)
