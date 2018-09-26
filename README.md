@@ -19,7 +19,12 @@
 
 * [click here](Documentation/Tutorial.md)
 
+* [installation guide](Documentation/HowToInstall.md)
+
+* [how to use the plugin](Documentation/UWaterTapLogic.md)
+
+
 ## Video
 
-* [click here](Documentation/Vid/Tap.mp4)
+![](https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.gif)
 
