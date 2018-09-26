@@ -24,6 +24,6 @@
 * [how to use the plugin](Documentation/UWaterTapLogic.md)
 
 
-## Video
+## Videos
 
-![](https://media.giphy.com/media/2xPPkkCJoiiOYwPvpy/giphy.gif)
+![](https://media.giphy.com/media/87dCvtzdU8Qiv6SVCR/giphy.gif)
