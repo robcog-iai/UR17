@@ -28,3 +28,4 @@
 
 ![](https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.gif)
 
+<img src="https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.gif" width="40" height="40" />
