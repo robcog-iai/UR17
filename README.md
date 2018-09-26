@@ -26,5 +26,5 @@
 
 ## Video
 
-![](https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.mp4)
+![](https://media.giphy.com/media/YllbN0OSkjzqv6dW30/giphy.gif)
 
