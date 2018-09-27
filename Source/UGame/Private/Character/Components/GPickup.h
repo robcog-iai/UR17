@@ -91,8 +91,6 @@ public:
 
 	AStaticMeshActor* ItemInRotaitonPosition;
 
-	bool bButtonReleased;
-
 	void PickUpItemAfterMenu(bool leftHand);
 
 	// *** Input ***

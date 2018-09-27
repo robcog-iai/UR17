@@ -20,11 +20,11 @@ UGPickup::UGPickup()
 	, bDropStarted(false)
 	, bPickupMenuActivated(false)
 	, ItemInRotaitonPosition(nullptr)
-	, bButtonReleased(false)
 	, bPickUpStarted(false)
 	, bFreeMouse(false)
 	, bOverItem(false)
 	, ItemToInteract(nullptr)
+ , bRightMouse(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -56,12 +56,14 @@ void UGPickup::BeginPlay()
 	UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
 
 	// Create Static mesh actors for hands to weld items we pickup into this position
+ /*
 	if (PlayerCharacter->LeftHandPosition == nullptr || PlayerCharacter->RightHandPosition == nullptr || PlayerCharacter->BothHandPosition == nullptr) {
 		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Red, "No hand actors found. Game paused", false);
 		GetWorld()->GetFirstPlayerController()->SetPause(true);
 	}
-
+ */
 	// Spawn new actors and set them up
+ 
 	LeftHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
 	RightHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
 	BothHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
@@ -70,9 +72,9 @@ void UGPickup::BeginPlay()
 	RightHandActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 	BothHandActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
-	LeftHandActor->SetActorLocation(PlayerCharacter->LeftHandPosition->GetActorLocation());
-	RightHandActor->SetActorLocation(PlayerCharacter->RightHandPosition->GetActorLocation());
-	BothHandActor->SetActorLocation(PlayerCharacter->BothHandPosition->GetActorLocation());
+	LeftHandActor->SetActorRelativeLocation(FVector(20, -50, 120));
+	RightHandActor->SetActorRelativeLocation(FVector(20, -130, 120));
+	BothHandActor->SetActorRelativeLocation(FVector(20, 0, 100));
 
 	LeftHandActor->AttachToActor(PlayerCharacter, FAttachmentTransformRules::KeepWorldTransform);
 	RightHandActor->AttachToActor(PlayerCharacter, FAttachmentTransformRules::KeepWorldTransform);
@@ -85,6 +87,7 @@ void UGPickup::BeginPlay()
 	LeftHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
 	RightHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
 	BothHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
+ 
 	// *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 
 	// Initilize the player controller to get the mouse axis
@@ -170,11 +173,24 @@ void UGPickup::InputRightHandPressed()
 	{
 		bFreeMouse = false;
 	}
+
+ // Debug information, for the current state
+ UE_LOG(LogTemp, Warning, TEXT("bIsItemDropping: %s"), bIsItemDropping ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bPickUpStarted: %s"), bPickUpStarted ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bRotationStarted: %s"), bRotationStarted ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bDropStarted: %s"), bDropStarted ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bInRotationPosition: %s"), bInRotationPosition ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bRotationMenuActivated: %s"), bRotationMenuActivated ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bPickupMenuActivated: %s"), bPickupMenuActivated ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bFreeMouse: %s"), bFreeMouse ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bLeftMouse: %s"), bLeftMouse ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bRightMouse: %s"), bRightMouse ? TEXT("True\n") : TEXT("False\n"));
+ UE_LOG(LogTemp, Warning, TEXT("bOverItem: %s"), bOverItem ? TEXT("True\n") : TEXT("False\n"));
 }
 
 void UGPickup::InputRightHandReleased()
 {
-	bButtonReleased = true;
+ bRightMouse = !bRightMouse;
 }
 
 void UGPickup::MoveToRotationPosition()

@@ -21,7 +21,7 @@ AGameController::AGameController()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	// Chagned to 300 (from 120) for testing
-	GraspRange = 300.0f;
+	GraspRange = 100.0f;
 
 	// Set PlayerController (by Waldemar Zeitler)
 	PlayerController = nullptr;
@@ -60,7 +60,6 @@ void AGameController::BeginPlay()
 	PlayerController->bEnableMouseOverEvents = true;
 
 	// *** *** *** *** *** ***
-	//LeftHandPosition = SpawnActor<AActor>(FVector(0, 0, 0), FRotator(0, 0, 0));
 
 	// Setup HUD
 	PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
