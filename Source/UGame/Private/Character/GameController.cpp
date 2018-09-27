@@ -52,18 +52,15 @@ void AGameController::BeginPlay()
 
 	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
 	PlayerController = Cast<APlayerController>(GetController());
-
 	if (!PlayerController) {
 		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
 	}
-
 	PlayerController->bEnableMouseOverEvents = true;
 
 	// *** *** *** *** *** ***
 
 	// Setup HUD
-	PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
-
+ PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
 	PickupHUD->GPickup = PickupComponent;
 }
 
@@ -75,7 +72,7 @@ void AGameController::Tick(float DeltaTime)
 	if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
 	// Stop movment when menu is active 
-	if (PickupComponent->bFreeMouse && !bIsMovementLocked)
+	if (PickupComponent->bFreeMouse && !bIsMovementLocked && !PickupComponent->bDropStarted && !PickupComponent->bDropping && !PickupComponent->bRotating)
 	{
 		SetPlayerMovable(false);
 		PlayerController->bShowMouseCursor = true;
@@ -84,8 +81,8 @@ void AGameController::Tick(float DeltaTime)
 		PickupComponent->bRotationStarted = false;
 	}
 
-	if (PickupComponent->bFreeMouse && !PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem
-		&& !(PickupComponent->bRotationStarted || PickupComponent->bDropStarted))
+	if (PickupComponent->bFreeMouse && PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem
+		&& !(PickupComponent->bRotationStarted || PickupComponent->bDropStarted) && !PickupComponent->bDropping && !PickupComponent->bRotating)
 	{
 		XMousePosition = .0f;
 		YMousePosition = .0f;
@@ -96,7 +93,8 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->GetMousePosition(XMouse, YMouse);
 		PickupHUD->DrawPickUpMenu(XMouse, YMouse);
 	}
-	else if (!PickupComponent->bFreeMouse && bIsMovementLocked)
+	else if (!PickupComponent->bFreeMouse && bIsMovementLocked && !PickupComponent->bDropStarted && !PickupComponent->bDropping
+     && !PickupComponent->bRotating)
 	{
 		SetPlayerMovable(true);
 		PlayerController->bShowMouseCursor = false;
@@ -104,11 +102,20 @@ void AGameController::Tick(float DeltaTime)
 		PlayerController->bEnableMouseOverEvents = false;
   // Sets the focus back to the screen after the mouse was freed
   PlayerController->SetInputMode(FInputModeGameOnly());
-	}
+	} 
 
 	// Rotate/drop the object 
 	if (PickupComponent->bRotationStarted || PickupComponent->bDropStarted)
 	{
+  if (PickupComponent->bFreeMouse && !PickupComponent->bDropStarted)
+  {
+   PickupComponent->bRotationStarted = false;
+   PlayerController->bShowMouseCursor = true;
+   PlayerController->bEnableClickEvents = true;
+   PlayerController->bEnableMouseOverEvents = true;
+   return;
+  }
+
 		float XMousePositionCurrent;
 		float YMousePositionCurrent;
 
@@ -124,10 +131,31 @@ void AGameController::Tick(float DeltaTime)
 			{
 				FRotator ControlRotation = FRotator(YMousePosition, 0, XMousePosition);
 				PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
+
+    if (!PickupComponent->bRotating)
+    {
+        SetPlayerMovable(false);
+        PlayerController->bShowMouseCursor = false;
+        PlayerController->bEnableClickEvents = false;
+        PlayerController->bEnableMouseOverEvents = false;
+        // Sets the focus back to the screen after the mouse was freed
+        PlayerController->SetInputMode(FInputModeGameOnly());
+        PickupComponent->bRotating = true;
+    }
 			}
 			else
 			{
-				FVector Distance = FVector(0, XMousePosition, YMousePosition) / 15;
+    if (!PickupComponent->bDropping)
+    {
+     SetPlayerMovable(false);
+     PlayerController->bShowMouseCursor = false;
+     PlayerController->bEnableClickEvents = false;
+     PlayerController->bEnableMouseOverEvents = false;
+     // Sets the focus back to the screen after the mouse was freed
+     PlayerController->SetInputMode(FInputModeGameOnly());
+     PickupComponent->bDropping = true;
+    }
+				FVector Distance = FVector(0, XMousePosition, YMousePosition) / 10;
 				PickupComponent->ItemToHandle->AddActorLocalOffset(Distance);
 			}				
 		}

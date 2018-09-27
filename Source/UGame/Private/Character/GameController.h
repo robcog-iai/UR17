@@ -84,9 +84,6 @@ public:
 	/** Game HUD. */
 	AGameHUD* PickupHUD;
 
-	// GameMode to access the menu hud.
-	AUGameModeBase* UGameMode;
-
 private:
 	//Mouseposition coordinates, for the rotation of the object
 	float XMousePosition;

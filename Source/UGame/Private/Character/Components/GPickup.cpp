@@ -25,6 +25,8 @@ UGPickup::UGPickup()
 	, bOverItem(false)
 	, ItemToInteract(nullptr)
  , bRightMouse(false)
+ , bDropping(false)
+ , bRotating(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -72,9 +74,9 @@ void UGPickup::BeginPlay()
 	RightHandActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 	BothHandActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
-	LeftHandActor->SetActorRelativeLocation(FVector(20, -50, 120));
-	RightHandActor->SetActorRelativeLocation(FVector(20, -130, 120));
-	BothHandActor->SetActorRelativeLocation(FVector(20, 0, 100));
+	LeftHandActor->SetActorRelativeLocation(FVector(20, -130, 120));
+	RightHandActor->SetActorRelativeLocation(FVector(20, -50, 120));
+	BothHandActor->SetActorRelativeLocation(FVector(40, -90, 100));
 
 	LeftHandActor->AttachToActor(PlayerCharacter, FAttachmentTransformRules::KeepWorldTransform);
 	RightHandActor->AttachToActor(PlayerCharacter, FAttachmentTransformRules::KeepWorldTransform);
@@ -278,6 +280,7 @@ void UGPickup::DropItem()
 		ItemInLeftHand = nullptr;
 
 	ItemToHandle = nullptr;
+ bDropping = false;
 	bDropStarted = false;
 	bFreeMouse = false;
 }
