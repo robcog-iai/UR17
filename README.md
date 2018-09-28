@@ -19,8 +19,8 @@
 
 ### Documentation
 
-* To-be-done once the project is **finalized**
+* The full documentation with all the information from all milestones including the last one can be found [here](Documentation/Documentation.md)
 
 ### Tutorial
 
-* To-be-done once the project is **finalized**
+* The tutorial for getting started with this plugin, and understanding what this plugin can do, can be found [here](Documentation/Tutorial.md)
