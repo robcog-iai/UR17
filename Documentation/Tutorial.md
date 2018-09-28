@@ -1,10 +1,12 @@
 # UR17 - P2
 
 | Nr | Tutorials |
-|----:|--------|
+|:----:|--------|
 |1| [Creating a Knife](#creating-a-new-knife) |
 |2| [Make an Object Cuttable](#make-object-cuttable) |
 |3| [Give an Object an Inner Material](#give-the-object-an-inner-material)|
+
+***
 
 ## Creating a new Knife
 
@@ -46,9 +48,12 @@ to refresh.
 
 ***The Knife is done. Result:***
 
-![TutorialPictures8](TutorialPictures/8.PNG)  
-**Example Box Placements**  
+![OptimalLocation](TutorialPictures/OptimalComponentPosition.png)
+**Optimal Positions of the Component**
+
 [Top](#ur17---p2)
+
+***
 
 ## Make Object Cuttable
 
@@ -101,3 +106,4 @@ To create another slot, press the `+` Key. That will create another slot under y
 ![Innter Material](TutorialPictures/InnerMaterial.png)  
 **If done correctly, it should look like this.**  
 [Top](#ur17---p2)
+***
