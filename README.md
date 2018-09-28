@@ -20,6 +20,6 @@
 
 * Milestone 2 documentation can be found [here](Documentation/Milestone2/Milestone2.md)  
 
-* Milestone 2 documentation can be found [here](Documentation/Milestone3/Milestone3.md)  
+* Milestone 3 documentation can be found [here](Documentation/Milestone3/Milestone3.md)  
 
-* Milestone 2 documentation can be found [here](Documentation/Milestone4/Milestone4.md)  
+* Milestone 4 documentation can be found [here](Documentation/Milestone4/Milestone4.md)  
