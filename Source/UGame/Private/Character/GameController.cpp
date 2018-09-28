@@ -50,11 +50,13 @@ void AGameController::BeginPlay()
 		Character->PlayerState->bIsSpectator = true;
 	}
 
-	// Initilize the player controller to get the mouse axis (by Wlademar Zeitler)
+	// Initilize the player controller to get the mouse axis
 	PlayerController = Cast<APlayerController>(GetController());
 	if (!PlayerController) {
 		UE_LOG(LogTemp, Warning, TEXT("Player controller was not set."));
 	}
+
+ // Allow mouse over events, for the menu pop up over the items.
 	PlayerController->bEnableMouseOverEvents = true;
 
 	// *** *** *** *** *** ***

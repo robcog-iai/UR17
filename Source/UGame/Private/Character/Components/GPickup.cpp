@@ -58,14 +58,7 @@ void UGPickup::BeginPlay()
 	UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
 
 	// Create Static mesh actors for hands to weld items we pickup into this position
- /*
-	if (PlayerCharacter->LeftHandPosition == nullptr || PlayerCharacter->RightHandPosition == nullptr || PlayerCharacter->BothHandPosition == nullptr) {
-		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Red, "No hand actors found. Game paused", false);
-		GetWorld()->GetFirstPlayerController()->SetPause(true);
-	}
- */
 	// Spawn new actors and set them up
- 
 	LeftHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
 	RightHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
 	BothHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
@@ -74,9 +67,11 @@ void UGPickup::BeginPlay()
 	RightHandActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 	BothHandActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
-	LeftHandActor->SetActorRelativeLocation(FVector(20, -130, 120));
-	RightHandActor->SetActorRelativeLocation(FVector(20, -50, 120));
-	BothHandActor->SetActorRelativeLocation(FVector(40, -90, 100));
+ FVector PlayerPosition = PlayerCharacter->GetTargetLocation();
+
+	LeftHandActor->SetActorRelativeLocation(PlayerPosition + FVector(40, -40, 28));
+	RightHandActor->SetActorRelativeLocation(PlayerPosition + FVector(40, 40, 28));
+	BothHandActor->SetActorRelativeLocation(PlayerPosition + FVector(60, 0, 10));
 
 	LeftHandActor->AttachToActor(PlayerCharacter, FAttachmentTransformRules::KeepWorldTransform);
 	RightHandActor->AttachToActor(PlayerCharacter, FAttachmentTransformRules::KeepWorldTransform);
@@ -175,6 +170,12 @@ void UGPickup::InputRightHandPressed()
 	{
 		bFreeMouse = false;
 	}
+
+ if (bRotating)
+ {
+  bRotating = false;
+  bFreeMouse = true;
+ }
 
  // Debug information, for the current state
  UE_LOG(LogTemp, Warning, TEXT("bIsItemDropping: %s"), bIsItemDropping ? TEXT("True\n") : TEXT("False\n"));

@@ -136,6 +136,8 @@ FReply SPickupUI::PickUp()
 		}
 	}
 	
+ GameHUD->GPickup->bRightMouse = false;
+
 	GameHUD->RemoveMenu();
 
 	return FReply::Handled();
@@ -145,6 +147,7 @@ FReply SPickupUI::Rotate()
 {
 	GameHUD->GPickup->MoveToRotationPosition();
 	GameHUD->GPickup->bFreeMouse = false;
+ GameHUD->GPickup->bRightMouse = false;
 
 	GameHUD->RemoveMenu();
 
@@ -177,6 +180,7 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 	}
 
 	GameHUD->RemoveMenu();
+ GameHUD->GPickup->bRightMouse = false;
 
 	return FReply::Handled();
 }
@@ -186,6 +190,7 @@ FReply SPickupUI::Drop()
 	GameHUD->GPickup->bDropStarted = true;
 
 	GameHUD->RemoveMenu();
+ GameHUD->GPickup->bRightMouse = false;
 
 	return FReply::Handled();
 }
