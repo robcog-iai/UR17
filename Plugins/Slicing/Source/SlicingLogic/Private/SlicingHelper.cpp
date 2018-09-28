@@ -41,13 +41,13 @@ void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 	UProceduralMeshComponent* ProceduralMeshComponent, TArray<FStaticMaterial> &StaticMaterials)
 {
 	// Generate the static mesh from the data scanned from the procedural mesh
-	int32 index = 0;
+	int32 MaterialIndex = 0;
 	for (FStaticMaterial Material : StaticMaterials)
 	{
-		index++;
+		MaterialIndex++;
 		if (Material.MaterialSlotName.Compare(FName("InsideCutMaterial"))) break;
 	}
-	UStaticMesh* StaticMesh = GenerateStaticMesh(ProceduralMeshComponent, index);
+	UStaticMesh* StaticMesh = GenerateStaticMesh(ProceduralMeshComponent, MaterialIndex);
 	// Set the static materials gotten from the old static mesh
 	StaticMesh->StaticMaterials = StaticMaterials;
 
@@ -91,7 +91,7 @@ void FSlicingHelper::CorrectProperties(UPrimitiveComponent* NewComponent, UPrimi
 	NewComponent->ComponentTags = OldComponent->ComponentTags;
 }
 
-UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent, int32 index)
+UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* ProceduralMeshComponent, int32 MaterialIndex)
 {
 	///																   ///
 	/// COPIED OVER FROM "ProceduralMeshComponentDetails.cpp l.118-212 ///
@@ -101,6 +101,7 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 	// Materials to apply to new mesh
 	TArray<UMaterialInterface*> MeshMaterials;
 
+	// Scan the procedural mesh component and fill the RawMesh with the scanned data
 	const int32 NumSections = ProceduralMeshComponent->GetNumSections();
 	int32 VertexBase = 0;
 	for (int32 SectionIdx = 0; SectionIdx < NumSections; SectionIdx++)
@@ -142,7 +143,7 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 		{
 			if (SectionIdx > 0)
 			{
-				RawMesh.FaceMaterialIndices.Add(index);
+				RawMesh.FaceMaterialIndices.Add(MaterialIndex);
 			}
 			else
 			{
@@ -162,7 +163,7 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 	// The new StaticMesh that is going to be filled with the scanned info
 	UStaticMesh* StaticMesh = NewObject<UStaticMesh>();
 
-	// If we got some valid data.
+	// If we got some valid data build the new static mesh
 	if (RawMesh.VertexPositions.Num() >= 3 && RawMesh.WedgeIndices.Num() >= 3)
 	{
 		StaticMesh->InitResources();
