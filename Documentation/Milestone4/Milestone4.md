@@ -1,6 +1,6 @@
 # Milestone 4 - Clickable objects with menu and rotation
 
-## Menu files
+## Pure Plugin
 
 
 # Bugs
