@@ -43,7 +43,7 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 		return;
 	}
 	// If we are trying to start cutting with the tip, the slicing process should never start
-	else if (TipComponent != NULL && OtherComp == TipComponent->CutComponent)
+	else if (TipComponent != NULL && OtherComp == TipComponent->OverlappedComponent)
 	{
 		return;
 	}
@@ -87,16 +87,20 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	// The slicing should only happen if you are actually in the cutting process and are in contact with the object
-	// that is being cut
-	if (!bIsCurrentlyCutting || OtherComp != CutComponent)
+	// The slicing should only happen if you are actually in the cutting process
+	if (!bIsCurrentlyCutting)
 	{
 		ResetResistance();
 		ResetState();
 		return;
 	}
+	// If you are touching and exiting another object while cutting, ignore the event
+	else if (OtherComp != CutComponent)
+	{
+		return;
+	}
 	// If the SlicingObject is pulled out, the cutting should not be continued
-	else if (TipComponent != NULL && OtherComp == TipComponent->CutComponent)
+	else if (TipComponent != NULL && TipComponent->bEnteredCurrentlyCutObject)
 	{
 		bIsCurrentlyCutting = false;
 		ResetResistance();
@@ -109,8 +113,6 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 		UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
 	if (OverlappedComp->OverlapComponent(CutComponentPosition, CutComponent->GetComponentQuat(), OverlappedComp->GetCollisionShape()))
 	{
-		// Collision should turn back to normal again
-		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 		bIsCurrentlyCutting = false;
 
 		ResetResistance();

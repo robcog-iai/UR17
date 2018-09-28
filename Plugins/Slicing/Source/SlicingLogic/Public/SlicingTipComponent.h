@@ -18,6 +18,10 @@ public:
 
 	//* The tip component that is attached to the same SlicingComponent
 	USlicingBladeComponent* BladeComponent;
+	//* The component that is currently started overlapping with the tip
+	UPrimitiveComponent* OverlappedComponent;
+
+	bool bEnteredCurrentlyCutObject = false;
 
 	/**** Implementation of the overlap events to detect early abortion of the slicing ****/
 	UFUNCTION()

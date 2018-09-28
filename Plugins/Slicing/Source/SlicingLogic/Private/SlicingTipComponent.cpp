@@ -22,25 +22,27 @@ void USlicingTipComponent::BeginPlay()
 void USlicingTipComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip begins overlap"));
-	CutComponent = OtherComp;
+	OverlappedComponent = OtherComp;
 
 	if (BladeComponent->CutComponent != NULL && OtherComp == BladeComponent->CutComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip enters the same object as the blade is inside of"));
 		
-		BladeComponent->bIsCurrentlyCutting = false;
+		CutComponent = OtherComp;
+		bEnteredCurrentlyCutObject = true;
 	}
 }
 
 void USlicingTipComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip ends overlap"));
-	CutComponent = NULL;
+	OverlappedComponent = NULL;
 	
-	if (BladeComponent->CutComponent != NULL && OtherComp == BladeComponent->CutComponent)
+	if (OtherComp == CutComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SLICING: The tip exits the same object as the blade is inside of"));
+
+		CutComponent = NULL;
+		bEnteredCurrentlyCutObject = false;
 	}
 }
