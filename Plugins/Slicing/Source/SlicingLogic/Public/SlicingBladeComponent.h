@@ -9,10 +9,23 @@
 class USlicingTipComponent;
 class UPhysicsConstraintComponent;
 
+/**
+* The delegates for events regarding the cutting-process
+*/
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FBeginSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FEndSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject);
+
+
 UCLASS()
 class SLICINGLOGIC_API USlicingBladeComponent: public USlicingComponent
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FBeginSlicingSignature OnBeginSlicing;
+	UPROPERTY()
+	FEndSlicingSignature OnEndSlicing;
 
 public:
 	// Sets default values. Called when generated, even in the editor.
@@ -39,7 +52,6 @@ public:
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 	UFUNCTION()
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);

@@ -55,7 +55,10 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	RelativeLocationToCutComponent = OtherComp->GetComponentTransform().InverseTransformPosition(OverlappedComp->GetComponentLocation());
 	RelativeRotationToCutComponent = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
 
+	// The cutting process has now started
 	bIsCurrentlyCutting = true;
+	OnBeginSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor());
+
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
 
@@ -194,6 +197,8 @@ void USlicingBladeComponent::ResetResistance()
 // Resets everything to the state the component was in before the cutting-process began
 void USlicingBladeComponent::ResetState()
 {
+	OnEndSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor());
+
 	bIsCurrentlyCutting = false;
 	CutComponent = nullptr;
 
