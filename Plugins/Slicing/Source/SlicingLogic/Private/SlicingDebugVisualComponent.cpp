@@ -63,8 +63,20 @@ void USlicingDebugVisualComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	// The slicing related debugging is only needed when cutting
 	if (!BladeComponent->bIsCurrentlyCutting)
 	{
+		if (bWasCutting)
+		{
+			bWasCutting = false;
+			// Only remove the debug visuals when the cutting was aborted
+			// (so that visuals like the DebugShowComponents are still seen outside of cutting)
+			FlushPersistentDebugLines(this->GetWorld());
+		}
 		return;
 	}
+	else
+	{
+		bWasCutting = true;
+	}
+
 	if (SlicingLogicModule->bEnableDebugShowPlane)
 	{
 		DrawSlicingPlane();
@@ -118,7 +130,7 @@ void USlicingDebugVisualComponent::DrawCuttingTrajectory()
 	FPlane SlicingPlane = FPlane(BladeComponent->SlicingObject->GetComponentLocation(), BladeComponent->GetUpVector());
 
 	DrawDebugPoint(GetWorld(), BladeComponent->SlicingObject->GetSocketLocation(USlicingComponent::SocketBladeName),
-		2, FColor::Purple, true, -1.0f, (uint8)'\100');
+		2, FColor::Purple, true);
 }
 
 void USlicingDebugVisualComponent::DrawComponents()

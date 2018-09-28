@@ -39,6 +39,8 @@ public:
 	USlicingTipComponent* TipComponent;
 
 private:
+	bool bWasCutting = false;
+
 	void DrawSlicingPlane();
 	void DrawCuttingEntrancePoint();
 	void DrawCuttingExitPoint();
