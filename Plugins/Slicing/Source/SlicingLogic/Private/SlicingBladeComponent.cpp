@@ -205,6 +205,9 @@ void USlicingBladeComponent::ResetState()
 	CutComponent = nullptr;
 
 	ConstraintOne->BreakConstraint();
+
+	// Collision should turn back to normal again
+	SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 }
 
 // Connects the given Component, normally the CuttableComponent, with either the Blade OR the Hand if it's welded.
