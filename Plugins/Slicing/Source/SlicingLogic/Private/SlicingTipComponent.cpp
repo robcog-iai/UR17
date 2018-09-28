@@ -16,7 +16,7 @@ void USlicingTipComponent::BeginPlay()
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingTipComponent::OnBeginOverlap);
 	OnComponentEndOverlap.AddDynamic(this, &USlicingTipComponent::OnEndOverlap);
 
-	bGenerateOverlapEvents = true;
+	SetGenerateOverlapEvents(true);
 }
 
 void USlicingTipComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

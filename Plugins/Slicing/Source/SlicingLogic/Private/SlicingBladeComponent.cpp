@@ -164,7 +164,7 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 		EProcMeshSliceCapOption::CreateNewSectionForCap,
 		InsideCutMaterialInterface
 	);
-	OutputProceduralMesh->bGenerateOverlapEvents = true;
+	OutputProceduralMesh->SetGenerateOverlapEvents(true);
 	OutputProceduralMesh->SetEnableGravity(true);
 	OutputProceduralMesh->SetSimulatePhysics(true);
 	OutputProceduralMesh->ComponentTags = CuttableComponent->ComponentTags;

@@ -99,7 +99,7 @@ void FSlicingEditorActionCallbacks::MakeCuttableObjects()
 		}
 		
 		// Let the cutting object go through the actor
-		StaticMeshComponent->bGenerateOverlapEvents = true;
+		StaticMeshComponent->SetGenerateOverlapEvents(true);
 
 		// Enable physics, as otherwise the object won't be cuttable
 		StaticMeshComponent->SetSimulatePhysics(true);
@@ -148,7 +148,7 @@ void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* Static
 	BoxComponent->SetWorldLocation(StaticMesh->GetSocketLocation(SocketName));
 	BoxComponent->SetBoxExtent(FVector(1, 1, 1) * SocketToBoxScale);
 	BoxComponent->SetCollisionProfileName(CollisionProfileName);
-	BoxComponent->bGenerateOverlapEvents = bGenerateOverlapEvents;
+	BoxComponent->SetGenerateOverlapEvents(bGenerateOverlapEvents);
 	BoxComponent->bMultiBodyOverlap = true;
 }
 
