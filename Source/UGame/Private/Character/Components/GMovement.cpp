@@ -146,12 +146,24 @@ void UGMovement::SpeedUp(const FVector Direction, const float Val)
 		bIsMoving = true;
 	}
 
+ // Rising speed up
 	if (SpeedUpTime < 2) {
 		SpeedUpTime += SpeedUpValue;
 	}
-	CurrentSpeed = CalculateNewSpeed(SpeedUpTime) + MinMovementSpeed;
-	CurrentSpeed = CurrentSpeed * Val;
 
-	Character->AddMovementInput(Direction, CurrentSpeed);
-	UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
+ // If the max speed is not reached calculate the new and faster speed
+ if (CurrentSpeed <= MaxMovementSpeed)
+ {
+  CurrentSpeed = CalculateNewSpeed(SpeedUpTime) + MinMovementSpeed;
+  CurrentSpeed = CurrentSpeed * Val;
+  UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
+ }
+
+ // If the max speed is reached the movment for a negative/direction has to be switched accordingly
+ if ((CurrentSpeed < 0 && Val > 0) || (CurrentSpeed > 0 && Val < 0))
+ {
+  CurrentSpeed = -CurrentSpeed;
+ }
+
+ Character->AddMovementInput(Direction, CurrentSpeed);
 }
