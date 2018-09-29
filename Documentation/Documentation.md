@@ -75,4 +75,9 @@ Text
 - Done
 
 ## 4. Issues
-- TODO
+* **IMPORTANT:** Cutting only works on static meshes that only have "Convex Elements" as collision primitives. "Spheres", "Boxes" or "Capsules" do NOT work and result in the sliced object to just fall through the world instead of being cut. This is a limitiation of the ```UKismetProceduralMeshLibrary::SliceProceduralMesh(...)``` function and cannot be (currently) changed.
+* Sometimes if it lags (the hand starts to vibrate too much):
+	* The object is cut more than once.
+	* The game might crash if too many objects were cut in rapid succession.
+* The cutting-exit-point will only show on static meshes that were in the stage before the game started. Dynamically generated static meshes from our cutting process will not show that exit-point properly (instead showing it at the 0,0,0 point, as the hit-result for the line-trace does not yield a proper result anymore)
+* Exiting the object without cutting it only works from the same point as the entrance-point. Any other point (even if only a small distance next to it) will result in the cutting process finishing with the current slicing-plane. Without free-form slicing, this issue cannot be resolved.
