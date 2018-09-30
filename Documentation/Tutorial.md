@@ -1,4 +1,4 @@
-#UR17 - UGame Tutorial
+# UR17 - UGame Tutorial
 Download the plugin in and put it inside the plugin folder of your project.
 
 ## Character Setup
@@ -6,5 +6,11 @@ To use the character he needs to be put inside the level where he should be used
 After the character is placed inside the world he has to be set to Player 0. This happens in the editor under Pawn, there you can set Auto Posses Player to Player 0.  
 ![](CharacterPawn.JPG "Character Setup")  
 
-
 ## Tutorial
+The character can be moved with W,A,S and D and the mouse. To pick objects up or rotate them you can press the right mouse button to show the mouse cursor and by right clicking on the oject a menu comes up with the possible interactions.  
+Before being able to interact with an object it needs the following Tags: UGame;Interactable,True;Pickup,True;. The picture shows where the correct Tags field is found.    
+![](ActorTags.JPG "Actor Tags")  
+
+The last thing is to set the object to moveable, which is shown in the following picture.  
+![](ActorMoveable.JPG "Actor Tags")  
+
