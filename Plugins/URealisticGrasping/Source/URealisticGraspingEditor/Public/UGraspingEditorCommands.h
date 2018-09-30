@@ -21,9 +21,13 @@ public:
 	virtual void RegisterCommands() override;
 
 	//The entries for the drop down menu.
-	TSharedPtr<FUICommandInfo> ShowInstructions;
+	TSharedPtr<FUICommandInfo> ShowCreateHelp;
+	TSharedPtr<FUICommandInfo> ShowEditHelp;
 	TSharedPtr<FUICommandInfo> CreateGraspingStyle;
 	TSharedPtr<FUICommandInfo> LoadGraspingStyle;
 	TSharedPtr<FUICommandInfo> SaveGraspingPosition;
 	TSharedPtr<FUICommandInfo> EditGraspingPosition;
+	TSharedPtr<FUICommandInfo> ShowNextEpisode;
+	TSharedPtr<FUICommandInfo> ShowPreviousEpisode;
+	TSharedPtr<FUICommandInfo> DiscardNewGraspingStyle;
 };

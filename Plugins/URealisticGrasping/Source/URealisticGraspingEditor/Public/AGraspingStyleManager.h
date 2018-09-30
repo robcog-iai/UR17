@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Info.h"
 #include "Runtime/Engine/Classes/Animation/SkeletalMeshActor.h"
-#include "UFinger.h"
+#include "UAnimationDataStructure.h"
 #include "AGraspingStyleManager.generated.h"
 
 /**
- * 
+ * Deprecated class for grasping style creation out of an animation played in the game
  */
 UCLASS()
 class AAGraspingStyleManager : public AInfo
@@ -17,24 +17,31 @@ class AAGraspingStyleManager : public AInfo
 	GENERATED_BODY()
 	
 public:
+	//The animation from which a grasping style should get created
 		UPROPERTY(EditAnywhere)
 			ASkeletalMeshActor* SelectedMesh;
 
+		//The name of the newly created grasping style
 		UPROPERTY(EditAnywhere)
 			FString GraspingStyleName;
 
+		//Start time of the animation
 		UPROPERTY(EditAnywhere)
 			float StartTime = 0;
 
+		//End time of the animation
 		UPROPERTY(EditAnywhere)
 			float EndTime;
 
+		//After this time a step will get recorded
 		UPROPERTY(EditAnywhere)
 			float StepSize = 0.5;
 
+		//If the animation belongs to a right hand
 		UPROPERTY(EditAnywhere)
 			bool bIsRightHand;
 
+		//Name of a file where our bones a mapped to fingers
 		UPROPERTY(EditAnywhere)
 			FString MapFileName;
 
@@ -56,6 +63,11 @@ private:
 	bool bHasSendFirstData = false;
 	FHandAnimationData AnimationData = FHandAnimationData();
 
+	TMap<FString, FRotator> BoneSpaceRotations;
+	TMap<FString, FRotator> CalculatedBoneRotations;
+	TMap<FString, FRotator> ComponentSpaceRotations;
+	TMap<FString, FBoneData> NewEpisodeData;
+
 	//A Map which contains the ETypeOfFinger for every bone of the passed mesh.
 	TMap<FString, ETypeOfFinger> TypeMap;
 
@@ -71,9 +83,8 @@ private:
 	*
 	*@param SkeletalComponent The USkeletalMeshComponent for which the rotations of the bones
 	*get saved.
-	*@return A Map with the bone data as FString as key and the rotation of that bone as value.
 	*/
-	TMap<FString, FRotator> GetBoneDataForStep(USkeletalMeshComponent * SkeletalComponent);
+	void GetBoneDataForStep(USkeletalMeshComponent * SkeletalComponent);
 
 
 	/*Creates a TArray of FBoneFingerTypeNames out of the passed map. Each FBoneFingerTypeName

@@ -16,7 +16,7 @@
 * New modules: URealisticGrasping, URealisticGraspingEditor
 
 
-* URealisticGrasping module classes:
+### URealisticGrasping module classes:
 
 * URealisticGrasping:
 The module itself
@@ -40,7 +40,7 @@ A controller responsible for moving the bones of the hands
 Reads and writes files with grasping information
 
 
-* URealisticGraspingEditor module classes:
+### URealisticGraspingEditor module classes:
 
 * URealisticGraspingEditor:
 This class appends a new button to the skeleton editor module and initializes its drop down. It also registers the actions for the drop down menu entries.
@@ -58,7 +58,7 @@ Sets the label of the drop down menu entries and their type. In this case they a
 This class is able to read all the bone rotations of a passed mesh during the game for a set time in set timesteps. This rotations and some additional informations with be written in a .ini file when the game is ended.
 
 
-# Tutorial:
+# Tutorial
 
 In this project we create our grasping types as animations and then record how the bones move during the animations.
 Afterwards we use that recorded data to apply force to our hands, so that they try to move to the same positions, that the animation was in. 

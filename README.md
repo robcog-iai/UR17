@@ -11,15 +11,19 @@
 
 # Milestones
 * [Milestone 3](./Documentation/Milestone3.md)
+* [Milestone 4](./Documentation/Milestone4.md)
 
 # Documentation
 * [data discription](./Documentation/dataDiscription.md)
-* [creating a physics material](./Documentation/Create_physics_material.md)
+* [force indicator documentation](./Documentation/DokuForceIndicator.md)
 
 # Tutorials
 
 * [creating new animations](./Documentation/CreateNewAnimations.md)
+* [creating new animations with the editor](./Documentation/CreateNewAnimationsWithEditor.md)
+* [edit animations with the editor](./Documentation/EditAnimation.md)
 * [recording new grasping types from aniamtions](./Documentation/ReadingHandleTypes.md)
-* [using our character](./Documentation/tutorialChar_Bind.md)
-
+* [how to use our plugin](./Documentation/tutorialChar_Bind.md)
+* [customize the menu](./Documentation/RealisticGraspingUserInterface.md)
+* [creating a physics material](./Documentation/Create_physics_material.md)
 

@@ -3,8 +3,10 @@
 #include "AGraspingStyleManager.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
-#include "UFinger.h"
+#include "UAnimationDataStructure.h"
 #include "UReadWrite.h"
+#include "PersonaModule.h"
+#include "IPersonaPreviewScene.h"
 #include "Runtime/Core/Public/Misc/FileHelper.h"
 #include "Runtime/Core/Public/Misc/Paths.h"
 #include "Runtime/Engine/Classes/PhysicsEngine/ConstraintInstance.h"
@@ -17,7 +19,7 @@ void AAGraspingStyleManager::BeginPlay()
 {
 	//At the start get all the types of the fingers out of a txt file.
 	TArray<FString> FingerTypes;
-	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\Plugins\\URealisticGrasping\\Config\\" + MapFileName + ".txt";
+	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\Plugins\\URealisticGrasping\\Config\\TypeMap.txt";
 	const TCHAR* Filepath = *Path;
 	FFileHelper::LoadFileToStringArray(FingerTypes, Filepath);
 
@@ -51,17 +53,17 @@ void AAGraspingStyleManager::Tick(float DeltaTime)
 		UActorComponent* Component = SelectedMesh->GetComponentByClass(USkeletalMeshComponent::StaticClass());
 		USkeletalMeshComponent*  SkeletalComponent = Cast<USkeletalMeshComponent>(Component);
 		//Get the bone data as map with the name of the bone as FString and the rotation of the bone
-		TMap<FString, FRotator> StepData = GetBoneDataForStep(SkeletalComponent);
+		 GetBoneDataForStep(SkeletalComponent);
 
 		//Initialize an AnimationData which contains all the necessary information for a grasp.
 		if (!bHasSendFirstData) {
-			CreateAnimationData(StepData);	
+			CreateAnimationData(CalculatedBoneRotations);
 			bHasSendFirstData = true;
 		}
 
-		AnimationData.AddNewEpisode(StepData);
+		AnimationData.AddNewEpisode(NewEpisodeData);
+
 		CurrentTime = 0;
-		UE_LOG(LogTemp, Warning, TEXT("current"));
 	}
 
 	//Save the rotations of the bones when the TotalTime is greater than the EndTime of the passed animation.
@@ -69,43 +71,56 @@ void AAGraspingStyleManager::Tick(float DeltaTime)
 		bReachedEndTime = true;
 		UActorComponent* Component = SelectedMesh->GetComponentByClass(USkeletalMeshComponent::StaticClass());
 		USkeletalMeshComponent*  SkeletalComponent = Cast<USkeletalMeshComponent>(Component);
-		TMap<FString, FRotator> StepData = GetBoneDataForStep(SkeletalComponent);
+		GetBoneDataForStep(SkeletalComponent);
 		if (!bHasSendFirstData) {
-			CreateAnimationData(StepData);
+			CreateAnimationData(CalculatedBoneRotations);
 			bHasSendFirstData = true;
 		}
-		AnimationData.AddNewEpisode(StepData);
+		AnimationData.AddNewEpisode(NewEpisodeData);
 
 		//Write the AnimationData into a .ini file.
 		UReadWrite ReadWrite = UReadWrite();
 		ReadWrite.WriteFile(AnimationData);
-		UE_LOG(LogTemp, Warning, TEXT("ende"));
 	}
 	CurrentTime += DeltaTime;
 	TotalTime += DeltaTime;
 }
 
-TMap<FString, FRotator> AAGraspingStyleManager::GetBoneDataForStep(USkeletalMeshComponent * SkeletalComponent)
+void AAGraspingStyleManager::GetBoneDataForStep(USkeletalMeshComponent * SkeletalComponent)
 {
-	TMap<FString, FRotator> BoneRotations;
+	NewEpisodeData = TMap<FString, FBoneData>();
 
-	TArray<FTransform> tr = SkeletalComponent->BoneSpaceTransforms;
-
+	TArray<FTransform> BoneSpaceTransforms = SkeletalComponent->BoneSpaceTransforms;
+	TArray<FName> BoneNames;
+	SkeletalComponent->GetBoneNames(BoneNames);
+	TMap<FString, FRotator> CurrentBoneSpaceTransforms;
+	int Index = 0;
+	for (FTransform BoneTransform : BoneSpaceTransforms)
+	{
+		CurrentBoneSpaceTransforms.Add(BoneNames[Index].ToString(), BoneTransform.GetRotation().Rotator());
+		Index++;
+	}
 	//go over each constraint in the skeleton. bone1 is the one affected by it 
 	for (FConstraintInstance* NewConstraint : SkeletalComponent->Constraints)
 	{
+		FBoneData NewBoneData = FBoneData();
 		//get the rotation of bones
 		FQuat QuatBone1 = SkeletalComponent->GetBoneQuaternion(NewConstraint->ConstraintBone1, EBoneSpaces::ComponentSpace);
 		FQuat QuatBone2 = SkeletalComponent->GetBoneQuaternion(NewConstraint->ConstraintBone2, EBoneSpaces::ComponentSpace);
+		FRotator *FoundRotation = CurrentBoneSpaceTransforms.Find(NewConstraint->ConstraintBone1.ToString());
+		NewBoneData.BoneSpaceBeforeCalc = *FoundRotation;
+		NewBoneData.ComponentSpace = QuatBone1.Rotator();
 
 		//save the start rotations of all the bones
 		if (!StartRotatorsSet)
 		{
 			StartRotators.Add(NewConstraint->ConstraintBone1.ToString(), QuatBone1);
 			StartRotators.Add(NewConstraint->ConstraintBone2.ToString(), QuatBone2);
-			BoneRotations.Add(NewConstraint->ConstraintBone1.ToString(), FRotator(0, 0, 0));
+			NewBoneData.BoneSpaceAfterCalc = FRotator(0, 0, 0);
+			CalculatedBoneRotations.Add(NewConstraint->ConstraintBone1.ToString(), FRotator(0, 0, 0));
 		}
-		else {
+		else
+		{
 			//calculate how much bone1's roation has changed relative to the start 
 			FTransform Transform1Difference = FTransform(QuatBone1).GetRelativeTransform(FTransform(*StartRotators.Find(NewConstraint->ConstraintBone1.ToString())));
 			FQuat Quat1Difference = Transform1Difference.GetRotation();
@@ -113,16 +128,17 @@ TMap<FString, FRotator> AAGraspingStyleManager::GetBoneDataForStep(USkeletalMesh
 			FQuat Quat2Difference = Transform2Difference.GetRotation();
 			//substract the change in bone2's rotation, so movements of parent bones are filtered out of bone1's rotation 
 			FQuat Quat = Quat1Difference * Quat2Difference.Inverse();
-			BoneRotations.Add(NewConstraint->ConstraintBone1.ToString(), (Quat.Rotator()));
+			NewBoneData.BoneSpaceAfterCalc = Quat.Rotator();
+			CalculatedBoneRotations.Add(NewConstraint->ConstraintBone1.ToString(), (Quat.Rotator()));
 		}
+		NewEpisodeData.Add(NewConstraint->ConstraintBone1.ToString(), NewBoneData);
 	}
-	
-	
+
+
 	if (!StartRotatorsSet)
 	{
 		StartRotatorsSet = true;
 	}
-	return BoneRotations;
 }
 
 TArray<FBoneFingerTypeNames> AAGraspingStyleManager::CreateBoneFingerTypeNames(TMap<FString, FRotator> StepData)
@@ -176,3 +192,4 @@ ETypeOfFinger AAGraspingStyleManager::GetTypeOfFinger(FString Type)
 		return ETypeOfFinger::None;
 	}	
 }
+

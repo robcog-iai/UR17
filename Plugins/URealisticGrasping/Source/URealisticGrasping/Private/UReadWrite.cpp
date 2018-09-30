@@ -22,12 +22,12 @@ void UReadWrite::WriteFile(FHandAnimationData Data)
 	}
 
 	//Create the path and save already the animation name and the skeletal mesh name
-	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\Plugins\\URealisticGrasping\\Config\\" + Data.SkeletalName + "\\"+ Data.AnimationName +".ini";
+	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\GraspAnimations\\" + Data.SkeletalName + "\\"+ Data.AnimationName +".ini";
 	FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*Path);
 	ConfigFileHandler->SetString(*GeneralInformation, TEXT("Name"), *Data.AnimationName, Path);
 	ConfigFileHandler->SetString(*GeneralInformation, TEXT("SkeletalName"), *Data.SkeletalName, Path);
 
-	//Save the general bone informations
+	//Save the general bone informations in different sections
 	int BoneCounter = 0;
 	for (auto Iterator = Data.GetBoneInformations()->CreateConstIterator(); Iterator; Iterator++, BoneCounter++)
 	{
@@ -46,8 +46,11 @@ void UReadWrite::WriteFile(FHandAnimationData Data)
 	//Go through all steps and save everyting
 	for (int Counter = 0; Counter < NumberOfEpisodes; Counter++)
 	{
-		FFingersData CurrentData = Data.GetPositionDataWithIndex(Counter);
-		FString CurrentPosition = StepName + FString::FromInt(Counter);
+		//Get the current Data and create the current section names e.g ComponentSpaceStep0
+		FHandEpisodeData CurrentData = Data.GetPositionDataWithIndex(Counter);
+		FString CurrentOrientationAfterPosition = BoneSpaceAfterCalcSec + FString::FromInt(Counter);
+		FString CurrentOrientationBeforPosition = BoneSpaceBeforeCalcSec + FString::FromInt(Counter);
+		FString CurrentComponentSpacePosition = ComponentSpaceSec + FString::FromInt(Counter);
 
 		//Save one step and go through all fingers
 		for (auto It = CurrentData.GetMap()->CreateConstIterator(); It; ++It)
@@ -57,7 +60,10 @@ void UReadWrite::WriteFile(FHandAnimationData Data)
 			//Go through all bones
 			for (auto ItFinger = FingerData.GetFingerMap()->CreateConstIterator(); ItFinger; ++ItFinger)
 			{
-				ConfigFileHandler->SetRotator(*CurrentPosition, *ItFinger->Key, ItFinger->Value, Path);
+				//Save all three values
+				ConfigFileHandler->SetRotator(*CurrentOrientationAfterPosition, *ItFinger->Key, ItFinger->Value.BoneSpaceAfterCalc, Path);
+				ConfigFileHandler->SetRotator(*CurrentOrientationBeforPosition, *ItFinger->Key, ItFinger->Value.BoneSpaceBeforeCalc, Path);
+				ConfigFileHandler->SetRotator(*CurrentComponentSpacePosition, *ItFinger->Key, ItFinger->Value.ComponentSpace, Path);
 			}
 		}
 	}
@@ -72,7 +78,7 @@ FHandAnimationData UReadWrite::ReadFile(FString SkeletalMeshName, FString Name)
 
 	//Create the path only when the directory name and the file name are valid
 	if (!ConfigFileHandler.IsValid() || SkeletalMeshName.Len() == 0 || Name.Len() == 0) return FHandAnimationData();
-	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\Plugins\\URealisticGrasping\\Config\\" + SkeletalMeshName + "\\"+ Name + ".ini";
+	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\GraspAnimations\\" + SkeletalMeshName + "\\"+ Name + ".ini";
 
 	//Save the Animation name and the skeletal mesh name
 	FHandAnimationData HandData = FHandAnimationData();
@@ -116,12 +122,16 @@ FHandAnimationData UReadWrite::ReadFile(FString SkeletalMeshName, FString Name)
 	}
 	HandData.SetNewFingerBoneInfo(BoneInformations);
 
-	//Read all Steps from the file
+	//Read all Episodes from the file
 	for (int EpisodeCounter = 0; EpisodeCounter < NumberOfEpisodes; EpisodeCounter++)
 	{
-		//Create a new step
-		FString Section = StepName + FString::FromInt(EpisodeCounter);
-		FFingersData EpisodeData;
+		//Create a new Episode section name e.g ComponentSpaceStep0
+		FString OrientationAfterSection = BoneSpaceAfterCalcSec + FString::FromInt(EpisodeCounter);
+		FString OrientationBevorSection = BoneSpaceBeforeCalcSec + FString::FromInt(EpisodeCounter);
+		FString CurrentComponentSpacePosition = ComponentSpaceSec + FString::FromInt(EpisodeCounter);
+
+		//Create a new struct for this episode
+		FHandEpisodeData EpisodeData;
 		EpisodeData.AddNewFingerData(ETypeOfFinger::Index, FFingerData());
 		EpisodeData.AddNewFingerData(ETypeOfFinger::Middle, FFingerData());
 		EpisodeData.AddNewFingerData(ETypeOfFinger::Pinky, FFingerData());
@@ -132,10 +142,18 @@ FHandAnimationData UReadWrite::ReadFile(FString SkeletalMeshName, FString Name)
 		//Read every value out of the file with the bone name
 		for (auto& Elem : BoneInformations)
 		{
-			FRotator CurrentRot;
-			ConfigFileHandler->GetRotator(*Section, *Elem.BoneName, CurrentRot, Path);
+			//Get the bone data
+			FBoneData CurrentBone;
+			bSuccsses = ConfigFileHandler->GetRotator(*OrientationAfterSection, *Elem.BoneName, CurrentBone.BoneSpaceAfterCalc, Path);
+			if (!bSuccsses)return FHandAnimationData();
+			bSuccsses = ConfigFileHandler->GetRotator(*OrientationBevorSection, *Elem.BoneName, CurrentBone.BoneSpaceBeforeCalc, Path);
+			if (!bSuccsses)return FHandAnimationData();
+			bSuccsses = ConfigFileHandler->GetRotator(*CurrentComponentSpacePosition, *Elem.BoneName, CurrentBone.ComponentSpace, Path);
+			if (!bSuccsses)return FHandAnimationData();
+
+			//Add the bone data to the right finger 
 			FFingerData* CurrentFingerData = EpisodeData.GetFingerData(Elem.FingerType);
-			CurrentFingerData->AddData(Elem.BoneName,CurrentRot);
+			CurrentFingerData->AddData(Elem.BoneName,CurrentBone);
 		}
 		HandData.AddNewPositionData(EpisodeData);
 	}
@@ -144,7 +162,7 @@ FHandAnimationData UReadWrite::ReadFile(FString SkeletalMeshName, FString Name)
 //https://answers.unrealengine.com/questions/212791/how-to-get-file-list-in-a-directory.html
 TArray<FString> UReadWrite::ReadNames(FString SkeletalMeshName)
 {
-	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\Plugins\\URealisticGrasping\\Config\\" + SkeletalMeshName;
+	FString Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "\\GraspAnimations\\" + SkeletalMeshName;
 	// Get all files in directory
 	TArray<FString> DirectoriesToSkip;
 	IPlatformFile &PlatformFile = FPlatformFileManager::Get().GetPlatformFile();

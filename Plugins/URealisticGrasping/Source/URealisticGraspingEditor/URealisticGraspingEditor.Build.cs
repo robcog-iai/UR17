@@ -7,10 +7,10 @@ public class URealisticGraspingEditor : ModuleRules
 	public URealisticGraspingEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
-		PublicIncludePaths.AddRange(
+        bEnableUndefinedIdentifierWarnings = false;
+
+        PublicIncludePaths.AddRange(
 			new string[] {
-				"URealisticGrasping/Public"
 				// ... add public include paths required here ...
 			}
 			);
@@ -33,6 +33,7 @@ public class URealisticGraspingEditor : ModuleRules
                 "SkeletalMeshEditor",
                 "SkeletonEditor",
                 "StaticMeshEditor",
+                "MainFrame",
                 "Engine",
                 "InputCore"
 				// ... add other public dependencies that you statically link with here ...
@@ -49,13 +50,14 @@ public class URealisticGraspingEditor : ModuleRules
             "UnrealEd",
             "LevelEditor",
             "CoreUObject",
-            "Engine",
+            "MainFrame",
+            "AnimGraphRuntime",
             "Slate",
             "SlateCore",
             "Persona",
             "HeadMountedDisplay",
-            "LevelEditor",
-            "SteamVR"
+            "Core",
+            "AnimGraph",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

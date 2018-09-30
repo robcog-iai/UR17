@@ -20,8 +20,18 @@
       "LoadingPhase": "Default"
     },
     {
+      "Name": "URealisticGraspingForceIndicator",
+      "Type": "Developer",
+      "LoadingPhase": "Default"
+    },
+    {
       "Name": "URealisticGraspingEditor",
       "Type": "Editor"
+    },
+    {
+      "Name": "URealisticGraspingUI",
+       "Type": "Developer",
+      "LoadingPhase": "Default"
     }
   ],
   "Plugins": [

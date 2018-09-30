@@ -1,10 +1,13 @@
 // Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 
 #include "AGraspingHand.h"
+#include "Runtime/Engine/Classes/Materials/MaterialExpressionConstant3Vector.h"
+#include "DrawDebugHelpers.h"
+
 
 // Sets default values
 AGraspingHand::AGraspingHand()
-{
+{	
 // 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -16,6 +19,7 @@ void AGraspingHand::BeginPlay()
 	USkeletalMeshComponent* const SkelComp = GetSkeletalMeshComponent();
 	SkelComp->SetSimulatePhysics(true);
 	SkelComp->SetEnableGravity(false);
+
 
 	float Spring = 9000.0f;
 	float Damping = 1000.0f;
@@ -36,4 +40,5 @@ void AGraspingHand::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 //
 }
+
 

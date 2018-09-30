@@ -10,7 +10,7 @@ public class URealisticGrasping : ModuleRules
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-				"URealisticGrasping/Public"
+
 				// ... add public include paths required here ...
 			}
 			);
@@ -27,7 +27,7 @@ public class URealisticGrasping : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core", "UPIDController"
+				"Core", "UPIDController", "UMG","URealisticGraspingUI"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

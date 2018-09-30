@@ -36,12 +36,14 @@ void UGraspingAnimationController::SetMeshName(FString Name, bool bIsRightHand)
 	//Set the parameters and get all current available animations for the current hand
 	if (bIsRightHand)
 	{
+		//Set the name for the right hand and get all animations
 		RightHandMeshName = Name;
 		RightHandAnimationNames = ReadWrite.ReadNames(Name);
 		RightHandAnimations = TMap<FString, FHandAnimationData>();
 	}
 	else
 	{
+		//Set the name for the left hand and get all animations
 		LeftHandMeshName = Name;
 		LeftHandAnimationNames = ReadWrite.ReadNames(Name);
 		LeftHandAnimations = TMap<FString, FHandAnimationData>();
@@ -62,8 +64,9 @@ void UGraspingAnimationController::SetNewAnimation(FString AnimationName, bool b
 	FHandAnimationData CurrentAnimation;
 	if (bIsRightHand)
 	{
-		
+		//If the animation doesn't exist return
 		if(!RightHandAnimationNames.Contains(AnimationName)) return;
+
 		//checks if the animation was already loaded in the past 
 		if (RightHandAnimations.Contains(AnimationName))
 		{
@@ -77,11 +80,17 @@ void UGraspingAnimationController::SetNewAnimation(FString AnimationName, bool b
 			CurrentRightAnimation = &CurrentAnimation;
 			RightHandAnimations.Add(AnimationName, CurrentAnimation);
 		}
+
+		//Send a update to all binded functions
+		if (OnNextAnimationR.IsBound())
+		{
+			OnNextAnimationR.Broadcast(CurrentAnimation);
+		}
 		
 	}
 	else
 	{
-
+		//If the animation doesn't exist return
 		if (!LeftHandAnimationNames.Contains(AnimationName)) return;
 
 		//checks if the animation was already loaded in the past 
@@ -97,11 +106,12 @@ void UGraspingAnimationController::SetNewAnimation(FString AnimationName, bool b
 			CurrentLeftAnimation = &CurrentAnimation;
 			LeftHandAnimations.Add(AnimationName, CurrentAnimation);
 		}
-	}
-	//Send a update to all binded functions
-	if (OnNextAnimation.IsBound())
-	{
-		OnNextAnimation.Broadcast(CurrentAnimation, bIsRightHand);
+
+		//Send a update to all binded functions
+		if (OnNextAnimationL.IsBound())
+		{
+			OnNextAnimationL.Broadcast(CurrentAnimation);
+		}
 	}
 }
 
@@ -109,20 +119,26 @@ FHandAnimationData UGraspingAnimationController::GetNextAnimation(bool bIsRightH
 {
 	if (bIsRightHand)
 	{
+		//If we reached the end of the array start at the beginning
 		if (CurrentRightGraspIndex + 1 == RightHandAnimationNames.Num())
 		{
 			CurrentRightGraspIndex = 0;
 		}
-		SetNewAnimation(RightHandAnimationNames[CurrentRightGraspIndex], bIsRightHand);
+
+		//Set the next animation 
+		SetNewAnimation(RightHandAnimationNames[CurrentRightGraspIndex + 1], bIsRightHand);
 		return *CurrentRightAnimation;
 	}
 	else
 	{
+		//If we reached the end of the array start at the beginning
 		if (CurrentLeftGraspIndex + 1 == LeftHandAnimationNames.Num())
 		{
 			CurrentLeftGraspIndex = 0;
 		}
-		SetNewAnimation(LeftHandAnimationNames[CurrentLeftGraspIndex], bIsRightHand);
+
+		//Set the next animation 
+		SetNewAnimation(LeftHandAnimationNames[CurrentLeftGraspIndex + 1], bIsRightHand);
 		return *CurrentLeftAnimation;
 	}
 }

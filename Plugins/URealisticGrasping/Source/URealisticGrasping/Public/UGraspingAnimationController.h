@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "UFinger.h"
+#include "UAnimationDataStructure.h"
 #include "UReadWrite.h"
 #include "UGraspingAnimationController.generated.h"
 
 //Event when the current activ animation changes
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FNextAnimationDelegate, FHandAnimationData, Data, bool, bIsRightHand);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNextAnimationDelegateR, FHandAnimationData, Data);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNextAnimationDelegateL, FHandAnimationData, Data);
 
 /*
 This class loads and manages all possible animation for both hands.
@@ -84,8 +85,12 @@ public:
 	*/
 	FHandAnimationData GetNextAnimation(bool bIsRightHand);
 
-	//This delegate sends an update every time when the animation for one hand changes
+	//This delegate sends an update every time when the animation for the right hand changes
 	UPROPERTY(BlueprintAssignable, Category = "Delegate")
-		FNextAnimationDelegate OnNextAnimation;
+	FNextAnimationDelegateR OnNextAnimationR;
+
+	//This delegate sends an update every time when the animation for the left hand changes
+	UPROPERTY(BlueprintAssignable, Category = "Delegate")
+	FNextAnimationDelegateL OnNextAnimationL;
 	
 };
