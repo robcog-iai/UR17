@@ -18,6 +18,17 @@ After this you can bind your function like this:
 OnCollisionDelegate.AddDynamic(this, &UArmAnimInstance::Test);
 ```
 
+# Debug RayTrace
+In order to debug the ray trace you can activate a boolen. After this boolen is set to true every tick the debug cylinder will be drawn.
+![Debug cylinder](https://media.giphy.com/media/c7Fc4UyOWFSNhZPJ9L/giphy.gif)   
+The boolen is called:
+
+```cpp
+bool bDrawDebugLine;
+```
+
+You can set this value to true in blueprints (recommend because you will have to create a blueprint version of our ArmAnimInstance Class) or in c++.
+
 # Problems
 * First we tried to solve a collision with Physics Animations. However, this has led to a problem. Everytime when no collision occurs,
 the actual animation that we get through the movements of the controllers was overwritten. It still works, but the movements doesen't match with those of the

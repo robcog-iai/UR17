@@ -42,6 +42,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FRotator RightHandWorldRotation;
 
+	//Select if RayTrace should draw a line
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		bool bDrawDebugLine = false;
+
 	//The Delegater. It will be called when we get a collision
 	UPROPERTY(BlueprintAssignable, Category = "Delegate")
 		FCollisionDelegate OnCollisionDelegate;
@@ -49,9 +53,6 @@ public:
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
-
-	UFUNCTION()
-	void Test(FHitResult HitObject);
 
 	bool bIsCalled = false;
 
@@ -61,9 +62,10 @@ public:
 	@param bIsRightHand, true if we want to check the right hand, false for the left hand
 	@param CurrentPawn, The Pawn who own this class
 	@param EffectorLocation, the End Location that is also used for IK
+	@param DeltaTimeX, the Tick rate
 	@return FVector, the EffectorLocation with collision for IK
 	*/
-	FVector CalculateOffset(bool bIsRightHand, AArmAnimPawn * CurrentPawn, FVector EffectorLocation);
+	FVector CalculateOffset(bool bIsRightHand, AArmAnimPawn * CurrentPawn, FVector EffectorLocation, float DeltaTimeX);
 
 	/*
 	Function to claculate and set the positions/rotations for each arm/hand
@@ -71,8 +73,9 @@ public:
 	@param HandWorldRotation, Rotation for this hand
 	@param HandRotationOffset, the Offset for this hand
 	@param CurrentMotionController, the motionController for the left or right hand
+	@param DeltaTimeX, the tick rate
 	@return FVector, the EffectorPosition for IK
 	*/
-	FVector CalculatePosition(bool bIsRightHand, FRotator HandWorldRotation, FRotator HandRotationOffset, UMotionControllerComponent* CurrentMotionController);
+	FVector CalculatePosition(bool bIsRightHand, FRotator HandWorldRotation, FRotator HandRotationOffset, UMotionControllerComponent* CurrentMotionController, float DeltaTimeX);
 
 };
