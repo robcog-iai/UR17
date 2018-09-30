@@ -96,6 +96,8 @@ void FSlicingEditorActionCallbacks::MakeCuttableObjects()
 		if (!StaticMeshComponent->ComponentTags.Contains(USlicingComponent::TagCuttable))
 		{
 			StaticMeshComponent->ComponentTags.Add(USlicingComponent::TagCuttable);
+			StaticMeshComponent->ComponentTags.Add(FName("Resistance"));
+			StaticMeshComponent->ComponentTags.Add(FName("0"));
 		}
 		
 		// Let the cutting object go through the actor

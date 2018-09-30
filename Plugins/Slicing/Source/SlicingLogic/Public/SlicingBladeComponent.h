@@ -12,8 +12,8 @@ class UPhysicsConstraintComponent;
 /**
 * The delegates for events regarding the cutting-process
 */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FBeginSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FEndSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FBeginSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject, FDateTime, BroadcastTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FEndSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject, FDateTime, BroadcastTime);
 
 
 UCLASS()

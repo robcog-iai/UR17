@@ -78,13 +78,15 @@ StaticMeshComponent click on ***Generate Overlap Event***.
 
 ***Now that object is Cuttable.***
 
-### (Optional) Step 3: Add Resistance
-To give an object a resistance on which the knife's progress through it is hindered, go to the tag section (under the Details view) and add two more tags: The first one called "**Resistance**" and the second a number from one to one-hundred.  
+### (Optional) Step 3: Adjust Resistance
+To give an object a resistance on which the knife's progress through it is hindered, go to the tag section (under the Details view) and look for the two tags "**Resistance**" and the one directly below containing a numerical value (Default:"0"). Changing the latter to a value in between 0-100, from non-existent to full, changes the resistance.
 
-***You don't need this, as it will work even without these Tags.***  
+For example, changing 0 to 100 will make it look like this...
+
+***You don't need to do this, as it will work even without changing these Tags.***  
 
 ![TutorialPic10](TutorialPictures/12.PNG)  
-**It will look like this**  
+
 [Top](#ur17---p2)
 
 ## Give the Object an Inner Material

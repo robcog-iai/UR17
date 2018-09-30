@@ -57,7 +57,7 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 
 	// The cutting process has now started
 	bIsCurrentlyCutting = true;
-	OnBeginSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor());
+	OnBeginSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), FDateTime::Now());
 
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
@@ -78,7 +78,6 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 		// A value in between 0 and 100.
 		int32 resistancePercentage = FCString::Atoi( *CutComponent->ComponentTags[(CutComponent->ComponentTags.IndexOfByKey("Resistance") + 1)].ToString());
 		((UStaticMeshComponent*)this->GetAttachParent())->SetLinearDamping(100000000000.f * ((resistancePercentage) / 100));
-		//((UStaticMeshComponent*)this->GetAttachParent())->SetAngularDamping(100000000000.f * ((resistancePercentage) / 100));
 	}
 
 	SetUpConstrains(CutComponent);
@@ -199,7 +198,7 @@ void USlicingBladeComponent::ResetResistance()
 // Resets everything to the state the component was in before the cutting-process began
 void USlicingBladeComponent::ResetState()
 {
-	OnEndSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor());
+	OnEndSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), FDateTime::Now());
 
 	bIsCurrentlyCutting = false;
 	CutComponent = nullptr;

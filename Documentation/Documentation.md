@@ -28,6 +28,8 @@ These are all implemented Features that are available in this plugin.
 * **VR-Compatibility.** This plugin, while also usable in a 3D Game, was build with the intention for VR-Games.
 * **Compatibility with existing Projects.** The converting to ProceduralMeshComponents is not permanent and will promptly be converted to a StaticMeshComponent after the cut.
 
+![Standard Cutting Procedure](DocumentationPictures/CuttingProcedure.gif)
+
 ## Documentation
 
 **__This is a summary of Previous Milestones ([1](Milestone1.md), [2](Milestone2.md), [3](Milestone3.md))__**
@@ -36,18 +38,19 @@ The goal of this sub-project was a user-friendly plugin for a realistic cutting 
 
 ### SlicingEditor
 This holds all code which works closely to the Editor itself and is responsible for things like, adding our menu into the Editor and it working as a bridge for our logic.
-
 #### SlicingEditorCommands
 The class which simply holds our commands, which are later used in the menus of the Editor.
 
 #### SlicingEditorActionCallbacks
-This class holds all the actions or more specifically methods corresponding to our commands. Giving our buttons the interaction they're supposed to do.
+This class holds all the actions or more specifically methods corresponding to our commands. Giving our buttons the interaction they're supposed to do. The important methods include...
+- **MakeCuttableObjects()**. Which is responsible for turning a selected object in the editor, and after the button press, into an object which the 'Knife' us able to cut.
+- **AddBoxComponent()**. Which is responsible for adding the appropriate BoxComponents and is used by other function within the class.
 
 #### SlicingEditorModule
 It's there to handle the module, starting and shutting it down. It's also where we create and add the buttons to the menu of the Editor and give them their respective Actions.
 
 #### SlicingEditorStyle
-This class simply hold stylistic bits needed for our menu.
+This class simply hold stylistic bits needed for our menu, giving an icon for example.
 
 ### SlicingLogic
 
