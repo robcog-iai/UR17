@@ -1,5 +1,6 @@
 # UR17 - UGame Tutorial
-Download the plugin in and put it inside the plugin folder of your project.
+Download the plugin in and put it inside the plugin folder of your project.  
+The Plugin Folder (UR17/) contains the following file Input Backup 2018-10-02 221505.ini. Put this inside YourProject\Saved\Config\Windows to have the correct input mapping.
 
 ## Character Setup
 To use the character he needs to be put inside the level where he should be used. By including the plugin to your project you can access the Game Controller, which is the character. By navigating to UGame C++ Classes / UGame / Private / Character you can pull the Game Controller inside the game world.  
