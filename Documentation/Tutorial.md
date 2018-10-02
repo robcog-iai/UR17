@@ -1,6 +1,6 @@
 # UR17 - UGame Tutorial
 Download the plugin in and put it inside the plugin folder of your project.  
-The Plugin Folder (UR17/) contains the following file Input Backup 2018-10-02 221505.ini. Put this inside YourProject\Saved\Config\Windows to have the correct input mapping. Instead of moving the file into the correct folder it is also possible to import it inside the procject. To do so start your project, open the project settings and move to input, there you will finde the buttong import. Push this button and pick the .ini file form the plugin folder, to import the input settings.
+The Plugin Folder (UR17/) contains the following file Input Backup 2018-10-02 221505.ini. Put this inside YourProject\Saved\Config\Windows to have the correct input mapping. Instead of moving the file into the correct folder it is also possible to import it inside the procject. To do so start your project, open the project settings and move to input, there you will finde the import button. Push this button and pick the .ini file form the plugin folder, to import the input settings.
 
 ## Character Setup
 To use the character he needs to be put inside the level where he should be used. By including the plugin to your project you can access the Game Controller, which is the character. By navigating to UGame C++ Classes / UGame / Private / Character you can pull the Game Controller inside the game world.  
