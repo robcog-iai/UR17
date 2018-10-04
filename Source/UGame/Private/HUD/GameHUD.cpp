@@ -8,37 +8,37 @@
 
 AGameHUD::AGameHUD()
 {
-	GPickup = nullptr;
+    GPickup = nullptr;
 }
 
 void AGameHUD::PostInitializeComponents()
 {
-	Super::PostInitializeComponents();
+    Super::PostInitializeComponents();
 }
 
 void AGameHUD::RemoveMenu()
 {
-	GEngine->GameViewport->RemoveAllViewportWidgets();
+    GEngine->GameViewport->RemoveAllViewportWidgets();
 }
 
 void AGameHUD::DrawPickUpMenu(float MouseX, float MouseY)
 {
-	SAssignNew(PickupUI, SPickupUI).GameHUD(this);
-	PickupUI->WidgetPosition = FVector2D(MouseX, MouseY);
+    SAssignNew(PickupUI, SPickupUI).GameHUD(this);
+    PickupUI->WidgetPosition = FVector2D(MouseX, MouseY);
 
-	if (GEngine->IsValidLowLevel())
-	{
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupUI.ToSharedRef()));
-	}
+    if (GEngine->IsValidLowLevel())
+    {
+        GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupUI.ToSharedRef()));
+    }
 }
 
 void AGameHUD::SetActionGridActor(AActor* InSelectedActor)
 {
-	SelectedActor.Reset();
-	SelectedActor = MakeWeakObjectPtr(InSelectedActor);
+    SelectedActor.Reset();
+    SelectedActor = MakeWeakObjectPtr(InSelectedActor);
 }
 
 AGameController * AGameHUD::GetPlayerController() const
 {
-	return Cast<AGameController>(PlayerOwner);
+    return Cast<AGameController>(PlayerOwner);
 }

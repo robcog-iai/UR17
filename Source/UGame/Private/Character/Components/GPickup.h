@@ -16,104 +16,106 @@ class AGameController; // Use Forward Declaration. Including the header in CPick
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UGAME_API UGPickup : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
-	UGPickup();
+    // Sets default values for this component's properties
+    UGPickup();
 
-	AStaticMeshActor* ItemInLeftHand;
-	AStaticMeshActor* ItemInRightHand;
+    // Items hold in the left and right hand
+    AStaticMeshActor* ItemInLeftHand;
+    AStaticMeshActor* ItemInRightHand;
 
-	// Whether or not the player's movement speed depends on the weight the player carries
-	UPROPERTY(EditAnywhere, Category = "CI - Physics")
-		bool bMassEffectsMovementSpeed;
+    // The player character instance
+    AGameController * PlayerCharacter;
 
-	// How much mass can the player carry
-	UPROPERTY(EditAnywhere, Category = "CI - Physics")
-		float MaximumMassToCarry;
+    // The item which is currently focused by the player
+    AStaticMeshActor* ItemToHandle;
 
-	AGameController * PlayerCharacter; // The player character instance
-
-	TArray<AStaticMeshActor*> ShadowItems; // The array that holds all the current shadow items
-
-	AStaticMeshActor* ItemToHandle; // The item which is currently focused by the player
-
-	// *** Dropping ***
-	bool bIsItemDropping;
-	void DropItem();
+    // Sets item values, so that the item is dropable
+    void DropItem();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    // Called when the game starts
+    virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void SetupKeyBindings(UInputComponent* PlayerInputComponent);
+    // Called every frame
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    void SetupKeyBindings(UInputComponent* PlayerInputComponent);
 
 private:
-	AStaticMeshActor* LeftHandActor;
-	AStaticMeshActor* RightHandActor;
-	AStaticMeshActor* BothHandActor;
+    // Actors for the hands positions and the rotation position
+    AStaticMeshActor* LeftHandActor;
+    AStaticMeshActor* RightHandActor;
+    AStaticMeshActor* BothHandActor;
 
-	TSet<AActor*> SetOfPickupItems; // All items in the world wich can be picked up
+    // All items in the world wich can be picked up
+    TSet<AActor*> SetOfPickupItems;
 
-	AStaticMeshActor* BaseItemToPick; // The item we are about to pick up	
-	// *** *** *** ***
+    // The item we are about to pick up	
+    AStaticMeshActor* BaseItemToPick;
+    // *** *** *** ***
 
-	float MassToCarry; // The current mass the player carries
-	float MassOfLastItemPickedUp; // The mass of the item we try to pick up
 
-	void InputLeftHandPressed();
-	void InputLeftHandReleased();
-	void InputRightHandPressed();
-	void InputRightHandReleased();
+    // Mouse button press events
+    void InputLeftHandPressed();
+    void InputLeftHandReleased();
+    void InputRightHandPressed();
+    void InputRightHandReleased();
 
 public:
-	bool bPickUpStarted;
+    // Check for the pick up mode
+    bool bPickUpStarted;
 
-	bool bRotationStarted;
+    // Check for the rotation mode
+    bool bRotationStarted;
 
-	bool bDropStarted;
+    // Check for the drop start (positioning)
+    bool bDropStarted;
 
-	bool bInRotationPosition;
- bool bRotating;
+    // Check for the drop mode
+    bool bIsItemDropping;
 
- bool bDropping;
+    // Check if the item is in the rotation positon, to allow rotation
+    bool bInRotationPosition;
+    bool bRotating;
 
-	// Bool to check if the menu is active and movment should be stopped.
-	bool bRotationMenuActivated;
-	// Bool to check if pick up menu should be started.
-	bool bPickupMenuActivated;
+    bool bDropping;
 
-	// Bool for free mouse mode
-	bool bFreeMouse;
+    // Bool to check if the menu is active and movment should be stopped.
+    bool bRotationMenuActivated;
+    // Bool to check if pick up menu should be started.
+    bool bPickupMenuActivated;
 
-	void MoveToRotationPosition();
+    // Bool for free mouse mode
+    bool bFreeMouse;
 
-	AStaticMeshActor* ItemInRotaitonPosition;
+    // Move the picked up object to the rotation position
+    void MoveToRotationPosition();
 
-	void PickUpItemAfterMenu(bool leftHand);
+    AStaticMeshActor* ItemInRotaitonPosition;
 
-	// *** Input ***
-	bool bLeftMouse;
-	bool bRightMouse;
+    void PickUpItemAfterMenu(bool leftHand);
 
-	APlayerController* PlayerController;
+    // *** Input ***
+    bool bLeftMouse;
+    bool bRightMouse;
 
-	// True if we are above an item
-	bool bOverItem;
+    APlayerController* PlayerController;
 
-	// The item the mouse is over
-	AActor* ItemToInteract;
+    // True if we are above an item
+    bool bOverItem;
 
-	//Function to handle the interaction if the mouse is over the item
-	UFUNCTION()
-		void CustomOnBeginMouseOver(AActor* TouchedComponent);
+    // The item the mouse is over
+    AActor* ItemToInteract;
 
-	//Function to handle the interaction if the mouse is not over the item
-	UFUNCTION()
-		void CustomOnEndMouseOver(AActor* TouchedComponent);
+    //Function to handle the interaction if the mouse is over the item
+    UFUNCTION()
+        void CustomOnBeginMouseOver(AActor* TouchedComponent);
+
+    //Function to handle the interaction if the mouse is not over the item
+    UFUNCTION()
+        void CustomOnEndMouseOver(AActor* TouchedComponent);
 };
 
