@@ -180,15 +180,17 @@ void AGameController::DropRotateObject()
                 PlayerController->SetInputMode(FInputModeGameOnly());
                 PickupComponent->bDropping = true;
             }
+
+            Distance = FVector(0, XMousePosition, YMousePosition) / 10;
+
             if (RotatedObjects.Find(PickupComponent->ItemToHandle->GetActorLabel()) != INDEX_NONE)
             {
-                Distance = FVector(XMousePosition, 0, YMousePosition) / 10;
+                PickupComponent->ItemToHandle->AddActorWorldOffset(Distance);
             }
             else 
-            {
-                Distance = FVector(0, XMousePosition, YMousePosition) / 10;
+            {          
+                PickupComponent->ItemToHandle->AddActorLocalOffset(Distance);
             }
-            PickupComponent->ItemToHandle->AddActorLocalOffset(Distance);
         }
     }
 
