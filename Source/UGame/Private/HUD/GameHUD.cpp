@@ -18,6 +18,10 @@ void AGameHUD::PostInitializeComponents()
 
 void AGameHUD::RemoveMenu()
 {
+    GPickup->bFreeMouse = false;
+    GPickup->bRightMouse = false;
+    GPickup->bCallMenu = false;
+
     GEngine->GameViewport->RemoveAllViewportWidgets();
 }
 

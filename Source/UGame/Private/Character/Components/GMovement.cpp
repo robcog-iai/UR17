@@ -10,7 +10,6 @@
 UGMovement::UGMovement()
     :CurrentSpeed(0)
     , SpeedLimit(5.0f)
-    , SpeedUpValue(0.01f)
     , SpeedUpTime(0.05f)
     , bIsMoving(false)
 {
@@ -44,11 +43,7 @@ void UGMovement::MoveForward(const float Val) {
     {
         // Find out which way is forward
         FRotator Rotation = Character->Controller->GetControlRotation();
-        // Limit pitch when walking or falling
-        if (Character->GetCharacterMovement()->IsMovingOnGround() || Character->GetCharacterMovement()->IsFalling())
-        {
-            Rotation.Pitch = 0.0f;
-        }
+
         // Add movement in that direction
         const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
 
@@ -68,23 +63,6 @@ void UGMovement::MoveRight(const float Val) {
 
         // Add movement in the current direction
         SpeedUp(Direction, Val);
-    }
-}
-
-void UGMovement::AddControllerPitchInput(const float Val) {
-    if (bCanMove == false) return;
-
-    if (Character != nullptr)
-    {
-        Character->AddControllerPitchInput(Val);
-    }
-}
-
-void UGMovement::AddControllerYawInput(const float Val) {
-    if (bCanMove == false) return;
-    if (Character != nullptr)
-    {
-        Character->AddControllerYawInput(Val);
     }
 }
 
@@ -109,16 +87,11 @@ void UGMovement::SetupKeyBindings(UInputComponent * PlayerInputComponent)
     /* Axis Mappings:
     /*   MoveForward: W 1.0, S -1,0
     /*   MoveRight: D 1.0, A -1.0
-    /*   CameraPitch: MouseY -1.0
-    /*   CameraYaw: MouseX 1.0
     */
 
     // Set up gameplay key bindings
     PlayerInputComponent->BindAxis("MoveForward", this, &UGMovement::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &UGMovement::MoveRight);
-    // Default Camera view bindings
-    PlayerInputComponent->BindAxis("CameraPitch", this, &UGMovement::AddControllerPitchInput);
-    PlayerInputComponent->BindAxis("CameraYaw", this, &UGMovement::AddControllerYawInput);
 }
 
 void UGMovement::SetMovable(bool bCanMove)
@@ -148,7 +121,7 @@ void UGMovement::SpeedUp(const FVector Direction, const float Val)
 
     // Rising speed up
     if (SpeedUpTime < 2) {
-        SpeedUpTime += SpeedUpValue;
+        SpeedUpTime += GetWorld()->GetDeltaSeconds();
     }
 
     // If the max speed is not reached calculate the new and faster speed

@@ -2,18 +2,13 @@
 // Author: Waldemar Zeitler
 
 #define TAG_KEY_INTERACTABLE "Interactable"
-#define CAMERA_TAG "Runtime,Dynamic;Class,CharacterCamera;Id,Abci;"
-
-#define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 100000.0f,FColor::White,text, false);
-#define printAndStop(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 100000.0f,FColor::Red,text, false); GetWorld()->GetFirstPlayerController()->SetPause(true);
-#define logText(text) UE_LOG(LogTemp, Warning, TEXT(text));
-#define logAndStop(text) UE_LOG(LogTemp, Warning, TEXT(text)); GetWorld()->GetFirstPlayerController()->SetPause(true);
 
 #include "GameController.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 #include "TagStatics.h"
 #include "Engine.h" // Needed for GEngine
+#include "GameFramework/InputSettings.h"
 
 AGameController::AGameController()
 {
@@ -21,6 +16,10 @@ AGameController::AGameController()
 
     // 120 works fine but can be adjusted
     GraspRange = 120.0f;
+
+    // Can be adjusted in the editor for faster/slower drop and rotation
+    RotationRate = 150;
+    DropMovmentRate = 150;
 
     // Set PlayerController 
     PlayerController = nullptr;
@@ -31,23 +30,15 @@ AGameController::AGameController()
     PickupComponent = CreateDefaultSubobject<UGPickup>(TEXT("Pickup Component"));
     PickupComponent->PlayerCharacter = this;
 
-    XMousePosition = .0f;
-    YMousePosition = .0f;
-
     GetCapsuleComponent()->SetCapsuleRadius(0.01f);
+
+    bMenuOpen = false;
 }
 
 // Called when the game starts or when spawned
 void AGameController::BeginPlay()
 {
     Super::BeginPlay();
-
-    Character = Cast<ACharacter>(this);
-    if (Character == nullptr)
-    {
-        printAndStop("ACharacterController::BeginPlay: Character is null. Game paused to prevent crash.");
-        Character->PlayerState->bIsSpectator = true;
-    }
 
     // Initilize the player controller to get the mouse axis
     PlayerController = Cast<APlayerController>(GetController());
@@ -63,6 +54,8 @@ void AGameController::BeginPlay()
     // Setup HUD
     PickupHUD = Cast<AGameHUD>(PlayerController->GetHUD());
     PickupHUD->GPickup = PickupComponent;
+
+
 }
 
 // Called every frame
@@ -72,39 +65,32 @@ void AGameController::Tick(float DeltaTime)
 
     if (PickupComponent == nullptr) UE_LOG(LogTemp, Warning, TEXT("NULL"));
 
-    // Stop movment when menu is active 
-    if (PickupComponent->bFreeMouse && !bIsMovementLocked && !PickupComponent->bDropStarted && !PickupComponent->bDropping && !PickupComponent->bRotating)
+    // Stop movment when the mouse is freed and show the mouse. If the current state allows it
+    if (PickupComponent->bFreeMouse && !PickupComponent->bRotating && !PickupComponent->bDropping)
     {
         SetPlayerMovable(false);
         ShowCursor(true);
-        PickupComponent->bRotationStarted = false;
-    }
 
-    if (PickupComponent->bFreeMouse && PickupComponent->bRightMouse && PickupComponent->bPickupMenuActivated && PickupComponent->bOverItem
-        && !(PickupComponent->bRotationStarted || PickupComponent->bDropStarted) && !PickupComponent->bDropping && !PickupComponent->bRotating)
-    {
-        XMousePosition = .0f;
-        YMousePosition = .0f;
+        // If one of the menus is true, call it
+        if (PickupComponent->bRightMouse && PickupComponent->bCallMenu && !bMenuOpen)
+        {
+            float XMouse;
+            float YMouse;
 
-        float XMouse;
-        float YMouse;
+            PlayerController->GetMousePosition(XMouse, YMouse);
+            PickupHUD->DrawPickUpMenu(XMouse, YMouse);
 
-        PlayerController->GetMousePosition(XMouse, YMouse);
-        PickupHUD->DrawPickUpMenu(XMouse, YMouse);
-    }
-    else if (!PickupComponent->bFreeMouse && bIsMovementLocked && !PickupComponent->bDropStarted && !PickupComponent->bDropping
-        && !PickupComponent->bRotating)
+            bMenuOpen = true;
+        }
+    } 
+    else if (!PickupComponent->bFreeMouse)
     {
         SetPlayerMovable(true);
         ShowCursor(false);
         // Sets the focus back to the screen after the mouse was freed
         PlayerController->SetInputMode(FInputModeGameOnly());
-    }
 
-    // Rotate/drop the object 
-    if (PickupComponent->bRotationStarted || PickupComponent->bDropStarted)
-    {
-        DropRotateObject();
+        bMenuOpen = false;
     }
 }
 
@@ -113,8 +99,81 @@ void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    // Default Camera view bindings
+    PlayerInputComponent->BindAxis("CameraPitch", this, &AGameController::AddPitchInput);
+    PlayerInputComponent->BindAxis("CameraYaw", this, &AGameController::AddYawInput);
+
     if (MovementComponent != nullptr) MovementComponent->SetupKeyBindings(PlayerInputComponent);
     if (PickupComponent != nullptr) PickupComponent->SetupKeyBindings(PlayerInputComponent);
+}
+
+void AGameController::AddPitchInput(const float Val) {
+    // Rotate/drop the object 
+    if (PickupComponent->bRotationStarted)
+    {
+        // Set the view so the rotation is always correct
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax = 179.9000002f;
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin = -179.9000002f;
+
+        // Calculate the rotation and inverse it
+        float RotationValue = Val * RotationRate * GetWorld()->GetDeltaSeconds() * -1;
+        FRotator ControlRotation = FRotator(RotationValue, 0, 0) + PickupComponent->ItemInRotaitonPosition->GetActorRotation();
+        PickupComponent->ItemInRotaitonPosition->SetActorRotation(ControlRotation.Quaternion());
+    }
+    else if (PickupComponent->bDropStarted)
+    {
+        // Set the view so the rotation is always correct
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax = 179.9000002f;
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin = -179.9000002f;
+
+        // Calcualte the movment speed of the object
+        float DropMovmentValue = Val * DropMovmentRate * GetWorld()->GetDeltaSeconds() * -1;
+        FVector NewActorLocation = FVector(0, 0, DropMovmentValue) + PickupComponent->ItemToHandle->GetActorLocation();
+        PickupComponent->ItemToHandle->SetActorLocation(NewActorLocation);
+
+    }
+    else if (MovementComponent->bCanMove == false)
+    {
+        return;
+    }
+    else
+    {
+        this->AddControllerPitchInput(Val);
+    } 
+}
+
+void AGameController::AddYawInput(const float Val) {
+    // Rotate/drop the object 
+    if (PickupComponent->bRotationStarted)
+    {
+        // Set the view so the rotation is always correct
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax = 179.9000002f;
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin = -179.9000002f;
+
+        // Calculate the rotation and inverse it
+        float RotationValue = Val * RotationRate * GetWorld()->GetDeltaSeconds() * -1;
+        FRotator ControlRotation = FRotator(0, 0, RotationValue) + PickupComponent->ItemInRotaitonPosition->GetActorRotation();
+        PickupComponent->ItemInRotaitonPosition->SetActorRotation(ControlRotation.Quaternion());;
+    }
+    else if (PickupComponent->bDropStarted)
+    {
+        // Set the view so the rotation is always correct
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax = 179.9000002f;
+        GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin = -179.9000002f;
+
+        // Calcualte the movment speed of the object
+        float DropMovmentValue = Val * DropMovmentRate * GetWorld()->GetDeltaSeconds() * -1;
+        FVector NewActorLocation = FVector(0, DropMovmentValue, 0) + PickupComponent->ItemToHandle->GetActorLocation();
+        PickupComponent->ItemToHandle->SetActorLocation(NewActorLocation);
+    }
+    else if (MovementComponent->bCanMove == false)
+    {
+        return;
+    }
+    else
+    {
+        this->AddControllerYawInput(Val);
+    }    
 }
 
 void AGameController::SetPlayerMovable(bool bIsMovable)
@@ -126,77 +185,15 @@ void AGameController::SetPlayerMovable(bool bIsMovable)
     }
 }
 
-void AGameController::DropRotateObject()
+void AGameController::SetupRotationOrDrop()
 {
-    if (PickupComponent->bFreeMouse && !PickupComponent->bDropStarted)
-    {
-        PickupComponent->bRotationStarted = false;
-        ShowCursor(true);
-        return;
-    }
-
-    float XMousePositionCurrent;
-    float YMousePositionCurrent;
-
-    PlayerController->GetMousePosition(XMousePositionCurrent, YMousePositionCurrent);
-
-    // Check if roation/drop just startet
-    if (XMousePosition != .0f && YMousePosition != .0f)
-    {
-        XMousePosition -= XMousePositionCurrent;
-        YMousePosition -= YMousePositionCurrent;
-
-        if (PickupComponent->bRotationStarted)
-        {
-            FRotator ControlRotation = FRotator(YMousePosition, 0, XMousePosition);
-            PickupComponent->ItemInRotaitonPosition->AddActorWorldRotation(ControlRotation.Quaternion());
-
-            if (!PickupComponent->bRotating)
-            {
-                SetPlayerMovable(false);
-                ShowCursor(false);
-                // Sets the focus back to the screen after the mouse was freed
-                PlayerController->SetInputMode(FInputModeGameOnly());
-                PickupComponent->bRotating = true;
-
-                // Name of the actor, to add to the rotated list
-                FString ActorLabel = PickupComponent->ItemInRotaitonPosition->GetActorLabel();
-                if (!RotatedObjects.Find(ActorLabel))
-                {
-                    UE_LOG(LogTemp, Warning, TEXT("ActorLabel: %s"), *ActorLabel);
-                    RotatedObjects.Add(ActorLabel);
-                }
-                
-            }
-        }
-        else
-        {
-            FVector Distance;
-            if (!PickupComponent->bDropping)
-            {
-                SetPlayerMovable(false);
-                ShowCursor(false);
-                // Sets the focus back to the screen after the mouse was freed
-                PlayerController->SetInputMode(FInputModeGameOnly());
-                PickupComponent->bDropping = true;
-            }
-
-            Distance = FVector(0, XMousePosition, YMousePosition) / 10;
-
-            if (RotatedObjects.Find(PickupComponent->ItemToHandle->GetActorLabel()) != INDEX_NONE)
-            {
-                PickupComponent->ItemToHandle->AddActorWorldOffset(Distance);
-            }
-            else 
-            {          
-                PickupComponent->ItemToHandle->AddActorLocalOffset(Distance);
-            }
-        }
-    }
-
-    XMousePosition = XMousePositionCurrent;
-    YMousePosition = YMousePositionCurrent;
+    SetPlayerMovable(false);
+    ShowCursor(false);
+    // Sets the focus back to the screen after the mouse was freed
+    PlayerController->SetInputMode(FInputModeGameOnly());
+    PickupComponent->bDropping = true;
 }
+
 
 void AGameController::ShowCursor(bool bShow)
 {

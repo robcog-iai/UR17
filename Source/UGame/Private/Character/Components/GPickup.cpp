@@ -3,7 +3,6 @@
 
 #define PLUGIN_TAG "UGame"
 #define TAG_KEY_PICKUP "Pickup"
-#define STACKCHECK_RANGE 500.0f
 
 #include "GPickup.h"
 #include "Components/StaticMeshComponent.h"
@@ -16,9 +15,7 @@
 // Sets default values for this component's properties
 UGPickup::UGPickup()
     :bRotationStarted(false)
-    , bRotationMenuActivated(false)
     , bDropStarted(false)
-    , bPickupMenuActivated(false)
     , ItemInRotaitonPosition(nullptr)
     , bPickUpStarted(false)
     , bFreeMouse(false)
@@ -30,10 +27,20 @@ UGPickup::UGPickup()
 {
     // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
     // off to improve performance if you don't need them.
-    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bCanEverTick = false;
 
     bInRotationPosition = false;
-    // *** *** *** *** *** *** *** ***
+
+    // Initiate the starting state
+    bNoItemHold = true;
+    bItemInLeftHand = false;
+    bItemInRightHand = false;
+    bInRotationPosition = false;
+    bPickupAndRotationMenu = false;
+    bPickupLeftRightHandMenu = false;
+    bDropItemMenu = false;
+
+    bool bCallMenu = false;
 }
 
 // Called when the game starts
@@ -82,8 +89,6 @@ void UGPickup::BeginPlay()
     RightHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
     BothHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
 
-    // *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-
     // Initilize the player controller to get the mouse axis
     PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
     PlayerController->bEnableMouseOverEvents = true;
@@ -94,20 +99,7 @@ void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-
-    // Mouse is free and right mouse button was pressed again
-    if (bFreeMouse && !bRightMouse && !bPickupMenuActivated && bOverItem && !bDropStarted)
-    {
-        if (ItemToInteract != nullptr)
-        {
-            ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
-            bPickupMenuActivated = true;
-        }
-    }
-    else
-    {
-        bPickupMenuActivated = false;
-    }
+    
 }
 
 void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
@@ -129,54 +121,27 @@ void UGPickup::InputLeftHandPressed()
         DropItem();
     }
 
-    if (bRightMouse)
-    {
-        bRightMouse = false;
-    }
-
-    if (bFreeMouse)
-    {
-        bFreeMouse = false;
-    }
+    bRightMouse = false;
+    bFreeMouse = false;
 }
 
 void UGPickup::InputLeftHandReleased()
 {
     bLeftMouse = false;
-
-    if (bFreeMouse)
-    {
-        bFreeMouse = false;
-    }
 }
 
 void UGPickup::InputRightHandPressed()
 {
-    bRightMouse = !bRightMouse;
+    bRightMouse = true;
 
-    if (bRightMouse)
-    {
-        bFreeMouse = true;
-    }
-    else if (!bRightMouse && ItemToInteract == nullptr)
-    {
-        bFreeMouse = false;
-    }
-
-    if (bRotating)
-    {
-        bRotating = false;
-        bFreeMouse = true;
-    }
-
+    HandleRightClick();
+    
     // Debug information, for the current state
     UE_LOG(LogTemp, Warning, TEXT("bIsItemDropping: %s"), bIsItemDropping ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bPickUpStarted: %s"), bPickUpStarted ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bRotationStarted: %s"), bRotationStarted ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bDropStarted: %s"), bDropStarted ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bInRotationPosition: %s"), bInRotationPosition ? TEXT("True\n") : TEXT("False\n"));
-    UE_LOG(LogTemp, Warning, TEXT("bRotationMenuActivated: %s"), bRotationMenuActivated ? TEXT("True\n") : TEXT("False\n"));
-    UE_LOG(LogTemp, Warning, TEXT("bPickupMenuActivated: %s"), bPickupMenuActivated ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bFreeMouse: %s"), bFreeMouse ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bLeftMouse: %s"), bLeftMouse ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bRightMouse: %s"), bRightMouse ? TEXT("True\n") : TEXT("False\n"));
@@ -185,7 +150,37 @@ void UGPickup::InputRightHandPressed()
 
 void UGPickup::InputRightHandReleased()
 {
-    bRightMouse = !bRightMouse;
+    bRightMouse = false;
+}
+
+void UGPickup::HandleRightClick()
+{
+    bFreeMouse = true;
+
+    // Right mouse was pressed, check which menu needs to be activated
+    if (ItemToInteract != nullptr)
+    {
+        ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
+
+        // Item ist not in right or left hand
+        if (!(ItemToHandle == ItemInLeftHand) && !(ItemToHandle == ItemInRightHand) && !bInRotationPosition)
+        {
+            bPickupAndRotationMenu = true;
+            bCallMenu = true;
+        }
+        else if (ItemToHandle == ItemInLeftHand || ItemToHandle == ItemInRightHand) // Item is in on of the hands, call the drop menu
+        {
+            bDropItemMenu = true;
+            bCallMenu = true;
+        }
+        else // Item is in rotation position, call the left right pickup menu
+        {
+            bPickupLeftRightHandMenu = true;
+            bCallMenu = true;
+            
+        }
+        return;
+    }
 }
 
 void UGPickup::MoveToRotationPosition()
@@ -254,8 +249,10 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 
     BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
-    bPickupMenuActivated = false;
+    bPickupAndRotationMenu = false;
     bFreeMouse = false;
+
+    bRotationStarted = false;
 
     ItemToHandle = nullptr;
     BaseItemToPick = nullptr;
@@ -268,10 +265,14 @@ void UGPickup::DropItem()
     ItemToHandle->GetStaticMeshComponent()->SetSimulatePhysics(true);
 
     if (ItemInRightHand == ItemToHandle)
+    {
         ItemInRightHand = nullptr;
+    }      
     else
+    {
         ItemInLeftHand = nullptr;
-
+    }
+        
     ItemToHandle = nullptr;
     bDropping = false;
     bDropStarted = false;

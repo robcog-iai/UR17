@@ -43,11 +43,21 @@ public:
     UPROPERTY(EditAnywhere, Instanced)
         UGPickup* PickupComponent;
 
+    UPROPERTY(EditAnywhere)
+        float RotationRate;
+
+    UPROPERTY(EditAnywhere)
+        float DropMovmentRate;
+
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
     // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    void AddPitchInput(const float Val);
+
+    void AddYawInput(const float Val);
 
 private:
     ACharacter * Character;
@@ -64,16 +74,11 @@ public:
     AGameHUD* PickupHUD;
 
 private:
-    //Mouseposition coordinates, for the rotation of the object
-    float XMousePosition;
-    float YMousePosition;
-
-    // Rotated objects. Saved bei name.
-    TArray<FString> RotatedObjects;
-
-    // Called when the object should be dropped or rotated
-    void DropRotateObject();
-
     // Shows or hids the mouse cursor
     void ShowCursor(bool bShow);
+
+    void SetupRotationOrDrop();
+
+    bool bMenuOpen;
+
 };

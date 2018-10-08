@@ -44,6 +44,12 @@ public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     void SetupKeyBindings(UInputComponent* PlayerInputComponent);
 
+    // Mouse button press events
+    void InputLeftHandPressed();
+    void InputLeftHandReleased();
+    void InputRightHandPressed();
+    void InputRightHandReleased();
+
 private:
     // Actors for the hands positions and the rotation position
     AStaticMeshActor* LeftHandActor;
@@ -54,17 +60,23 @@ private:
     TSet<AActor*> SetOfPickupItems;
 
     // The item we are about to pick up	
-    AStaticMeshActor* BaseItemToPick;
-    // *** *** *** ***
+    AStaticMeshActor* BaseItemToPick;   
 
-
-    // Mouse button press events
-    void InputLeftHandPressed();
-    void InputLeftHandReleased();
-    void InputRightHandPressed();
-    void InputRightHandReleased();
+    void HandleRightClick();
 
 public:
+    // There is an object in on of the hands
+    bool bItemInLeftHand;
+    bool bItemInRightHand;
+
+    // Hands are empty
+    bool bNoItemHold;
+
+    // Checks for which menu should be called.
+    bool bPickupAndRotationMenu;
+    bool bPickupLeftRightHandMenu;
+    bool bDropItemMenu;
+
     // Check for the pick up mode
     bool bPickUpStarted;
 
@@ -83,10 +95,7 @@ public:
 
     bool bDropping;
 
-    // Bool to check if the menu is active and movment should be stopped.
-    bool bRotationMenuActivated;
-    // Bool to check if pick up menu should be started.
-    bool bPickupMenuActivated;
+    bool bCallMenu;
 
     // Bool for free mouse mode
     bool bFreeMouse;

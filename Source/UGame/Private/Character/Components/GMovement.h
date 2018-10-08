@@ -26,10 +26,6 @@ public:
     // Handles strafing Left/Right
     void MoveRight(const float Val);
 
-    void AddControllerPitchInput(const float Val);
-
-    void AddControllerYawInput(const float Val);
-
     // The maximum (or default) speed
     UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
         float MaxMovementSpeed;
@@ -40,9 +36,6 @@ public:
 
     float CurrentSpeed;
 
-protected:
-
-
 public:
     // Called every frame
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -51,6 +44,7 @@ public:
     // Renders the player movable/unmovable
     void SetMovable(bool bCanMove);
 
+    bool bCanMove;
 
 private:
     // Regulates the max speed
@@ -58,14 +52,12 @@ private:
 
     ACharacter* Character;
 
+    // The item which is currently focused by the player
+    AStaticMeshActor* ItemToHandle;
+
     // Stores the default speed set at start game
     float DefaultSpeed;
 
-    bool bCanMove;
-
-    // *** *** *** *** *** *** 
-
-    // After this point done by Waldemar Zeitler
 public:
     /**
     *  Calculates a rising speed up. This funktion is done with the PT1-Glied function.
@@ -75,10 +67,6 @@ public:
     *  @return the new walking speed
     */
     float CalculateNewSpeed(float TimeStep);
-
-    // SpeedUpValue for the how fast the character gets his max speed. 
-    UPROPERTY(EditAnywhere, Category = "CI - Speed Setup")
-        float SpeedUpValue;
 
 private:
     // Time taken from the tick function, to calculate the speed up.
