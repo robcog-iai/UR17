@@ -14,16 +14,13 @@
 
 // Sets default values for this component's properties
 UGPickup::UGPickup()
-    :bRotationStarted(false)
-    , bDropStarted(false)
-    , ItemInRotaitonPosition(nullptr)
+    : ItemInRotaitonPosition(nullptr)
     , bPickUpStarted(false)
     , bFreeMouse(false)
     , bOverItem(false)
     , ItemToInteract(nullptr)
     , bRightMouse(false)
     , bDropping(false)
-    , bRotating(false)
 {
     // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
     // off to improve performance if you don't need them.
@@ -61,8 +58,18 @@ void UGPickup::BeginPlay()
 
     UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
 
+    SetupHands();
+
+    // Initilize the player controller to get the mouse axis
+    PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+    PlayerController->bEnableMouseOverEvents = true;
+
+}
+
+void UGPickup::SetupHands()
+{
     // Create Static mesh actors for hands to weld items we pickup into this position
-    // Spawn new actors and set them up
+// Spawn new actors and set them up
     LeftHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
     RightHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
     BothHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
@@ -88,18 +95,6 @@ void UGPickup::BeginPlay()
     LeftHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
     RightHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
     BothHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
-
-    // Initilize the player controller to get the mouse axis
-    PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
-    PlayerController->bEnableMouseOverEvents = true;
-}
-
-// Called every frame
-void UGPickup::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-    
 }
 
 void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
@@ -115,9 +110,9 @@ void UGPickup::InputLeftHandPressed()
 {
     bLeftMouse = true;
 
-    if (bDropStarted)
+    if (bDropping)
     {
-        bDropStarted = false;
+        bDropping = false;
         DropItem();
     }
 
@@ -132,15 +127,20 @@ void UGPickup::InputLeftHandReleased()
 
 void UGPickup::InputRightHandPressed()
 {
-    bRightMouse = true;
+    if (bDropping)
+    {
+        bDropping = false;
+        DropItem();
+    } 
+    else
+    {
+        bRightMouse = true;
 
-    HandleRightClick();
+        HandleRightClick();
+    }   
     
     // Debug information, for the current state
-    UE_LOG(LogTemp, Warning, TEXT("bIsItemDropping: %s"), bIsItemDropping ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bPickUpStarted: %s"), bPickUpStarted ? TEXT("True\n") : TEXT("False\n"));
-    UE_LOG(LogTemp, Warning, TEXT("bRotationStarted: %s"), bRotationStarted ? TEXT("True\n") : TEXT("False\n"));
-    UE_LOG(LogTemp, Warning, TEXT("bDropStarted: %s"), bDropStarted ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bInRotationPosition: %s"), bInRotationPosition ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bFreeMouse: %s"), bFreeMouse ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bLeftMouse: %s"), bLeftMouse ? TEXT("True\n") : TEXT("False\n"));
@@ -155,25 +155,34 @@ void UGPickup::InputRightHandReleased()
 
 void UGPickup::HandleRightClick()
 {
-    bFreeMouse = true;
-
     // Right mouse was pressed, check which menu needs to be activated
     if (ItemToInteract != nullptr)
     {
         ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
 
         // Item ist not in right or left hand
-        if (!(ItemToHandle == ItemInLeftHand) && !(ItemToHandle == ItemInRightHand) && !bInRotationPosition)
+        if (!(ItemToHandle == ItemInLeftHand) && !(ItemToHandle == ItemInRightHand) && !bInRotationPosition 
+            && (ItemInLeftHand == nullptr || ItemInRightHand == nullptr))
         {
             bPickupAndRotationMenu = true;
             bCallMenu = true;
         }
-        else if (ItemToHandle == ItemInLeftHand || ItemToHandle == ItemInRightHand) // Item is in on of the hands, call the drop menu
+        // Item is in on of the hands, call the drop menu and safe the current hand position
+        else if (ItemToHandle == ItemInLeftHand) 
         {
+            bDroppingLeftHandItem = true;
             bDropItemMenu = true;
             bCallMenu = true;
+            LeftHandPosition = LeftHandActor->GetActorLocation();
         }
-        else // Item is in rotation position, call the left right pickup menu
+        else if (ItemToHandle == ItemInRightHand)
+        {
+            bDroppingRightHandItem = true;
+            bDropItemMenu = true;
+            bCallMenu = true;
+            RightHandPosition = RightHandActor->GetActorLocation();
+        }
+        else if (ItemToHandle == ItemInRotaitonPosition) // Item is in rotation position, call the left right pickup menu
         {
             bPickupLeftRightHandMenu = true;
             bCallMenu = true;
@@ -181,10 +190,15 @@ void UGPickup::HandleRightClick()
         }
         return;
     }
+    // Nothing clicked, so remove the mouse cursor
+    else
+    {
+        bFreeMouse = !bFreeMouse;
+    }
 }
 
 void UGPickup::MoveToRotationPosition()
-{
+{   
     BaseItemToPick = ItemToHandle;
 
     // If we want to rotate an item from the hands the item in the hand has to be set to null.
@@ -197,26 +211,24 @@ void UGPickup::MoveToRotationPosition()
         ItemInRightHand = nullptr;
     }
 
-    FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
+    FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepRelativeTransform;
     TransformRules.bWeldSimulatedBodies = true;
 
     BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
     ItemInRotaitonPosition = BaseItemToPick;
-
     BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
     BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
+    BaseItemToPick->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
     bInRotationPosition = true;
-    bRotationStarted = true;
 
     BaseItemToPick = nullptr;
-    ItemToHandle = nullptr;
+    ItemToHandle = nullptr;   
 }
 
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
 {
-    bInRotationPosition = false;
-
     if (BaseItemToPick == nullptr) {
         if (ItemInRotaitonPosition != nullptr)
         {
@@ -249,10 +261,10 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
 
     BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
+    bInRotationPosition = false;
     bPickupAndRotationMenu = false;
+    bPickupLeftRightHandMenu = false;
     bFreeMouse = false;
-
-    bRotationStarted = false;
 
     ItemToHandle = nullptr;
     BaseItemToPick = nullptr;
@@ -264,18 +276,20 @@ void UGPickup::DropItem()
     ItemToHandle->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     ItemToHandle->GetStaticMeshComponent()->SetSimulatePhysics(true);
 
-    if (ItemInRightHand == ItemToHandle)
+    if (bDroppingRightHandItem)
     {
         ItemInRightHand = nullptr;
+        bDroppingRightHandItem = false;
+        RightHandActor->SetActorLocation(RightHandPosition);
     }      
-    else
+    else if (bDroppingLeftHandItem)
     {
         ItemInLeftHand = nullptr;
+        bDroppingLeftHandItem = false;
+        LeftHandActor->SetActorLocation(LeftHandPosition);
     }
-        
+
     ItemToHandle = nullptr;
-    bDropping = false;
-    bDropStarted = false;
     bFreeMouse = false;
 }
 

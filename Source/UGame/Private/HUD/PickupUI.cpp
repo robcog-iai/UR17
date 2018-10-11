@@ -31,7 +31,7 @@ void SPickupUI::Construct(const FArguments& args)
         ]
     ];
     // Calls for the different menus, depending on the current state
-    if (GameHUD->GPickup->bPickupAndRotationMenu) {
+    if (GameHUD->GPickup->bPickupAndRotationMenu && !GameHUD->GPickup->bInRotationPosition) {
         ActionGrid->AddSlot(0, 0)
         [
             SNew(SVerticalBox)
@@ -58,7 +58,7 @@ void SPickupUI::Construct(const FArguments& args)
             ]
         ];
     }
-    else if (GameHUD->GPickup->bDropItemMenu)
+    else if (GameHUD->GPickup->bDropItemMenu && !GameHUD->GPickup->bInRotationPosition)
     {
         ActionGrid->AddSlot(0, 0)
         [
@@ -181,7 +181,7 @@ FReply SPickupUI::PickUpAfterRotation(bool bLeftHand)
 
 FReply SPickupUI::Drop()
 {
-    GameHUD->GPickup->bDropStarted = true;
+    GameHUD->GPickup->bDropping = true;
 
     GameHUD->RemoveMenu();
 

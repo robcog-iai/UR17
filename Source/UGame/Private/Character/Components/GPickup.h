@@ -35,13 +35,16 @@ public:
     // Sets item values, so that the item is dropable
     void DropItem();
 
+    // Actors for the hands positions and the rotation position
+    AStaticMeshActor* LeftHandActor;
+    AStaticMeshActor* RightHandActor;
+    AStaticMeshActor* BothHandActor;
+
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
 
 public:
-    // Called every frame
-    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     void SetupKeyBindings(UInputComponent* PlayerInputComponent);
 
     // Mouse button press events
@@ -51,10 +54,9 @@ public:
     void InputRightHandReleased();
 
 private:
-    // Actors for the hands positions and the rotation position
-    AStaticMeshActor* LeftHandActor;
-    AStaticMeshActor* RightHandActor;
-    AStaticMeshActor* BothHandActor;
+    // Hand positions before dropping
+    FVector LeftHandPosition;
+    FVector RightHandPosition;
 
     // All items in the world wich can be picked up
     TSet<AActor*> SetOfPickupItems;
@@ -63,6 +65,9 @@ private:
     AStaticMeshActor* BaseItemToPick;   
 
     void HandleRightClick();
+
+    // Setup for the hand positions and attachments
+    void SetupHands();
 
 public:
     // There is an object in on of the hands
@@ -80,21 +85,16 @@ public:
     // Check for the pick up mode
     bool bPickUpStarted;
 
-    // Check for the rotation mode
-    bool bRotationStarted;
-
-    // Check for the drop start (positioning)
-    bool bDropStarted;
-
-    // Check for the drop mode
-    bool bIsItemDropping;
-
     // Check if the item is in the rotation positon, to allow rotation
     bool bInRotationPosition;
-    bool bRotating;
 
+    // Check if item needs to be dropped
     bool bDropping;
+    // Checks to know which item is supposed to be droped
+    bool bDroppingLeftHandItem;
+    bool bDroppingRightHandItem;
 
+    // Identifier to know to call the menu
     bool bCallMenu;
 
     // Bool for free mouse mode
