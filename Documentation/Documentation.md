@@ -67,7 +67,7 @@ void UGMovement::SpeedUp(const FVector Direction, const float Val)
 ```
 
 # Clickable object and menu
-Clicking objects and opening the menus is handled in the HUD files, which draw the menus and add a ertain style to it, and in GPickup, which also handles mouse interactions.  
+Clicking objects and opening the menus is handled in the HUD files, which draw the menus and add a ertain style to it, and in GPickup, which also handles mouse interactions. [GPickup.cpp](https://github.com/wzeitler/UR17/blob/ur17-p4/Source/UGame/Private/Character/Components/GPickup.cpp), [GameHUD.cpp](https://github.com/wzeitler/UR17/blob/ur17-p4/Source/UGame/Private/HUD/GameHUD.cpp), [PickupUI.cpp](https://github.com/wzeitler/UR17/blob/ur17-p4/Source/UGame/Private/HUD/PickupUI.cpp)
 By pressing the right mouse button the mouse cursor gets freed and can be used ti click items. The items are recognized by the given Tags, which are given to them item. By going through the list of iteractable items the pickup items can be filtered and given an mouse over event, to allow the menus to pop up.
 ```
  // Go through the pickup items and give them mouse over events
@@ -424,6 +424,17 @@ FVector2D SPickupUI::GetActionsWidgetPos() const
     float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
     return WidgetPosition.Get() / ViewportScale;
+}
+```
+After every menu button the function RemoveMenu is called, which sets the right flags and removes the menu.
+```
+void AGameHUD::RemoveMenu()
+{
+    GPickup->bFreeMouse = false;
+    GPickup->bRightMouse = false;
+    GPickup->bCallMenu = false;
+
+    GEngine->GameViewport->RemoveAllViewportWidgets();
 }
 ```
 
