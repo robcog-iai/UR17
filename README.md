@@ -12,7 +12,7 @@
 
 * The tutorial for the project can be found [here](Documentation/Tutorial.md)
 
-### Milestones
+### Documentation
 
-* The documentation can be found [here](Documentation/Documentation/Documentation.md)  
+* The documentation can be found [here](Documentation/Documentation.md)  
 
