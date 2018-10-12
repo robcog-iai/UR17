@@ -10,9 +10,10 @@
 
 ### Tutorials
 
-* The tutorial for the project can be found [here](Documentation/Tutorial.md)
+* The tutorial for the project can be found [here](Documentation/Tutorial.md).
 
 ### Documentation
 
-* The documentation can be found [here](Documentation/Documentation.md)  
+* The documentation can be found [here](Documentation/Documentation.md).  
 
+* Picutres of the development of the project can be found [here](Documentation/Pictures).
