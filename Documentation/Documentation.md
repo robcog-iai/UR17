@@ -20,7 +20,7 @@ void UGMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 }
 ```
 
-[The actuel speed up is handled in the speed up function, which increassed the SpeedUpTime. For the calculation of the current speed the PT1-Glied function, in CalculateNewSpeed, computes the new speed. The new speed has to be adjusted to the correct direction and if necessary needs to be inverted.](https://github.com/wzeitler/UR17/blob/ur17-p4/Source/UGame/Private/Character/Components/GMovement.cpp#L102-142)
+* [The actuel speed up is handled in the speed up function, which increassed the SpeedUpTime. For the calculation of the current speed the PT1-Glied function, in CalculateNewSpeed, computes the new speed. The new speed has to be adjusted to the correct direction and if necessary needs to be inverted.](https://github.com/wzeitler/UR17/blob/ur17-p4/Source/UGame/Private/Character/Components/GMovement.cpp#L102-142)
 
 ```
 float UGMovement::CalculateNewSpeed(float TimeStep)
@@ -65,3 +65,157 @@ void UGMovement::SpeedUp(const FVector Direction, const float Val)
     Character->AddMovementInput(Direction, CurrentSpeed);
 }
 ```
+
+# Clickable object and menu
+Clicking objects and opening the menus is handled in the HUD files, which draw the menus and add a ertain style to it, and in GPickup, which also handles mouse interactions.  
+By pressing the right mouse button the mouse cursor gets freed and can be used ti click items. The items are recognized by the given Tags, which are given to them item. By going through the list of iteractable items the pickup items can be filtered and given an mouse over event, to allow the menus to pop up.
+```
+ // Go through the pickup items and give them mouse over events
+    for (AActor* InteractableItem : SetOfPickupItems)
+    {
+        InteractableItem->OnBeginCursorOver.AddDynamic(this, &UGPickup::CustomOnBeginMouseOver);
+        InteractableItem->OnEndCursorOver.AddDynamic(this, &UGPickup::CustomOnEndMouseOver);
+    }
+```
+```
+void UGPickup::CustomOnBeginMouseOver(AActor* TouchedComponent)
+{
+    UE_LOG(LogTemp, Warning, TEXT("Mouse over"));
+
+    bOverItem = true;
+    ItemToInteract = TouchedComponent;
+}
+
+void UGPickup::CustomOnEndMouseOver(AActor* TouchedComponent)
+{
+    UE_LOG(LogTemp, Warning, TEXT("Mouse over end"));
+
+    bOverItem = false;
+    ItemToInteract = nullptr;
+}
+```
+By pushing the left/right mouse button without psuhing on a menu buttont the freed cursor vanishes and the character can move again. If the right mouse button is pushed over an item the fitting menu will be displayed.
+```
+void UGPickup::InputLeftHandPressed()
+{
+    bLeftMouse = true;
+
+    if (bDropping)
+    {
+        bDropping = false;
+        DropItem();
+    }
+
+    bRightMouse = false;
+    bFreeMouse = false;
+}
+
+void UGPickup::InputLeftHandReleased()
+{
+    bLeftMouse = false;
+}
+
+void UGPickup::InputRightHandPressed()
+{
+    if (bDropping)
+    {
+        bDropping = false;
+        DropItem();
+    } 
+    else
+    {
+        bRightMouse = true;
+
+        HandleRightClick();
+    }   
+    
+    // Debug information, for the current state
+    UE_LOG(LogTemp, Warning, TEXT("bPickUpStarted: %s"), bPickUpStarted ? TEXT("True\n") : TEXT("False\n"));
+    UE_LOG(LogTemp, Warning, TEXT("bInRotationPosition: %s"), bInRotationPosition ? TEXT("True\n") : TEXT("False\n"));
+    UE_LOG(LogTemp, Warning, TEXT("bFreeMouse: %s"), bFreeMouse ? TEXT("True\n") : TEXT("False\n"));
+    UE_LOG(LogTemp, Warning, TEXT("bLeftMouse: %s"), bLeftMouse ? TEXT("True\n") : TEXT("False\n"));
+    UE_LOG(LogTemp, Warning, TEXT("bRightMouse: %s"), bRightMouse ? TEXT("True\n") : TEXT("False\n"));
+    UE_LOG(LogTemp, Warning, TEXT("bOverItem: %s"), bOverItem ? TEXT("True\n") : TEXT("False\n"));
+}
+
+void UGPickup::InputRightHandReleased()
+{
+    bRightMouse = false;
+}
+
+void UGPickup::HandleRightClick()
+{
+    // Right mouse was pressed, check which menu needs to be activated
+    if (ItemToInteract != nullptr)
+    {
+        ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
+
+        // Item ist not in right or left hand
+        if (!(ItemToHandle == ItemInLeftHand) && !(ItemToHandle == ItemInRightHand) && !bInRotationPosition 
+            && (ItemInLeftHand == nullptr || ItemInRightHand == nullptr))
+        {
+            bPickupAndRotationMenu = true;
+            bCallMenu = true;
+        }
+        // Item is in on of the hands, call the drop menu and safe the current hand position
+        else if (ItemToHandle == ItemInLeftHand) 
+        {
+            bDroppingLeftHandItem = true;
+            bDropItemMenu = true;
+            bCallMenu = true;
+            LeftHandPosition = LeftHandActor->GetActorLocation();
+        }
+        else if (ItemToHandle == ItemInRightHand)
+        {
+            bDroppingRightHandItem = true;
+            bDropItemMenu = true;
+            bCallMenu = true;
+            RightHandPosition = RightHandActor->GetActorLocation();
+        }
+        else if (ItemToHandle == ItemInRotaitonPosition) // Item is in rotation position, call the left right pickup menu
+        {
+            bPickupLeftRightHandMenu = true;
+            bCallMenu = true;
+            
+        }
+        return;
+    }
+    // Nothing clicked, so remove the mouse cursor
+    else
+    {
+        bFreeMouse = !bFreeMouse;
+    }
+}
+```
+The gamecontroller receives the meun call from GPickup and tells the GameHUD which menu should be opened.
+```
+    // Stop movment when the mouse is freed and show the mouse. If the current state allows it
+    if (PickupComponent->bFreeMouse  && !PickupComponent->bDropping)
+    {
+        SetPlayerMovable(false);
+        ShowCursor(true);
+
+        // If one of the menus is true, call it
+        if (PickupComponent->bRightMouse && PickupComponent->bCallMenu && !bMenuOpen)
+        {
+            float XMouse;
+            float YMouse;
+
+            PlayerController->GetMousePosition(XMouse, YMouse);
+            PickupHUD->DrawPickUpMenu(XMouse, YMouse);
+
+            bMenuOpen = true;
+        }
+    } 
+    else if (!PickupComponent->bFreeMouse) // Allow the character to move again
+    {
+        SetPlayerMovable(true);
+        ShowCursor(false);
+        // Sets the focus back to the screen after the mouse was freed
+        PlayerController->SetInputMode(FInputModeGameOnly());
+
+        bMenuOpen = false;
+    }
+```
+
+# Rotation and Drop
