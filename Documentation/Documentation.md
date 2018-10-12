@@ -4,5 +4,5 @@ and [GMovment.cpp](https://github.com/wzeitler/UR17/blob/ur17-p4/Source/UGame/Pr
 
 * For the realisitc movment the curved function [PT1-Glied](https://de.wikipedia.org/wiki/PT1-Glied) was used, 
 which increasses the movment speed until the maximum threshold is reached.  
-
+[RobCoG.h L4-L6](https://github.com/wzeitler/UR17/blob/ur17-p4/Source/UGame/Private/Character/Components/GMovement.cpp#L4-L6)
 
