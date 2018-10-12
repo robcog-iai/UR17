@@ -23,14 +23,6 @@ class UGAME_API AGameHUD : public AHUD
 public:
     AGameHUD();
 
-    /** Set the selected Acotr for whom the menu should be drawn.
-    *   @param Selected actor
-    */
-    void SetActionGridActor(AActor* InSelectedActor);
-
-    /** gets player controller */
-    class AGameController* GetPlayerController() const;
-
 protected:
     /** Actor for whom the menu should be displayed*/
     TWeakObjectPtr<AActor> SelectedActor;

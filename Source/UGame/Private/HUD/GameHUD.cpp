@@ -35,14 +35,3 @@ void AGameHUD::DrawPickUpMenu(float MouseX, float MouseY)
         GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(PickupUI.ToSharedRef()));
     }
 }
-
-void AGameHUD::SetActionGridActor(AActor* InSelectedActor)
-{
-    SelectedActor.Reset();
-    SelectedActor = MakeWeakObjectPtr(InSelectedActor);
-}
-
-AGameController * AGameHUD::GetPlayerController() const
-{
-    return Cast<AGameController>(PlayerOwner);
-}

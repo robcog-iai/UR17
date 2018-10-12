@@ -70,7 +70,7 @@ void UGMovement::MoveRight(const float Val) {
 void UGMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    // Check if the character is still moving. If not reset the CurrentSpeed and SpeedUpTime. (By Waldemar Zeitler)
+    // Check if the character is still moving. If not reset the CurrentSpeed and SpeedUpTime. 
     if (Character->GetVelocity() == FVector::ZeroVector && bIsMoving) {
         CurrentSpeed = 0;
         SpeedUpTime = 0.05;

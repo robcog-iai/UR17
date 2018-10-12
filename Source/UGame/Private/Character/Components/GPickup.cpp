@@ -14,13 +14,6 @@
 
 // Sets default values for this component's properties
 UGPickup::UGPickup()
-    : ItemInRotaitonPosition(nullptr)
-    , bPickUpStarted(false)
-    , bFreeMouse(false)
-    , bOverItem(false)
-    , ItemToInteract(nullptr)
-    , bRightMouse(false)
-    , bDropping(false)
 {
     // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
     // off to improve performance if you don't need them.
@@ -36,8 +29,13 @@ UGPickup::UGPickup()
     bPickupAndRotationMenu = false;
     bPickupLeftRightHandMenu = false;
     bDropItemMenu = false;
-
-    bool bCallMenu = false;
+    ItemInRotaitonPosition = nullptr;
+    bFreeMouse = false;
+    bOverItem = false;
+    ItemToInteract = nullptr;
+    bRightMouse = false;
+    bDropping = false;
+    bCallMenu = false;
 }
 
 // Called when the game starts
@@ -69,7 +67,7 @@ void UGPickup::BeginPlay()
 void UGPickup::SetupHands()
 {
     // Create Static mesh actors for hands to weld items we pickup into this position
-// Spawn new actors and set them up
+    // Spawn new actors and set them up
     LeftHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
     RightHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
     BothHandActor = GetWorld()->SpawnActor<AStaticMeshActor>();
@@ -140,7 +138,6 @@ void UGPickup::InputRightHandPressed()
     }   
     
     // Debug information, for the current state
-    UE_LOG(LogTemp, Warning, TEXT("bPickUpStarted: %s"), bPickUpStarted ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bInRotationPosition: %s"), bInRotationPosition ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bFreeMouse: %s"), bFreeMouse ? TEXT("True\n") : TEXT("False\n"));
     UE_LOG(LogTemp, Warning, TEXT("bLeftMouse: %s"), bLeftMouse ? TEXT("True\n") : TEXT("False\n"));
@@ -211,39 +208,42 @@ void UGPickup::MoveToRotationPosition()
         ItemInRightHand = nullptr;
     }
 
+    // Attach the item to the hand rules
     FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepRelativeTransform;
     TransformRules.bWeldSimulatedBodies = true;
 
+    // Attach to the hand and set the location
     BaseItemToPick->AttachToActor(BothHandActor, TransformRules);
     ItemInRotaitonPosition = BaseItemToPick;
     BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
     BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
-
     BaseItemToPick->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
+    // Set the current state
     bInRotationPosition = true;
 
+    // Reset the temporals
     BaseItemToPick = nullptr;
     ItemToHandle = nullptr;   
 }
 
 void UGPickup::PickUpItemAfterMenu(bool leftHand)
 {
-    if (BaseItemToPick == nullptr) {
-        if (ItemInRotaitonPosition != nullptr)
-        {
-            BaseItemToPick = ItemInRotaitonPosition;
-            ItemInRotaitonPosition = nullptr;
-        }
-        else
-        {
-            BaseItemToPick = ItemToHandle;
-        }
+    if (ItemInRotaitonPosition != nullptr)
+    {
+         BaseItemToPick = ItemInRotaitonPosition;
+         ItemInRotaitonPosition = nullptr;
+    }
+    else
+    {
+         BaseItemToPick = ItemToHandle;
     }
 
+    // Attach the item to the hand rules
     FAttachmentTransformRules TransformRules = FAttachmentTransformRules::KeepWorldTransform;
     TransformRules.bWeldSimulatedBodies = true;
 
+    // Pick the correct hand
     if (!leftHand)
     {
         BaseItemToPick->AttachToActor(RightHandActor, TransformRules);
@@ -257,25 +257,29 @@ void UGPickup::PickUpItemAfterMenu(bool leftHand)
         ItemInLeftHand = BaseItemToPick;
     }
 
+    // set the location and phsysics
     BaseItemToPick->SetActorRelativeLocation(FVector::ZeroVector, false, nullptr, ETeleportType::TeleportPhysics);
-
     BaseItemToPick->GetStaticMeshComponent()->SetSimulatePhysics(false);
 
+    // Set the flags to the current state
     bInRotationPosition = false;
     bPickupAndRotationMenu = false;
     bPickupLeftRightHandMenu = false;
     bFreeMouse = false;
 
+    // Reset the temporals
     ItemToHandle = nullptr;
     BaseItemToPick = nullptr;
 }
 
 void UGPickup::DropItem()
 {
+    // Set the transform rules and physics to drop the item
     ItemToHandle->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
     ItemToHandle->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     ItemToHandle->GetStaticMeshComponent()->SetSimulatePhysics(true);
 
+    // Set the falgs and and hand back to the original position
     if (bDroppingRightHandItem)
     {
         ItemInRightHand = nullptr;

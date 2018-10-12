@@ -82,9 +82,6 @@ public:
     bool bPickupLeftRightHandMenu;
     bool bDropItemMenu;
 
-    // Check for the pick up mode
-    bool bPickUpStarted;
-
     // Check if the item is in the rotation positon, to allow rotation
     bool bInRotationPosition;
 
