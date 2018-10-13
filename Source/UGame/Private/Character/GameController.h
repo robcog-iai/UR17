@@ -49,6 +49,9 @@ public:
     UPROPERTY(EditAnywhere)
         float DropMovmentRate;
 
+    UPROPERTY(EditAnywhere)
+        float AllowedDepthDistance;
+
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
@@ -59,11 +62,16 @@ public:
 
     void AddYawInput(const float Val);
 
+    void ActionPressed();
+    void ActionReleased();
+
 private:
     ACharacter * Character;
 
     bool bIsMovementLocked; // Whether or not the player can move
-    bool bComponentsLocked;
+
+    // Allows movment into the depth and rotation around the own axis
+    bool bActionButtonHold;
 
     void SetPlayerMovable(bool bIsMovable);
 

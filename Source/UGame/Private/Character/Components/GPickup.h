@@ -22,6 +22,9 @@ public:
     // Sets default values for this component's properties
     UGPickup();
 
+    UPROPERTY(EditAnywhere)
+        float AllowedGraspRange;
+
     // Items hold in the left and right hand
     AStaticMeshActor* ItemInLeftHand;
     AStaticMeshActor* ItemInRightHand;
@@ -69,14 +72,10 @@ private:
     // Setup for the hand positions and attachments
     void SetupHands();
 
+    // Calculates the distance to the object, with which to interact and if the distance is allowed returns true
+    bool DistanceToObjectAllowed(AActor* Item);
+
 public:
-    // There is an object in on of the hands
-    bool bItemInLeftHand;
-    bool bItemInRightHand;
-
-    // Hands are empty
-    bool bNoItemHold;
-
     // Checks for which menu should be called.
     bool bPickupAndRotationMenu;
     bool bPickupLeftRightHandMenu;
@@ -107,8 +106,6 @@ public:
     // *** Input ***
     bool bLeftMouse;
     bool bRightMouse;
-
-    APlayerController* PlayerController;
 
     // True if we are above an item
     bool bOverItem;

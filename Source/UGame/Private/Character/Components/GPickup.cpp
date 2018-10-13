@@ -19,12 +19,11 @@ UGPickup::UGPickup()
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = false;
 
-    bInRotationPosition = false;
+    // Adjustable allowed distance for interaction. Should be bigger than the hand positions
+    AllowedGraspRange = 70.0f;
 
     // Initiate the starting state
-    bNoItemHold = true;
-    bItemInLeftHand = false;
-    bItemInRightHand = false;
+    bInRotationPosition = false;
     bInRotationPosition = false;
     bPickupAndRotationMenu = false;
     bPickupLeftRightHandMenu = false;
@@ -57,11 +56,6 @@ void UGPickup::BeginPlay()
     UInputComponent* PlayerInputComponent = PlayerCharacter->InputComponent;
 
     SetupHands();
-
-    // Initilize the player controller to get the mouse axis
-    PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
-    PlayerController->bEnableMouseOverEvents = true;
-
 }
 
 void UGPickup::SetupHands()
@@ -93,6 +87,16 @@ void UGPickup::SetupHands()
     LeftHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
     RightHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
     BothHandActor->GetStaticMeshComponent()->SetCollisionProfileName("NoCollision");
+}
+
+bool UGPickup::DistanceToObjectAllowed(AActor* Item)
+{
+    FVector PlayerPosition = PlayerCharacter->GetActorLocation();
+    FVector ItemPosition = Item->GetActorLocation();
+
+    float Distance = FVector::Distance(PlayerPosition, ItemPosition);
+
+    return (AllowedGraspRange >= Distance);
 }
 
 void UGPickup::SetupKeyBindings(UInputComponent* PlayerInputComponent)
@@ -153,7 +157,7 @@ void UGPickup::InputRightHandReleased()
 void UGPickup::HandleRightClick()
 {
     // Right mouse was pressed, check which menu needs to be activated
-    if (ItemToInteract != nullptr)
+    if (ItemToInteract != nullptr && DistanceToObjectAllowed(ItemToInteract))
     {
         ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
 

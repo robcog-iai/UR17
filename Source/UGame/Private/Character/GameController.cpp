@@ -14,12 +14,12 @@ AGameController::AGameController()
 {
     PrimaryActorTick.bCanEverTick = true;
 
-    // 120 works fine but can be adjusted
-    GraspRange = 120.0f;
-
     // Can be adjusted in the editor for faster/slower drop and rotation
     RotationRate = 300;
     DropMovmentRate = 150;
+
+    // Allowed distance to move from and to the character
+    AllowedDepthDistance = 50;
 
     // Set PlayerController 
     PlayerController = nullptr;
@@ -101,6 +101,10 @@ void AGameController::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     PlayerInputComponent->BindAxis("CameraPitch", this, &AGameController::AddPitchInput);
     PlayerInputComponent->BindAxis("CameraYaw", this, &AGameController::AddYawInput);
 
+    // Action button for the dropping into the depth and rotating around the own axis
+    PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AGameController::ActionPressed);
+    PlayerInputComponent->BindAction("Action", IE_Released, this, &AGameController::ActionReleased);
+
     if (MovementComponent != nullptr) MovementComponent->SetupKeyBindings(PlayerInputComponent);
     if (PickupComponent != nullptr) PickupComponent->SetupKeyBindings(PlayerInputComponent);
 }
@@ -111,7 +115,16 @@ void AGameController::AddPitchInput(const float Val) {
     {    
         // Calculate the rotation and inverse it
         float RotationValue = Val * RotationRate * GetWorld()->GetDeltaSeconds();
-        PickupComponent->ItemInRotaitonPosition->AddActorLocalRotation(FQuat(FRotator(RotationValue, 0, 0)), false, 0, ETeleportType::None);
+        // Check if the object should be rotated around the own axis
+        if (!bActionButtonHold)
+        {
+            PickupComponent->ItemInRotaitonPosition->AddActorLocalRotation(FQuat(FRotator(RotationValue, 0, 0)), false, 0, ETeleportType::None);
+        }
+        else
+        {
+            PickupComponent->ItemInRotaitonPosition->AddActorLocalRotation(FQuat(FRotator(0, RotationValue, 0)), false, 0, ETeleportType::None);
+        }
+        
     }
     else if (PickupComponent->bDropping)
     {
@@ -120,11 +133,29 @@ void AGameController::AddPitchInput(const float Val) {
         // Move either left or right hand actor, where the item is attached to
         if (PickupComponent->bDroppingLeftHandItem)
         {
-            PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            // Check if the object should be moved into the depth
+            if (!bActionButtonHold)
+            {
+                PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            }
+            else
+            {
+                PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            }
+            
         }
         else
         {
-            PickupComponent->RightHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            // Check if the object should be moved into the depth
+            if (!bActionButtonHold)
+            {
+                PickupComponent->RightHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            }
+            else
+            {
+                PickupComponent->RightHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            }
+            
         }   
     }
     else if (MovementComponent->bCanMove == false)
@@ -168,6 +199,16 @@ void AGameController::AddYawInput(const float Val) {
     {
         this->AddControllerYawInput(Val);
     }    
+}
+
+void AGameController::ActionPressed()
+{
+    bActionButtonHold = true;
+}
+
+void AGameController::ActionReleased()
+{
+    bActionButtonHold = false;
 }
 
 void AGameController::SetPlayerMovable(bool bIsMovable)
