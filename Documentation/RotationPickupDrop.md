@@ -129,20 +129,61 @@ void AGameController::AddPitchInput(const float Val) {
     {    
         // Calculate the rotation and inverse it
         float RotationValue = Val * RotationRate * GetWorld()->GetDeltaSeconds();
-        PickupComponent->ItemInRotaitonPosition->AddActorLocalRotation(FQuat(FRotator(RotationValue, 0, 0)), false, 0, ETeleportType::None);
+        // Check if the object should be rotated around the own axis
+        if (!bActionButtonHold)
+        {
+            PickupComponent->ItemInRotaitonPosition->AddActorLocalRotation(FQuat(FRotator(RotationValue, 0, 0)), false, 0, ETeleportType::None);
+        }
+        else
+        {
+            PickupComponent->ItemInRotaitonPosition->AddActorLocalRotation(FQuat(FRotator(0, RotationValue, 0)), false, 0, ETeleportType::None);
+        }
+        
     }
     else if (PickupComponent->bDropping)
     {
         // Calcualte the movment speed of the object
         float DropMovmentValue = Val * DropMovmentRate * GetWorld()->GetDeltaSeconds() * -1;
+
         // Move either left or right hand actor, where the item is attached to
         if (PickupComponent->bDroppingLeftHandItem)
         {
-            PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            // Calculate to the distance to the moving object
+            float DistanceToObject = CalculateDistanceToObject(PickupComponent->LeftHandActor->GetActorLocation());
+
+            // Check if the object should be moved into the depth
+            if (!bActionButtonHold)
+            {
+                PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            }
+            else if (DistanceToObject < AllowedDepthDistance && Val < 0) // Check if movment is still allowed
+            {
+                PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            }
+            else if (DistanceToObject > 50 && Val > 0) // The distance has to be in a certain range to not move the object out of the camera view
+            {
+                PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            }
+            
         }
         else
         {
-            PickupComponent->RightHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            // Calculate to the distance to the moving object
+            float DistanceToObject = CalculateDistanceToObject(PickupComponent->RightHandActor->GetActorLocation());
+
+            // Check if the object should be moved into the depth
+            if (!bActionButtonHold)
+            {
+                PickupComponent->RightHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
+            }
+            else if(DistanceToObject < AllowedDepthDistance && Val < 0) // Check if movment is still allowed
+            {
+                PickupComponent->RightHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            } 
+            else if (DistanceToObject > 50 && Val > 0) // The distance has to be in a certain range to not move the object out of the camera view
+            {
+                PickupComponent->RightHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            }
         }   
     }
     else if (MovementComponent->bCanMove == false)
@@ -154,7 +195,6 @@ void AGameController::AddPitchInput(const float Val) {
         this->AddControllerPitchInput(Val);
     } 
 }
-
 void AGameController::AddYawInput(const float Val) {
     // Rotate/drop the object 
     if (PickupComponent->bInRotationPosition)
@@ -189,7 +229,7 @@ void AGameController::AddYawInput(const float Val) {
 }
 ```
 The code above also shows how the objects are moved and rotated. For the calculation of the position the movment value of the mouse gets multiplicated by DeltaSeconds and a value for the speed of the rotation/drop.  
-After the rotation is finished the object can be clicked again to call a menu for picking it up into the right or left hand. For dropping the object it is necessary to set the physics for the object and detach it from the hand position.
+After the rotation is finished the object can be clicked again to call a menu for picking it up into the right or left hand. For dropping the object it is necessary to set the physics for the object and detach it from the hand position. Also seen in the code above is how the object is moved during the drop. While pushing the *E*-button the object can also be moved into the depth, by the allowed threshold. The pushing of the *E*-buttong also allows a rotation around the up-axis of the object. In general the *E*-button exchanges the up and down movment of the mouse.
 ```
 void UGPickup::DropItem()
 {
@@ -212,5 +252,17 @@ void UGPickup::DropItem()
 
     ItemToHandle = nullptr;
     bFreeMouse = false;
+}
+```
+The following code shows the setup of the *E*-button to allow the additional interactions with the item and the calculation of the distance from the character to the object.
+```
+void AGameController::ActionReleased()
+{
+    bActionButtonHold = false;
+}
+
+float AGameController::CalculateDistanceToObject(FVector ItemPosition)
+{
+    return FVector::Distance(this->GetActorLocation(), ItemPosition);
 }
 ```
