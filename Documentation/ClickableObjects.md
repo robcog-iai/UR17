@@ -78,7 +78,7 @@ void UGPickup::InputRightHandReleased()
 void UGPickup::HandleRightClick()
 {
     // Right mouse was pressed, check which menu needs to be activated
-    if (ItemToInteract != nullptr)
+    if (ItemToInteract != nullptr && DistanceToObjectAllowed(ItemToInteract))
     {
         ItemToHandle = Cast<AStaticMeshActor>(ItemToInteract);
 
@@ -117,6 +117,18 @@ void UGPickup::HandleRightClick()
     {
         bFreeMouse = !bFreeMouse;
     }
+}
+```
+The above code shows also that items that are to far way can't be interacted with. For that the function *DistanceToObjectAllowed(ItemToInteract)* calculates the distance of the character to the given object and if that object is in the allowed range it can be interacted with. The distance can be adjusted in the editor or the in the code.
+```
+bool UGPickup::DistanceToObjectAllowed(AActor* Item)
+{
+    FVector PlayerPosition = PlayerCharacter->GetActorLocation();
+    FVector ItemPosition = Item->GetActorLocation();
+
+    float Distance = FVector::Distance(PlayerPosition, ItemPosition);
+
+    return (AllowedGraspRange >= Distance);
 }
 ```
 The gamecontroller receives the meun call from GPickup and tells the GameHUD which menu should be opened.
