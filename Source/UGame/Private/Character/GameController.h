@@ -26,10 +26,6 @@ public:
     // Sets default values for this character's properties
     AGameController();
 
-    // The grasp range of the player
-    UPROPERTY(EditAnywhere, Category = "CI - Player Setup")
-        float GraspRange;
-
 
 protected:
     // Called when the game starts or when spawned
@@ -74,6 +70,8 @@ private:
     bool bActionButtonHold;
 
     void SetPlayerMovable(bool bIsMovable);
+
+    float CalculateDistanceToObject(FVector ItemPosition);
 
 public:
     APlayerController * PlayerController;

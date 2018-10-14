@@ -19,7 +19,7 @@ AGameController::AGameController()
     DropMovmentRate = 150;
 
     // Allowed distance to move from and to the character
-    AllowedDepthDistance = 50;
+    AllowedDepthDistance = 70;
 
     // Set PlayerController 
     PlayerController = nullptr;
@@ -130,15 +130,23 @@ void AGameController::AddPitchInput(const float Val) {
     {
         // Calcualte the movment speed of the object
         float DropMovmentValue = Val * DropMovmentRate * GetWorld()->GetDeltaSeconds() * -1;
+
         // Move either left or right hand actor, where the item is attached to
         if (PickupComponent->bDroppingLeftHandItem)
         {
+            // Calculate to the distance to the moving object
+            float DistanceToObject = CalculateDistanceToObject(PickupComponent->LeftHandActor->GetActorLocation());
+
             // Check if the object should be moved into the depth
             if (!bActionButtonHold)
             {
                 PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
             }
-            else
+            else if (DistanceToObject < AllowedDepthDistance && Val < 0) // Check if movment is still allowed
+            {
+                PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            }
+            else if (DistanceToObject > 50 && Val > 0) // The distance has to be in a certain range to not move the object out of the camera view
             {
                 PickupComponent->LeftHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
             }
@@ -146,16 +154,22 @@ void AGameController::AddPitchInput(const float Val) {
         }
         else
         {
+            // Calculate to the distance to the moving object
+            float DistanceToObject = CalculateDistanceToObject(PickupComponent->RightHandActor->GetActorLocation());
+
             // Check if the object should be moved into the depth
             if (!bActionButtonHold)
             {
                 PickupComponent->RightHandActor->AddActorLocalOffset(FVector(0, 0, DropMovmentValue));
             }
-            else
+            else if(DistanceToObject < AllowedDepthDistance && Val < 0) // Check if movment is still allowed
+            {
+                PickupComponent->RightHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
+            } 
+            else if (DistanceToObject > 50 && Val > 0) // The distance has to be in a certain range to not move the object out of the camera view
             {
                 PickupComponent->RightHandActor->AddActorLocalOffset(FVector(DropMovmentValue, 0, 0));
             }
-            
         }   
     }
     else if (MovementComponent->bCanMove == false)
@@ -218,6 +232,11 @@ void AGameController::SetPlayerMovable(bool bIsMovable)
         bIsMovementLocked = !bIsMovable;
         MovementComponent->SetMovable(bIsMovable);
     }
+}
+
+float AGameController::CalculateDistanceToObject(FVector ItemPosition)
+{
+    return FVector::Distance(this->GetActorLocation(), ItemPosition);
 }
 
 void AGameController::SetupRotationOrDrop()

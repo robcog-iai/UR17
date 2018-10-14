@@ -43,6 +43,10 @@ public:
     AStaticMeshActor* RightHandActor;
     AStaticMeshActor* BothHandActor;
 
+    // Hand positions before dropping
+    FVector LeftHandPosition;
+    FVector RightHandPosition;
+
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
@@ -57,10 +61,6 @@ public:
     void InputRightHandReleased();
 
 private:
-    // Hand positions before dropping
-    FVector LeftHandPosition;
-    FVector RightHandPosition;
-
     // All items in the world wich can be picked up
     TSet<AActor*> SetOfPickupItems;
 
