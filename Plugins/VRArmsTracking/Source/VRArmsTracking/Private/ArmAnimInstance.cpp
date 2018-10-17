@@ -24,6 +24,7 @@ void UArmAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 {
 	Super::NativeUpdateAnimation(DeltaTimeX);
 
+	bIsCalled = true;
 	//Check it Pawn == null
 	if (!OwningPawn)
 	{
@@ -35,13 +36,12 @@ void UArmAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 	RightHandWorldRotation = OwningPawn->MotionControllerRight->GetComponentRotation();
 
 	//Calculate the Effector Location and check for collisions
-	RightHandWorldLocation = CalculatePosition(true, RightHandWorldRotation, OwningPawn->RightHandRotationOffset, OwningPawn->MotionControllerRight);
-	LeftHandWorldLocation = CalculatePosition(false, LeftHandWorldRotation, OwningPawn->LeftHandRotationOffset, OwningPawn->MotionControllerLeft);
+	RightHandWorldLocation = CalculatePosition(true, RightHandWorldRotation, OwningPawn->RightHandRotationOffset, OwningPawn->MotionControllerRight, DeltaTimeX);
+	LeftHandWorldLocation = CalculatePosition(false, LeftHandWorldRotation, OwningPawn->LeftHandRotationOffset, OwningPawn->MotionControllerLeft, DeltaTimeX);
 
 }
 
-
-FVector UArmAnimInstance::CalculateOffset(bool bIsRightHand, AArmAnimPawn* CurrentPawn, FVector EffectorLocation)
+FVector UArmAnimInstance::CalculateOffset(bool bIsRightHand, AArmAnimPawn* CurrentPawn, FVector EffectorLocation, float DeltaTimeX)
 {
 	FName Lowerarm;
 	FName SocketHandName;
@@ -60,7 +60,6 @@ FVector UArmAnimInstance::CalculateOffset(bool bIsRightHand, AArmAnimPawn* Curre
 
 	//Prepare the RayTrace
 	const FName TraceTag("TraceTag");
-	OwningPawn->GetWorld()->DebugDrawTraceTag = TraceTag;
 	FCollisionQueryParams TraceParams(FName(TEXT("Trace")), true, OwningPawn);
 	TraceParams.bTraceComplex = true;
 	TraceParams.bReturnPhysicalMaterial = false;
@@ -70,6 +69,13 @@ FVector UArmAnimInstance::CalculateOffset(bool bIsRightHand, AArmAnimPawn* Curre
 	//Startposition ellbow to the end Position (EffectorLocation)
 	FVector StartTrace = CurrentPawn->Mesh->GetSocketLocation(Lowerarm);
 	FVector EndTrace = EffectorLocation;
+
+	//Draw Debug Line
+	if (bDrawDebugLine)
+	{
+		DrawDebugCylinder(OwningPawn->GetWorld(), StartTrace, EndTrace, 10.0f, 1, FColor::Red, false, DeltaTimeX * 2);
+//		DrawDebugLine(OwningPawn->GetWorld(), StartTrace, EndTrace, FColor::Red, false, DeltaTimeX * 2);
+	}
 
 	FHitResult HitObject;
 
@@ -89,6 +95,11 @@ FVector UArmAnimInstance::CalculateOffset(bool bIsRightHand, AArmAnimPawn* Curre
 	//Compare the distance
 	if (DistanceHandEff > DistanceHandHit)
 	{
+		//When we get a collision brodcast it to all functions
+		if (OnCollisionDelegate.IsBound()) 
+		{
+			OnCollisionDelegate.Broadcast(HitObject);
+		}
 		return HitObject.Location;
 	}
 
@@ -96,8 +107,9 @@ FVector UArmAnimInstance::CalculateOffset(bool bIsRightHand, AArmAnimPawn* Curre
 
 }
 
-FVector UArmAnimInstance::CalculatePosition(bool bIsRightHand, FRotator HandWorldRotation, FRotator HandRotationOffset, UMotionControllerComponent* CurrentMotionController)
+FVector UArmAnimInstance::CalculatePosition(bool bIsRightHand, FRotator HandWorldRotation, FRotator HandRotationOffset, UMotionControllerComponent* CurrentMotionController, float DeltaTimeX)
 {
+	//Setup all variabels for left or right hand
 	FName SocketName;
 	FName HandName;
 	AActor* CurrentHand;
@@ -114,6 +126,7 @@ FVector UArmAnimInstance::CalculatePosition(bool bIsRightHand, FRotator HandWorl
 		CurrentHand = OwningPawn->LeftHand;
 	}
 
+	//Get all Locations and rotations
 	FVector SocketLocation = OwningPawn->Mesh->GetSocketLocation(SocketName);
 	FVector HandLocation = OwningPawn->Mesh->GetSocketLocation(HandName);
 	FRotator HandRotation = OwningPawn->Mesh->GetSocketRotation(HandName);
@@ -138,6 +151,6 @@ FVector UArmAnimInstance::CalculatePosition(bool bIsRightHand, FRotator HandWorl
 	}
 	FVector LocalAdjX = CurrentMotionController->GetForwardVector()*OwningPawn->LocalHandAdjustmentX;
 	FVector MotionController = CurrentMotionController->GetComponentLocation() + LocalAdjX;
-	return CalculateOffset(bIsRightHand, OwningPawn, MotionController);
+	return CalculateOffset(bIsRightHand, OwningPawn, MotionController, DeltaTimeX);
 }
 

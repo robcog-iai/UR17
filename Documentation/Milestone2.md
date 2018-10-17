@@ -40,6 +40,8 @@ Full arm tracking using only VR devices (Oculus or HTC Vive).
 
 - (!) press the thumpsticks or tracking pad on your MotionControllers to start arm movement and rotation (!)
 
+- ![video of the project in action](https://www.youtube.com/watch?v=FasQbY1p1KI)
+
 # Tutorial:
 
 - Create an animated blueprint using SKEL_Skelet as skeleton and the ArmAnimInstance as animation instance.
@@ -62,3 +64,7 @@ have to be actors in order to add them to the mesh. The actor needs to have a sk
 - make sure to go to the action mappings of your project and bind "resetPosition" to a button. In our project we already bound it to the MotionController thumpsticks and spacebar. 
 
 - Pressing the assigned button will reset your current position and will start the movement and turning of the arms. 
+
+# Issues:
+
+- There currently is a bug that occurs when the player turns around 180 degrees. When passing the 180 degree point the arms will move to the correct position, but will move there by going the opposit direction.
