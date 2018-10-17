@@ -1,0 +1,3 @@
+[submodule "UTags"]
+	path = Plugins/UTags
+	url = https://github.com/robcog-iai/UTags
