@@ -17,9 +17,14 @@
 
 ## Tutorial
 
-* [click here](Documentation/Tutorial.md)
+* [flex water](Documentation/Tutorial.md)
 
-## Video
+* [installation guide](Documentation/HowToInstall.md)
 
-* [click here](Documentation/Vid/Tap.mp4)
+* [how to use the plugin](Documentation/UWaterTapLogic.md)
 
+
+## Videos
+
+![](https://media.giphy.com/media/9Y1A4518hEOaxnASY6/giphy.gif)
+![](https://media.giphy.com/media/2Uy2vWfWibxBl2phfX/giphy.gif)
