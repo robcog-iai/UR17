@@ -1,9 +1,10 @@
-# Documentation P4
+# Features
+* This project cotains three main features, where the description can be found in the following documents:
+  * [A realistic walking simulation, where the character speed up over time](RealisticWalking.md)
+  * [Clickable objects with a menu like interaction system](ClickableObjects.md)
+  * [Rotation, drop and pickup interactions with objects](RotationPickupDrop.md)
 
-* This project is build upon the previous game-staking branch, which contained a basic movment and pick up system. At this point of the project the old Plugin is being kept but will be changed in the next iteration of the milestones. Actuelly three milestones were planed for this iteration but because unnecessary things from the submodules will be removed the milestones for the dishwasher and oven will be done in the next iteration.
+# Bugs
+* Since the update 4.20 of the unreal engine it is necessary to press the mouse buttons twice to start the interactions with the objects or remove the cursor.  
 
-* If the debug mode in the Visual Studio editor is started one excaption happens, which can be irgnored with the started button, but should be mentioned here. ![](Img/Milestone1/Exception.PNG "Exception during debug start.")  
-
-* Milestone 1 documentation can be found [here](Milestone1.md). This milestone is the realistic walking animation, where the character starts slowly and gets faster over time until the maximum speed is reached and the rotation of the objects in the hands of the character. In this iteration a very basic roation is accomplished and will be refined in the next iteration.    
-
-* Milestone 2 documentation can be found [here](Milestone2.md. This milestone is about the interaction with objects, like picking up and rotation. Objects are supposed to be picked up in a menu like fashion, where just the mouse is used to interact with the object.
+* Objects on the floor can be picked up and if they are moved to the rotation position the screen of the character stay at the lock down posiion. 
