@@ -1,36 +1,25 @@
-# UR17
-Unreal Robots (2017-18) master project repository
-
-# Info
-
-* each branch belongs to a given subproject, e.g. `ur17-p1` belongs to subproject P1
-* every branch has the up to date `dev-env` branch from [RobCoG](https://github.com/robcog-iai/RobCoG/tree/dev-env) as default
-* every subproject will create a pull request for each milestone on its corresponding branch
-* every pull request should have a `MilestoneX.md` file, in `/Documentation` for every milestone, describing the milestone, what has been done(documentation), how to test the code(working/tested tutorials).
-* the pull request (if containing source code) should be contained in a plugin, e.g. `\Plugins\MyPlugin`
-* the pull request (if containing new uassets, e.g. meshes, etc.) can be done on the project directly, it should however include the 3D mesh files as well in `.fbx` and `.dae` format in the folder `\Documentation\Meshes`
-
-----
-
-# Every project will maintain its `README.md` as follows:
-
-----
-
-# UR17 - PX
+# UR17 - P9
 
 ### Members
 
-* Bender Rodriguez
-* Turanga Leela
+* Kannan Thambiah
 
 ### Project description
 
-* 2-3 lines describing the project
+Purpose of this project is to add an Actor to the VR in Unreal
+that simulates a laser based LiDAR. The depth data is taken from the
+[rendering process](http://api.unrealengine.com/INT/API/Runtime/Engine/Components/USceneCaptureComponent2D/index.html),
+of Unreal and then send over [URosBridge](https://github.com/robcog-iai/UROSBridge)
+and [rosbridge_suite](https://wiki.ros.org/rosbridge_suite) to a running
+[ROS](http://www.ros.org/) instance.
+
+This way, simulated data can be sent to real robotic programs running on ROS,
+and reaction to the simulated data can then be analized or feed back to the
+simulation.
 
 ### Milestones
 
-* [Milestone1](Documentation/Milestone1.md)
-* [Milestone2](Documentation/Milestone1.md)
+* [Milestone3](Documentation/Milestone3.md)
 
 ### Documentation
 
