@@ -8,7 +8,6 @@
 
 #include "LevelEditor.h"
 #include "StaticMeshEditorModule.h"
-
 #include "Engine.h"
 
 #define LOCTEXT_NAMESPACE "FSlicingEditorModule"

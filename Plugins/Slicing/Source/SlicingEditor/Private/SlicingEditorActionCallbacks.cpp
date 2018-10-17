@@ -4,6 +4,7 @@
 #include "SlicingComponent.h"
 #include "SlicingBladeComponent.h"
 #include "SlicingTipComponent.h"
+#include "SlicingDebugVisualComponent.h"
 
 #include "Core.h"
 #include "Editor.h"
@@ -81,6 +82,7 @@ void FSlicingEditorActionCallbacks::MakeCuttingObjects()
 		FSlicingEditorActionCallbacks::AddHandleComponent(StaticMesh);
 		FSlicingEditorActionCallbacks::AddBladeComponent(StaticMesh);
 		FSlicingEditorActionCallbacks::AddTipComponent(StaticMesh);
+		FSlicingEditorActionCallbacks::AddDebugVisualComponent(StaticMeshActor);
 	}
 }
 
@@ -94,10 +96,31 @@ void FSlicingEditorActionCallbacks::MakeCuttableObjects()
 		if (!StaticMeshComponent->ComponentTags.Contains(USlicingComponent::TagCuttable))
 		{
 			StaticMeshComponent->ComponentTags.Add(USlicingComponent::TagCuttable);
+			StaticMeshComponent->ComponentTags.Add(FName("Resistance"));
+			StaticMeshComponent->ComponentTags.Add(FName("0"));
 		}
 		
 		// Let the cutting object go through the actor
-		StaticMeshActor->GetStaticMeshComponent()->bGenerateOverlapEvents = true;
+		StaticMeshComponent->SetGenerateOverlapEvents(true);
+
+		// Enable physics, as otherwise the object won't be cuttable
+		StaticMeshComponent->SetSimulatePhysics(true);
+		StaticMeshActor->SetMobility(EComponentMobility::Movable);
+
+		// Add new materialslot for potential inside cut material
+		if (StaticMeshComponent->GetStaticMesh()->GetMaterialIndex("InsideCutMaterial") == -1)
+		{
+			StaticMeshComponent->GetStaticMesh()->Modify();
+			
+			FStaticMaterial InnerStaticMaterial = FStaticMaterial();
+			InnerStaticMaterial.MaterialSlotName = "InsideCutMaterial";
+			StaticMeshComponent->GetStaticMesh()->StaticMaterials.Add(InnerStaticMaterial);
+
+			StaticMeshComponent->GetStaticMesh()->PostEditChange();
+		}
+
+		// Add the custom resistance property
+		// ...
 	}
 }
 
@@ -127,7 +150,7 @@ void FSlicingEditorActionCallbacks::AddBoxComponent(UStaticMeshComponent* Static
 	BoxComponent->SetWorldLocation(StaticMesh->GetSocketLocation(SocketName));
 	BoxComponent->SetBoxExtent(FVector(1, 1, 1) * SocketToBoxScale);
 	BoxComponent->SetCollisionProfileName(CollisionProfileName);
-	BoxComponent->bGenerateOverlapEvents = bGenerateOverlapEvents;
+	BoxComponent->SetGenerateOverlapEvents(bGenerateOverlapEvents);
 	BoxComponent->bMultiBodyOverlap = true;
 }
 
@@ -186,6 +209,14 @@ void FSlicingEditorActionCallbacks::AddTipComponent(UStaticMeshComponent* Static
 		USlicingComponent::SocketTipName,
 		FName("OverlapAll"),
 		true);
+}
+
+void FSlicingEditorActionCallbacks::AddDebugVisualComponent(AStaticMeshActor* StaticMesh)
+{
+	USlicingDebugVisualComponent* DebugComponent = NewObject<USlicingDebugVisualComponent>(StaticMesh);
+	StaticMesh->AddInstanceComponent(DebugComponent);
+
+	DebugComponent->RegisterComponent();
 }
 
 #undef LOCTEXT_NAMESPACE

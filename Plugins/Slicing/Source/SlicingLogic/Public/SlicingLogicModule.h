@@ -17,6 +17,4 @@ public:
 	bool bEnableDebugShowComponents = false;
 	bool bEnableDebugShowPlane = false;
 	bool bEnableDebugShowTrajectory = false;
-
-	static void ConvertStaticToProceduralMeshComponent(UPrimitiveComponent* StaticMeshComponent);
 };

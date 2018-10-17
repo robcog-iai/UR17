@@ -56,9 +56,9 @@ These are all currently implemented Features you're able to use in projects.
 
 * The new buttons loaded, coming from from the Slicing Plugin, are now having a logic and functionality adding:
 	* The functionality and logic to work with the booleans from the EditorModule, like toggleable Debug Draws  
-		* ![DokuPic2](DokuPic/2.PNG)  
+		* ![DokuPic2](DocumentationPictures/Milestone1-1.png)  
 	* Another is the functionality to cut objects with the spawned Component.  
-		* ![DokuPic1](DokuPic/1.PNG)
+		* ![DokuPic1](DocumentationPictures/Milestone1-2.png)
 * There are 2 classes that were created:
 	* USlicingComponent
 		* This is the component which can be spawned and inherits from the UBoxComponent class.

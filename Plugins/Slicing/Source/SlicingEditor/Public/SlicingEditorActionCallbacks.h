@@ -32,8 +32,10 @@ private:
 	static TArray<AStaticMeshActor*> GetSelectedStaticMeshActors();
 
 	/**** Creates the components that fill the sockets ****/
-	static void AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName, FName CollisionProfileName, bool bGenerateOverlapEvents);
+	static void AddBoxComponent(UStaticMeshComponent* StaticMesh, UBoxComponent* BoxComponent, FName SocketName,
+		FName CollisionProfileName, bool bGenerateOverlapEvents);
 	static void AddHandleComponent(UStaticMeshComponent* StaticMesh);
 	static void AddBladeComponent(UStaticMeshComponent* StaticMesh);
 	static void AddTipComponent(UStaticMeshComponent* StaticMesh);
+	static void AddDebugVisualComponent(AStaticMeshActor* StaticMesh);
 };

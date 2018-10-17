@@ -4,16 +4,28 @@
 
 #include "SlicingComponent.h"
 
-#include "ProceduralMeshComponent.h"
-
 #include "SlicingBladeComponent.generated.h"
 
 class USlicingTipComponent;
+class UPhysicsConstraintComponent;
+
+/**
+* The delegates for events regarding the cutting-process
+*/
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FBeginSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject, FDateTime, BroadcastTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FEndSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject, FDateTime, BroadcastTime);
+
 
 UCLASS()
 class SLICINGLOGIC_API USlicingBladeComponent: public USlicingComponent
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FBeginSlicingSignature OnBeginSlicing;
+	UPROPERTY()
+	FEndSlicingSignature OnEndSlicing;
 
 public:
 	// Sets default values. Called when generated, even in the editor.
@@ -22,10 +34,12 @@ public:
 	/**** The implementation of standard component functions ****/
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//* Describes whether the cutting object is currently in the process of cutting a cuttable object
 	bool bIsCurrentlyCutting = false;
+
+	// The Constraints Component
+	UPhysicsConstraintComponent* ConstraintOne;
 
 	//* The tip component that is attached to the same SlicingComponent
 	USlicingTipComponent* TipComponent;
@@ -38,18 +52,14 @@ public:
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 	UFUNCTION()
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-	/**** The visual-debugging functions ****/
-	void DrawSlicingPlane();
-	void DrawCuttingEntrancePoint();
-	void DrawCuttingExitPoint();
-	void DrawCuttingTrajectory();
-
+	/**** The slicing-logic ****/
 	void SliceComponent(UPrimitiveComponent* CuttableComponent);
+	void ResetResistance();
 	void ResetState();
+	void SetUpConstrains(UPrimitiveComponent* CuttableComponent);
 };

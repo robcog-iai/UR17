@@ -2,14 +2,14 @@
 
 #include "SlicingBladeComponent.h"
 #include "SlicingTipComponent.h"
+#include "SlicingHelper.h"
 
-#include "DrawDebugHelpers.h"
-#include "TransformCalculus.h"
 #include "KismetProceduralMeshLibrary.h"
+#include "ProceduralMeshComponent.h"
 
 #include "Engine/StaticMesh.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
 
 // Called before BeginPlay()
 void USlicingBladeComponent::InitializeComponent()
@@ -22,70 +22,28 @@ void USlicingBladeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (SlicingLogicModule->bEnableDebugConsoleOutput)
-	{
-		// Currently has no other usage (reasonable one at least)
-		UE_LOG(LogTemp, Warning, TEXT("SLICING: The blade component has been loaded into the world"));
-	}
-
 	// Check for the tip component to possibly abort the cutting
-	TArray<USceneComponent*> TipComponents;
-	SlicingObject->GetChildrenComponents(true, TipComponents);
-	for (USceneComponent* Component : TipComponents)
-	{
-		if (Component->GetClass()->IsChildOf(USlicingTipComponent::StaticClass()))
-		{
-			// Only one tip should exist
-			TipComponent = (USlicingTipComponent*)Component;
-		}
-	}
+	TipComponent = FSlicingHelper::GetSlicingComponent<USlicingTipComponent>(SlicingObject);
+
+	// Create the Physics Constraint
+	ConstraintOne = NewObject<UPhysicsConstraintComponent>();
+	ConstraintOne->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
 	// Register the overlap events
 	OnComponentBeginOverlap.AddDynamic(this, &USlicingBladeComponent::OnBeginOverlap);
 	OnComponentEndOverlap.AddDynamic(this, &USlicingBladeComponent::OnEndOverlap);
 }
 
-// Called every frame
-void USlicingBladeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// The debugging is only needed when cutting
-	if (!bIsCurrentlyCutting)
-	{
-		return;
-	}
-
-	if (SlicingLogicModule->bEnableDebugShowPlane)
-	{
-		USlicingBladeComponent::DrawSlicingPlane();
-		USlicingBladeComponent::DrawCuttingEntrancePoint();
-		USlicingBladeComponent::DrawCuttingExitPoint();
-	}
-
-	if (SlicingLogicModule->bEnableDebugShowTrajectory)
-	{
-		USlicingBladeComponent::DrawCuttingTrajectory();
-	}
-}
-
 void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {	
-	// If we are trying to start cutting with the tip, the slicing process should never start
-	if (TipComponent != NULL && OtherComp == TipComponent->CutComponent)
-	{
-		return;
-	}
-	
-	// This event is only important if the other object actually exists
-	if (OtherComp == nullptr || OtherComp == NULL)
-	{
-		return;
-	}
-
 	// This event is only important if the other object can actually be cut or if another cut hasn't already started
 	if (!OtherComp->ComponentHasTag(TagCuttable) || bIsCurrentlyCutting)
+	{
+		return;
+	}
+	// If we are trying to start cutting with the tip, the slicing process should never start
+	else if (TipComponent != NULL && OtherComp == TipComponent->OverlappedComponent)
 	{
 		return;
 	}
@@ -97,35 +55,55 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	RelativeLocationToCutComponent = OtherComp->GetComponentTransform().InverseTransformPosition(OverlappedComp->GetComponentLocation());
 	RelativeRotationToCutComponent = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
 
-	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
-	if (OtherComp->GetClass() == UStaticMeshComponent::StaticClass()
-		&& ((UStaticMeshComponent*)OtherComp)->GetStaticMesh())
-	{
-		FSlicingLogicModule::ConvertStaticToProceduralMeshComponent(OtherComp);
+	// The cutting process has now started
+	bIsCurrentlyCutting = true;
+	OnBeginSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), FDateTime::Now());
 
-		// Retry the event with the new ProceduralMeshComponent
+	CutComponent = OtherComp;
+	CutComponent->SetNotifyRigidBodyCollision(true);
+
+	// Have to check for null, as it randomly sets it to null for no reason...
+	if (CutComponent == NULL)
+	{
 		return;
 	}
 
-	// The other object is a ProceduralMeshComponent and the cutting can now be continued
-	bIsCurrentlyCutting = true;
-	CutComponent = OtherComp;
-	CutComponent->SetNotifyRigidBodyCollision(true);
+	// Makes the Cutting with Constraints possible, by somwehat disabling Gravity and Physics in a sense without actually deactivating them.
+	CutComponent->SetLinearDamping(100.f);
+	CutComponent->SetAngularDamping(100.f);
+
+	// Called incase the CutComponent has a tag !!! TODO: Build in Security !!!
+	if (CutComponent->ComponentHasTag(FName("Resistance")) && (CutComponent->ComponentTags.IndexOfByKey("Resistance") + 1))
+	{
+		// A value in between 0 and 100.
+		int32 resistancePercentage = FCString::Atoi( *CutComponent->ComponentTags[(CutComponent->ComponentTags.IndexOfByKey("Resistance") + 1)].ToString());
+		((UStaticMeshComponent*)this->GetAttachParent())->SetLinearDamping(100000000000.f * ((resistancePercentage) / 100));
+	}
+
+	SetUpConstrains(CutComponent);
 }
 
 void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	// If the SlicingObject is pulled out, the cutting should not be continued
-	if (TipComponent != NULL && OtherComp == TipComponent->CutComponent)
-	{
-		bIsCurrentlyCutting = false;
-		return;
-	}
-
-	// This event is only important if you are actually in the cutting process and not trying to abort it
+	// The slicing should only happen if you are actually in the cutting process
 	if (!bIsCurrentlyCutting)
 	{
+		ResetResistance();
+		ResetState();
+		return;
+	}
+	// If you are touching and exiting another object while cutting, ignore the event
+	else if (OtherComp != CutComponent)
+	{
+		return;
+	}
+	// If the SlicingObject is pulled out, the cutting should not be continued
+	else if (TipComponent != NULL && TipComponent->bEnteredCurrentlyCutObject)
+	{
+		bIsCurrentlyCutting = false;
+		ResetResistance();
+		ResetState();
 		return;
 	}
 
@@ -134,21 +112,14 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 		UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
 	if (OverlappedComp->OverlapComponent(CutComponentPosition, CutComponent->GetComponentQuat(), OverlappedComp->GetCollisionShape()))
 	{
-		// Collision should turn back to normal again
-		SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
 		bIsCurrentlyCutting = false;
 
+		ResetResistance();
+		ResetState();
 		return;
 	}
 
-	/* Pseudo-scenario:
-	 * After starting to cut first object, you ended an overlap with a second object, which would trigger the cut
-	 * of the first object. This can't be happening, because the we would never enter the OnBeginOverlap of the
-	 * second object and would therefore push it away - resulting in no accidental new OnEndOverlap */
-	//if (!OtherComp->ComponentHasTag(TagCuttable) || OtherComp->GetClass() != UProceduralMeshComponent::StaticClass())
-	//{
-	//	return;
-	//}
+	ResetResistance();
 
 	// After everything is checked, the actual slicing happens here
 	SliceComponent(OtherComp);
@@ -156,68 +127,115 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	ResetState();
 }
 
-void USlicingBladeComponent::DrawSlicingPlane()
-{
-	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
-
-	// This size is actually about double the size of the component, but this is just the amount we need
-	float BladeComponentSize;
-	// Both of those variables are unused and not needed here
-	FVector BladeComponentOrigin, BladeComponentExtends;
-	UKismetSystemLibrary::GetComponentBounds(this, BladeComponentOrigin, BladeComponentExtends, BladeComponentSize);
-
-	DrawDebugSolidPlane(GetWorld(), SlicingPlane, CutComponent->GetComponentLocation(), BladeComponentSize,
-		FColor::Red, false);
-}
-
-void USlicingBladeComponent::DrawCuttingEntrancePoint()
-{
-	FVector ComponentPosition = UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
-
-	DrawDebugBox(GetWorld(), ComponentPosition, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Green);
-}
-
-void USlicingBladeComponent::DrawCuttingExitPoint()
-{
-	// Not yet implemented
-	FVector EndPosition = UKismetMathLibrary::TransformLocation(this->GetComponentTransform(), FVector(0, 1000, 0));
-	FHitResult Hits;
-	CutComponent->LineTraceComponent(Hits, EndPosition, this->GetComponentLocation(), FCollisionQueryParams::DefaultQueryParam);
-	DrawDebugBox(GetWorld(), Hits.Location, FVector(3, 3, 3), CutComponent->GetComponentQuat(), FColor::Red, true, 1.0F);
-}
-
-void USlicingBladeComponent::DrawCuttingTrajectory()
-{
-	FPlane SlicingPlane = FPlane(SlicingObject->GetComponentLocation(), GetUpVector());
-
-	DrawDebugPoint(GetWorld(), SlicingObject->GetSocketLocation(SocketBladeName),
-		2, FColor::Purple, true, -1.0f, (uint8)'\100');
-}
-
 void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableComponent)
 {
-	UProceduralMeshComponent* OutputProceduralMesh;
+	TArray<FStaticMaterial> ComponentMaterials;
+	UMaterialInterface* InsideCutMaterialInterface = nullptr;
+	
+	// In case the component is a StaticMeshComponent it needs to be converted into a ProceduralMeshComponent
+	if (CuttableComponent->IsA(UStaticMeshComponent::StaticClass()))
+	{
+		CuttableComponent =	FSlicingHelper::ConvertStaticToProceduralMeshComponent(
+			(UStaticMeshComponent*)CuttableComponent, ComponentMaterials
+		);
+	}
 
+	// Check the Materials for the cut material
+	for (int index = 0; index < ComponentMaterials.Num(); index++)
+	{
+		FStaticMaterial Material = ComponentMaterials[index];
+
+		if (Material.MaterialSlotName.Compare(FName("InsideCutMaterial")) == 0)
+		{
+			// Found the needed material, do not need to search further
+			InsideCutMaterialInterface = Material.MaterialInterface;
+			break;
+		}
+	}
+	
+	UProceduralMeshComponent* OutputProceduralMesh;
 	UKismetProceduralMeshLibrary::SliceProceduralMesh(
 		(UProceduralMeshComponent*)CuttableComponent,
 		SlicingObject->GetSocketLocation(SocketBladeName),
 		SlicingObject->GetUpVector(),
 		true,
 		OutputProceduralMesh,
-		EProcMeshSliceCapOption::NoCap,
-		CuttableComponent->GetMaterial(0)
+		EProcMeshSliceCapOption::CreateNewSectionForCap,
+		InsideCutMaterialInterface
 	);
-
-	OutputProceduralMesh->bGenerateOverlapEvents = true;
+	OutputProceduralMesh->SetGenerateOverlapEvents(true);
 	OutputProceduralMesh->SetEnableGravity(true);
 	OutputProceduralMesh->SetSimulatePhysics(true);
 	OutputProceduralMesh->ComponentTags = CuttableComponent->ComponentTags;
+	OutputProceduralMesh->SetLinearDamping(0.f);
+	OutputProceduralMesh->SetAngularDamping(0.f);
+
+	CuttableComponent->SetLinearDamping(0.f);
+	CuttableComponent->SetAngularDamping(0.f);
+
+	// Convert both seperated procedural meshes into static meshes for best compatibility
+	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent,
+		ComponentMaterials);
+	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh, ComponentMaterials);
+
+	// Delete old original static mesh
+	CutComponent->GetOwner()->Destroy();
+}
+
+// Resets everything to the state the component was in before the dampening was set
+void USlicingBladeComponent::ResetResistance()
+{
+	// Reset the dampening
+	if (CutComponent)
+	{
+		CutComponent->SetLinearDamping(0.f);
+		CutComponent->SetAngularDamping(0.f);
+	}
+	SlicingObject->SetLinearDamping(0.f);
+	SlicingObject->SetAngularDamping(0.f);
 }
 
 // Resets everything to the state the component was in before the cutting-process began
 void USlicingBladeComponent::ResetState()
 {
+	OnEndSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), FDateTime::Now());
+
 	bIsCurrentlyCutting = false;
-	FlushPersistentDebugLines(this->GetWorld());
-	CutComponent = NULL;
+	CutComponent = nullptr;
+
+	ConstraintOne->BreakConstraint();
+
+	// Collision should turn back to normal again
+	SlicingObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_PhysicsBody, ECollisionResponse::ECR_Block);
+}
+
+// Connects the given Component, normally the CuttableComponent, with either the Blade OR the Hand if it's welded.
+void USlicingBladeComponent::SetUpConstrains(UPrimitiveComponent* CuttableComponent)
+{
+	// Connect the CuttableObject and Blade/Welded Hand as bones with the Constraint
+	ConstraintOne->SetConstrainedComponents(this, FName("Blade"), CuttableComponent, FName("Object"));
+
+	// High number may not be needed. Adjust
+	ConstraintOne->ConstraintInstance.SetAngularBreakable(false, 10000.f);
+	ConstraintOne->ConstraintInstance.SetLinearBreakable(false, 10000.f);
+	ConstraintOne->ConstraintInstance.SetLinearDriveParams(1000.f, 1000.f, 1000.f);
+	
+	// It's enough here to set Limited, Locked is too limiting for the purpose of realism
+	ConstraintOne->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Limited, 0.1f);
+
+	// IT's enough here to just set Swing2 and Twist
+	ConstraintOne->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Limited, 1.f);
+	ConstraintOne->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 1.f);
+
+	// May not be needed
+	ConstraintOne->SetLinearPositionDrive(false, false, true);
+	ConstraintOne->SetAngularVelocityDrive(true, true);
+
+	// Deactivates that the parent isn't affected by the constraint, which in our case is the knife
+	ConstraintOne->ConstraintInstance.DisableParentDominates();
+
+	ConstraintOne->UpdateConstraintFrames();
 }
