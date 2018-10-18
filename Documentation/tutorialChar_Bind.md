@@ -41,7 +41,7 @@ our grasping component will use these (He will not change anything to these comp
 * Also it can be happened, that the rotation and movement is a bit strange (maybe to slow or to fast or something else). Then you will have to change the values
 **PGain**, **IGain**, **DGain**, **MaxOutput**, and the **RotationBoost**. For more information see this documentation: [UPIDController] (https://github.com/robcog-iai/UPIDController)
 
-* Select the option **Enable Tightening** if you want to use a tightening grasp 
+* Select the option **Enable Tightening** if you want to use [Tightening Grasp](./Documentation/TighteningGrasp.md)
 
 * If you also want to visualize the force or to debug the force. [See force indicator documentation](/DokuForceIndicator.md)
 
@@ -67,6 +67,16 @@ In order to grasp or to switch the grasping style you need to bind some keys for
 
 ![](./Img/Import.PNG)
 
+# Using physics materials for better performance
+
+* Our plugin contains two physics materials, called **HighFriction** and **SuperLight**. 
+
+* When applied to an object **HighFriction**  makes it heavy and gives it a high amount of friction. Use it for your hands. 
+
+* **SuperLight** Makes your object light and also gives it a high amount of friction. Use this for objects you want to grasp. 
+ 
+* We were unable to measure exactly how much friction influences the grasping. The difference in weight between hand and grasped object however is very important. 
+
 # Problems and some Tipps
 
 * It can be happened, that your hands are not at the right position (flying away or something like that) in this case use the reset button. You maybe also want to change some properties like PGain to get better results(see above).
@@ -82,3 +92,9 @@ In order to grasp or to switch the grasping style you need to bind some keys for
 * Be sure that you set the auto possess player to your player ID.
 
 * If the hands are moving with you when you are moving your head, try to add a camera component rather than using the default one that are created by the component
+
+# Videos
+
+- [video of us grasping multiple objects](https://www.youtube.com/watch?v=B3_VCXEQydY)
+- [video showcasing the Tightening Grasp](https://www.youtube.com/watch?v=ReFS7ecV5rs)
+
