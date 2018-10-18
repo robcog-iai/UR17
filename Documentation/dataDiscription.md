@@ -148,6 +148,6 @@ thumb_01_r=P=-47.573841 Y=98.744553 R=32.069378
 
 * **BoneSpaceAfterCalcStepX** The actual episode where each bone is assigned the current orientation. These values are needed to grasp in game.
 
-* **BoneSpaceBeforeCalcStepX** this values are needed in order to use them in the editor (e.g to change one step in the editor [See documentation]()NOT WORKING)
+* **BoneSpaceBeforeCalcStepX** this values are needed in order to use them in the editor (e.g to change one step in the editor)
 
 * **ComponentSpaceStepX** this values are needed in order to enable the tightening grasp
