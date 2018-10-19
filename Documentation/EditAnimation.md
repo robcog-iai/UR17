@@ -1,4 +1,4 @@
-## Create new animations 
+## Edit grasps with the editor
 
 This tutorial shows and explains how to edit an existing animation in the skeleton editor. 
 

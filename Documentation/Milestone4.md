@@ -81,9 +81,14 @@ Class to create the menu.
 
 # Tutorial
 
-* [creating new animations](./Documentation/CreateNewAnimations.md)
-* [recording new grasping types from aniamtions](./Documentation/ReadingHandleTypes.md)
 * [how to use our plugin](./Documentation/tutorialChar_Bind.md)
+* [creating new grasps with the editor](./Documentation/CreateNewAnimationsWithEditor.md)
+* [edit grasps with the editor](./Documentation/EditAnimation.md)
+* [customize the menu](./Documentation/RealisticGraspingUserInterface.md)
+* [creating a physics material](./Documentation/Create_physics_material.md)
+* [what is Tightening Grasp](./Documentation/TighteningGrasp.md)
+* [creating new animations](./Documentation/CreateNewAnimations.md)
+* [recording new grasping types from animations](./Documentation/ReadingHandleTypes.md)
 
 # Issues
 
