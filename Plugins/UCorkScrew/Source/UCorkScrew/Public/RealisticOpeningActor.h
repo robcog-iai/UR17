@@ -27,9 +27,9 @@ public:
 	// Needed to extend APhysicsConstraintActor.
 	virtual void LoadedFromAnotherClass(const FName & OldClassName);
 	void PostLoad();
+	UFUNCTION()
+		void OnOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-
-private:
 	// If the Constraint is activated. Default is true. Otherwise you also can use a usally PhysicsConstraintActor.
 	UPROPERTY(EditAnywhere, Category = "ScrewPropertys")
 		bool bIsActiveOpeningConstraint = true;
@@ -40,8 +40,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "ScrewPropertys")
 		AActor* Lid;
 	// Sets the angle. At this angle the constraint will break if the function is activated.
-	UPROPERTY(EditAnywhere, Category = "ScrewPropertys", meta = (UIMin = "1.0"))
-		float DestroyAngle = 60;
+	UPROPERTY(EditAnywhere, Category = "ScrewPropertys", meta = (UIMin = "180.0"))
+		float DestroyAngle = 180;
 	// Distance it should move up. Is just prepared yet.
 	UPROPERTY(EditAnywhere, Category = "ScrewPropertys", meta = (UIMin = "0.0"))
 		float UpMovingDistance = 0;
@@ -61,7 +61,12 @@ private:
 	// Sets the speed it should rotate. Min is 0.1 and Max is 1.0.
 	UPROPERTY(EditAnywhere, Category = "ForDebugging", meta = (UIMin = "0.1" , UIMax = "1.0"))
 		float TurningSpeed = 0.1;
-
+	// When you want the Lid to get back on again, with collision, just set this on true.
+	UPROPERTY(EditAnywhere, Category = "ScrewPropertys")
+		bool bIsTurnLidOnAgain = true;
+		
+	UPROPERTY(VisibleAnywhere)
+		class USphereComponent* LidCollisionSphere;
 	
 
 	// Some needed variables, in different functions.
@@ -83,6 +88,10 @@ private:
 	int TurnCounter;
 	// Up moving distance per degree
 	float OldCalculatedOver180Degrees;
+	// Sphere Radius of the collision sphere.
+	float SphereRadius;
+	// Tickscounter for DebugMode, to allower slower reaction in the editor.
+	int TicksCounter = 0;
 
 	// Sets values for the bottle opening constraint.
 	void BottleOpening();

@@ -2,9 +2,11 @@
 
 #include "RealisticOpeningActor.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "Components/SphereComponent.h"
 
 #include "EngineGlobals.h"
 #include "Runtime/Engine/Classes/Engine/Engine.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values.
 ARealisticOpeningActor::ARealisticOpeningActor() 
@@ -14,6 +16,12 @@ ARealisticOpeningActor::ARealisticOpeningActor()
 	if (bIsActiveOpeningConstraint) 
 		{
 			BottleOpening();
+			// Creating the overlapping sphere.
+			LidCollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Lid Collision Sphere Component"));
+			LidCollisionSphere->InitSphereRadius(SphereRadius);
+			LidCollisionSphere->SetCollisionProfileName("Trigger");
+			// Adding the overlapping method to the overlapping sphere.
+			LidCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ARealisticOpeningActor::OnOverlap);
 		}
 	
 }
@@ -26,7 +34,13 @@ ARealisticOpeningActor::ARealisticOpeningActor(const FObjectInitializer & Object
 	if (bIsActiveOpeningConstraint) 
 		{
 			BottleOpening();
-		}
+			// Creating the overlapping sphere.
+			LidCollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Lid Collision Sphere Component"));
+			LidCollisionSphere->InitSphereRadius(SphereRadius);
+			LidCollisionSphere->SetCollisionProfileName("Trigger");
+			// Adding the overlapping method to the overlapping sphere.
+			LidCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ARealisticOpeningActor::OnOverlap);
+	}
 }
 
 // Called when the game starts or when spawned. Also sets the default values.
@@ -42,7 +56,6 @@ void ARealisticOpeningActor::BeginPlay()
 // Called every frame.
 void ARealisticOpeningActor::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
 	// Local variable to save real current degree value.
 	float currentDegree;
 	// If the rotate direction is to the right.
@@ -61,6 +74,14 @@ void ARealisticOpeningActor::Tick(float DeltaTime)
 	MovingAndBreaking(currentDegree);
 	// If the debug mode is on:
 	if (bIsDebuggingModeOn) {
+		if (bIsBroken && TicksCounter == 100 && bIsTurnLidOnAgain)
+			{
+				DrawDebugSphere(GetWorld(), GetActorLocation(), SphereRadius, 20, FColor::Red, false, -1, 0, 1);
+			}
+			else if (bIsTurnLidOnAgain && bIsDebuggingModeOn && TicksCounter < 100)
+			{
+				TicksCounter++;
+			}
 		// Count every tick.
 		TickCounter++;
 		// Do every second tick:
@@ -130,6 +151,26 @@ void ARealisticOpeningActor::BottleOpening()
 		{
 			// Sets the constraint limit, also checks in which direction it should be turnable.
 			ActivateConstraintLimit();
+			// If the upmoving distance is smaller than 0.25 like 0, we still need a Radius for the OverlapSphere.
+			if (UpMovingDistance <= 10.0f) 
+				{
+					// Then set it on 0.25f.
+					SphereRadius = 10.0f;
+				} 
+				else 
+				{
+					SphereRadius = UpMovingDistance;
+				}
+			// if the debug mode is on set the TicksCounter for overlapdebugging on 0 otherwise on 100.
+			if (bIsDebuggingModeOn)
+				{
+					TicksCounter = 0;
+				}
+				else
+				{
+					TicksCounter = 100;
+				}
+				
 			// If Bottle isn't a null pointer.
 			if (Bottle != nullptr) 
 				{
@@ -165,6 +206,37 @@ void ARealisticOpeningActor::BottleOpening()
 			// TurnCounter on default on value 0.
 			TurnCounter = 0;
 	}
+}
+
+void ARealisticOpeningActor::OnOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// In case the debug mode is deactivated the standard value of TicksCounter is 100. So it has no effect.
+	// Otherwise there will be a delay on the overlap.
+	// Also checks if the other actor is the used Lid.
+	if (this->bIsBroken && TicksCounter >= 100 && OtherActor != this && OtherActor != nullptr)
+		{
+			// Sets the Lids rotation on the actual constraints rotation.
+			this->Lid->SetActorRotation(this->GetActorRotation(), ETeleportType::TeleportPhysics);
+			// Getting the exact vector to the new position for the lid.
+			// 180 is a integer to get a integer value.
+			FVector rotation = this->GetActorRotation().Vector() * (UpMovingDistancePerDegree * (DestroyAngle/180));
+			// Getting the actual location of the constraint and calculate the new position of the lid.
+			FVector newLidLocation = this->GetActorLocation() + rotation;
+			// Sets the Lids location.
+			this->Lid->SetActorLocation(newLidLocation);
+			// Gets the Bottle.
+			UPrimitiveComponent* rootBottle = Cast<UPrimitiveComponent>(Bottle->GetRootComponent());
+			// Gets the Lid
+			UPrimitiveComponent* rootLid = Cast<UPrimitiveComponent>(Lid->GetRootComponent());
+			// Sets the ConstraintComponent Active again. 
+			this->GetConstraintComp()->SetConstrainedComponents(rootBottle, "", rootLid, "");
+			// Since there is no way to set Swing1 manually, just the last 180 degree pointer gets used. It is at least 180 Degrees.
+			this->GetConstraintComp()->SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 360.f);
+			// Sets the TurnCounter on the max possible.
+			TurnCounter = DestroyAngle / 180;
+			this->bIsBroken = false;
+			this->bIsTurnFlagOn = true;
+		}
 }
 
 // Sets the Limits of the Constraint.
@@ -457,11 +529,18 @@ void ARealisticOpeningActor::PostEditChangeProperty(struct FPropertyChangedEvent
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(ARealisticOpeningActor, Bottle) && bIsActiveOpeningConstraint) 
 		{
 			// Sets the location of the constraint on the position of the bottle automaticly.
-			this->SetActorLocation(Bottle->GetActorLocation());
+			// It sets on the top of the bottle so it should stand.
+			FVector origin, boxExtent;
+			FVector newVector = Bottle->GetActorLocation();
+			origin = Bottle->GetActorScale3D();
+			Bottle->GetActorBounds(false, origin, boxExtent);
+			newVector.Z = newVector.Z + boxExtent.Z;
+			this->SetActorLocation(newVector);
 			// Sets the rotation of the constraint on the same rotation the bottle has automaticly.
 			this->SetActorRotation(Bottle->GetActorRotation());
 			// Set this actor already on the constraint, so it also gets the usal red color for the first actor.
 			this->GetConstraintComp()->ConstraintActor1 = Bottle;
+			LidCollisionSphere->SetWorldLocation(newVector);
 		}
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(ARealisticOpeningActor, Lid) && bIsActiveOpeningConstraint) 
 		{

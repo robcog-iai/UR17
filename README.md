@@ -30,11 +30,21 @@
 	- Getting a friction/dumping force.
 	- Creating a debug mode.
 	- Putting documentation in markdown on GitHub.
+	
+- Milestone 4 - 30.09
+	- Getting a visual feedback in VR for the debug mode.
+		- Show if the Constraint is destroyed.
+		- (Optional) Show the number of degrees it is turned in the debug mode with an ID or Names of the constraint.
+		- Improve the log by adding IDs or Names to the different constraints.
+	- Making it possible to close the object again, after its completly open and the constraint is destroyed.
+	- Getting a better version of the friction damping.
+		- (Optional) Should also be parameterized
 
 
 ## Documentation
 You can find the documentation for milestone 1 and 2 in the /Documentation/Documentation.pdf or in markdown [here](/Documentation/Milestone1and2.md).
 You can find the documentation for milestone 3 [here](/Documentation/Milestone3.md).
+You can find the documentation for Milestone 4 [here](/Documentation/Milestone4.md).
 ## Tutorial
 You can find a  written tutorial in the Milestone 1 and 2 documentation, but you can also find a video [here](https://youtu.be/Fwbgb_8h_Us) or in the /Documentation/TutorialVideo/ folder.
 If you want to see this working in VR you can see this [here](https://youtu.be/KHbCYiSnoqw) or in the /Documentation/WorkInVRVideo/ folder.
