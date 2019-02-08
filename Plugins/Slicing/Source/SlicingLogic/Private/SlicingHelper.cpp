@@ -58,6 +58,9 @@ void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 	NewStaticMeshComponent->SetStaticMesh(StaticMesh);
 	CorrectProperties(NewStaticMeshComponent, ProceduralMeshComponent);
 
+	// Move actor's location to current mesh origin
+	StaticMeshActor->SetActorLocation(ProceduralMeshComponent->Bounds.Origin);
+	
 	// Remove the old component
 	ProceduralMeshComponent->DestroyComponent();
 }
@@ -101,7 +104,10 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 	// Materials to apply to new mesh
 	TArray<UMaterialInterface*> MeshMaterials;
 
-	// Scan the procedural mesh component and fill the RawMesh with the scanned data
+	// Current Mesh Origin
+	FVector Origin = ProceduralMeshComponent->Bounds.Origin;
+	FVector OriginLocal = ProceduralMeshComponent->GetComponentTransform().InverseTransformPosition(Origin);
+
 	const int32 NumSections = ProceduralMeshComponent->GetNumSections();
 	int32 VertexBase = 0;
 	for (int32 SectionIdx = 0; SectionIdx < NumSections; SectionIdx++)
@@ -111,6 +117,8 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 		// Copy verts
 		for (FProcMeshVertex& Vert : ProcSection->ProcVertexBuffer)
 		{
+			// Move mesh vertices from current origin to Actor's location (Remove offset)
+			Vert.Position -= OriginLocal;
 			RawMesh.VertexPositions.Add(Vert.Position);
 		}
 
@@ -198,9 +206,22 @@ UStaticMesh* FSlicingHelper::GenerateStaticMesh(UProceduralMeshComponent* Proced
 		///
 		/// END OF COPY
 		///
-
+		
 		// Get the correct (simple) collision from the procedural mesh
-		StaticMesh->BodySetup->AddCollisionFrom(ProceduralMeshComponent->GetBodySetup()->AggGeom);
+		FKAggregateGeom CollGeom = ProceduralMeshComponent->GetBodySetup()->AggGeom;
+		
+		// Move collision vertices from current origin to Actor's location (Remove offset)
+		int32 totalElems = CollGeom.ConvexElems.Num();
+		for (int32 idx = 0; idx < totalElems; idx++) {
+
+			TArray<FVector> *vertexs = &CollGeom.ConvexElems[idx].VertexData;
+			int32 totalVertexs = vertexs->Num();
+			for (int32 v_idx = 0; v_idx < totalVertexs; v_idx++) {
+				(*vertexs)[v_idx] -= OriginLocal;
+			}
+		}
+	
+		StaticMesh->BodySetup->AddCollisionFrom(CollGeom);
 		StaticMesh->Build();
 		StaticMesh->PostEditChange();
 	}
