@@ -12,9 +12,25 @@ class UPhysicsConstraintComponent;
 /**
 * The delegates for events regarding the cutting-process
 */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FBeginSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject, FDateTime, BroadcastTime);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FEndSlicingSignature, USlicingBladeComponent*, SlicingBladeComponent, AActor*, CuttingObject, AActor*, CutObject, FDateTime, BroadcastTime);
+DECLARE_MULTICAST_DELEGATE_FourParams(	FBeginSlicingSignature, UObject* /*CuttingAgent*/,
+																UObject* /*CuttingObject*/,
+																UObject* /*CutObject*/, 
+																float /*Time*/);
 
+DECLARE_MULTICAST_DELEGATE_ThreeParams(	FEndSlicingOnFailSignature,	UObject* /*CuttingAgent*/,
+																	UObject* /*CutObject*/, 
+																	float /*Time*/);
+
+DECLARE_MULTICAST_DELEGATE_FourParams(FEndSlicingOnSuccessSignature,	UObject* /*CuttingAgent*/,
+																		UObject* /*CutObject*/,
+																		UObject* /*outputsCreated*/,
+																		float /*Time*/);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FObjectDestruction, UObject* /*ObjectActedOn*/, float /*Time*/);
+
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FObjectCreation,		UObject* /*TransformedObject*/,
+															UObject* /*NewSlice*/,
+															float /*Time*/);
 
 UCLASS()
 class SLICINGLOGIC_API USlicingBladeComponent: public USlicingComponent
@@ -22,10 +38,11 @@ class SLICINGLOGIC_API USlicingBladeComponent: public USlicingComponent
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
 	FBeginSlicingSignature OnBeginSlicing;
-	UPROPERTY()
-	FEndSlicingSignature OnEndSlicing;
+	FEndSlicingOnFailSignature OnEndSlicingFail;
+	FEndSlicingOnSuccessSignature OnEndSlicingSuccess;
+	FObjectDestruction OnObjectDestruction;
+	FObjectCreation OnObjectCreation;
 
 public:
 	// Sets default values. Called when generated, even in the editor.

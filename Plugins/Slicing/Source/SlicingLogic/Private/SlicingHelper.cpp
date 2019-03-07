@@ -37,7 +37,7 @@ UProceduralMeshComponent* FSlicingHelper::ConvertStaticToProceduralMeshComponent
 	return ProceduralMeshComponent;
 }
 
-void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
+AStaticMeshActor* FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 	UProceduralMeshComponent* ProceduralMeshComponent, TArray<FStaticMaterial> &StaticMaterials)
 {
 	// Generate the static mesh from the data scanned from the procedural mesh
@@ -63,6 +63,8 @@ void FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(
 	
 	// Remove the old component
 	ProceduralMeshComponent->DestroyComponent();
+
+	return StaticMeshActor;
 }
 
 template<class ComponentType>
