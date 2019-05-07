@@ -8,6 +8,7 @@
 #include "ProceduralMeshComponent.h"
 
 #include "Engine/StaticMesh.h"
+#include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
 
@@ -55,10 +56,6 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	RelativeLocationToCutComponent = OtherComp->GetComponentTransform().InverseTransformPosition(OverlappedComp->GetComponentLocation());
 	RelativeRotationToCutComponent = OverlappedComp->GetComponentQuat() - OtherComp->GetComponentQuat();
 
-	// The cutting process has now started
-	bIsCurrentlyCutting = true;
-	OnBeginSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), FDateTime::Now());
-
 	CutComponent = OtherComp;
 	CutComponent->SetNotifyRigidBodyCollision(true);
 
@@ -67,6 +64,10 @@ void USlicingBladeComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	{
 		return;
 	}
+
+	// The cutting process has now started
+	bIsCurrentlyCutting = true;
+	OnBeginSlicing.Broadcast(OverlappedComp->GetAttachmentRootActor(), OverlappedComp->GetOwner(), CutComponent->GetAttachmentRootActor(), GetWorld()->GetTimeSeconds());
 
 	// Makes the Cutting with Constraints possible, by somwehat disabling Gravity and Physics in a sense without actually deactivating them.
 	CutComponent->SetLinearDamping(100.f);
@@ -101,7 +102,8 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	// If the SlicingObject is pulled out, the cutting should not be continued
 	else if (TipComponent != NULL && TipComponent->bEnteredCurrentlyCutObject)
 	{
-		bIsCurrentlyCutting = false;
+		// Broadcast end of sliing attempt
+		OnEndSlicingFail.Broadcast(OverlappedComp->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), GetWorld()->GetTimeSeconds());
 		ResetResistance();
 		ResetState();
 		return;
@@ -112,8 +114,8 @@ void USlicingBladeComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, A
 		UKismetMathLibrary::TransformLocation(CutComponent->GetComponentTransform(), RelativeLocationToCutComponent);
 	if (OverlappedComp->OverlapComponent(CutComponentPosition, CutComponent->GetComponentQuat(), OverlappedComp->GetCollisionShape()))
 	{
-		bIsCurrentlyCutting = false;
-
+		// Broadcast end of slicing attempt
+		OnEndSlicingFail.Broadcast(OverlappedComp->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), GetWorld()->GetTimeSeconds());
 		ResetResistance();
 		ResetState();
 		return;
@@ -174,12 +176,23 @@ void USlicingBladeComponent::SliceComponent(UPrimitiveComponent* CuttableCompone
 	CuttableComponent->SetAngularDamping(0.f);
 
 	// Convert both seperated procedural meshes into static meshes for best compatibility
-	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent,
+	auto transformedObject = FSlicingHelper::ConvertProceduralComponentToStaticMeshActor((UProceduralMeshComponent*)CuttableComponent,
 		ComponentMaterials);
-	FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh, ComponentMaterials);
+	auto newSlice = FSlicingHelper::ConvertProceduralComponentToStaticMeshActor(OutputProceduralMesh, ComponentMaterials);
+
+	// Broadcat creation of Slice and transformed object
+	OnObjectCreation.Broadcast(transformedObject, newSlice, GetWorld()->GetTimeSeconds());
+	
+	// Broadcast Successful slicing
+	OnEndSlicingSuccess.Broadcast(SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(),
+								  newSlice, GetWorld()->GetTimeSeconds());
 
 	// Delete old original static mesh
 	CutComponent->GetOwner()->Destroy();
+
+	// Broadcast destruction of object
+	OnObjectDestruction.Broadcast(CutComponent->GetAttachmentRootActor(), GetWorld()->GetTimeSeconds());
+
 }
 
 // Resets everything to the state the component was in before the dampening was set
@@ -198,8 +211,6 @@ void USlicingBladeComponent::ResetResistance()
 // Resets everything to the state the component was in before the cutting-process began
 void USlicingBladeComponent::ResetState()
 {
-	OnEndSlicing.Broadcast(this, SlicingObject->GetAttachmentRootActor(), CutComponent->GetAttachmentRootActor(), FDateTime::Now());
-
 	bIsCurrentlyCutting = false;
 	CutComponent = nullptr;
 
